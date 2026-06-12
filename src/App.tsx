@@ -5,7 +5,11 @@ import { api, type THealth, type TRepo, type TTeam } from "./api"
 import { AdminSidebar } from "./components/layout/AdminSidebar"
 import { Header } from "./components/layout/Header"
 import { Sidebar } from "./components/layout/Sidebar"
-import { AdminOidc } from "./pages/admin/AdminOidc"
+import { AdminAudit } from "./pages/admin/AdminAudit"
+import { AdminAuth } from "./pages/admin/AdminOidc"
+import { AdminPolicies } from "./pages/admin/AdminPolicies"
+import { AdminSettings } from "./pages/admin/AdminSettings"
+import { AdminSteps } from "./pages/admin/AdminSteps"
 import { AdminTeams } from "./pages/admin/AdminTeams"
 import { CodeTab } from "./pages/repo/CodeTab"
 import { DependenciesTab } from "./pages/repo/DependenciesTab"
@@ -66,8 +70,11 @@ export default function App() {
         <Routes>
           <Route path="/admin" element={<Navigate to="/admin/teams" replace />} />
           <Route path="/admin/teams" element={<AdminPage><AdminTeams teams={teams} /></AdminPage>} />
-          <Route path="/admin/oidc" element={<AdminPage><AdminOidc /></AdminPage>} />
-          <Route path="/admin/*" element={<AdminPage><div className="p-6 text-surface-500">Coming soon.</div></AdminPage>} />
+          <Route path="/admin/policies" element={<AdminPage><AdminPolicies /></AdminPage>} />
+          <Route path="/admin/steps" element={<AdminPage><AdminSteps /></AdminPage>} />
+          <Route path="/admin/auth" element={<AdminPage><AdminAuth /></AdminPage>} />
+          <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+          <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
 
           <Route
             path="/"

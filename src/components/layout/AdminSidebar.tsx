@@ -4,7 +4,7 @@ const adminLinks = [
   { path: "/admin/teams", label: "Teams" },
   { path: "/admin/policies", label: "Policies" },
   { path: "/admin/steps", label: "Step Registry" },
-  { path: "/admin/oidc", label: "OIDC" },
+  { path: "/admin/auth", label: "Authentication" },
   { path: "/admin/settings", label: "Settings" },
   { path: "/admin/audit", label: "Audit Log" },
 ]
