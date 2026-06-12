@@ -62,7 +62,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-surface-950 text-surface-300">
-        <Header health={health} orgId={ORG_ID} />
+        <Header orgId={ORG_ID} />
         <Routes>
           <Route path="/admin" element={<Navigate to="/admin/teams" replace />} />
           <Route path="/admin/teams" element={<AdminPage><AdminTeams teams={teams} /></AdminPage>} />

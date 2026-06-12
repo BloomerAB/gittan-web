@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router-dom"
 
-import type { THealth } from "../../api"
 import { GittanLogo } from "../shared/GittanLogo"
 
-export function Header({ health, orgId }: { health: THealth | null; orgId: string }) {
+export function Header({ orgId }: { orgId: string }) {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith("/admin")
 
@@ -19,29 +18,13 @@ export function Header({ health, orgId }: { health: THealth | null; orgId: strin
         </span>
       </div>
 
-      <div className="flex items-center gap-4">
-        {health && (
-          <div className="flex items-center gap-3">
-            {health.dependencies.map((dep) => (
-              <span
-                key={dep.name}
-                className={`text-[11px] ${dep.healthy ? "text-emerald-500" : "text-red-500"}`}
-              >
-                <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle"
-                  style={{ backgroundColor: dep.healthy ? "rgb(16 185 129)" : "rgb(239 68 68)" }} />
-                {dep.name}
-              </span>
-            ))}
-          </div>
-        )}
-        <Link
-          to={isAdmin ? "/" : "/admin"}
-          className="text-surface-500 hover:text-surface-300 text-sm"
-          title={isAdmin ? "Back to dashboard" : "Administration"}
-        >
-          {isAdmin ? "Dashboard" : "Admin"}
-        </Link>
-      </div>
+      <Link
+        to={isAdmin ? "/" : "/admin"}
+        className="text-surface-500 hover:text-surface-300 text-sm"
+        title={isAdmin ? "Back to dashboard" : "Administration"}
+      >
+        {isAdmin ? "Dashboard" : "Admin"}
+      </Link>
     </header>
   )
 }
