@@ -1,0 +1,9 @@
+steps:
+  - name: build
+    image: gittan/node:22
+    run: pnpm build
+    cache:
+      - node_modules
+
+gated:
+  - main
