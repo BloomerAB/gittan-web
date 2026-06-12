@@ -1,6 +1,6 @@
 const styles = {
-  policy: "text-indigo-400 bg-indigo-400/10",
-  template: "text-amber-400 bg-amber-400/10",
+  policy: "text-policy-400 bg-policy-400/10",
+  template: "text-surface-400 bg-surface-800",
   repo: "",
 } as const
 

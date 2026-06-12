@@ -118,12 +118,12 @@ function DepRow({
       </div>
       <div className="flex items-center gap-2">
         {dep.cascade && (
-          <span className="text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] text-ok-400 bg-ok-400/10 px-1.5 py-0.5 rounded">
             cascade
           </span>
         )}
         {dep.contractTest && (
-          <span className="text-[10px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] text-ok-400 bg-ok-400/10 px-1.5 py-0.5 rounded">
             contract-test
           </span>
         )}

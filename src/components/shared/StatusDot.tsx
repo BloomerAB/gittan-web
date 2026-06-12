@@ -1,8 +1,8 @@
 const colors = {
-  passed: "bg-emerald-400",
-  failed: "bg-red-400",
+  passed: "bg-ok-400",
+  failed: "bg-err-400",
   running: "bg-yellow-400 animate-pulse",
-  idle: "bg-emerald-400",
+  idle: "bg-ok-400",
   pending: "bg-surface-600",
   skipped: "bg-surface-600",
 } as const

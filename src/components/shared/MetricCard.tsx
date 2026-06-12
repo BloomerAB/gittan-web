@@ -1,7 +1,7 @@
 const colorClasses = {
   emerald: "text-accent-400",
   yellow: "text-yellow-400",
-  red: "text-red-400",
+  red: "text-err-400",
   zinc: "text-surface-500",
 } as const
 

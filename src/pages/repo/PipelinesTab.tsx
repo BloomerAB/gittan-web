@@ -108,7 +108,7 @@ export function PipelinesTab() {
                 {run.policyCount > 0 && (
                   <>
                     <span className="text-[10px] text-surface-700">·</span>
-                    <span className="text-[10px] text-indigo-400">{run.policyCount} policy</span>
+                    <span className="text-[10px] text-policy-400">{run.policyCount} policy</span>
                   </>
                 )}
               </div>
@@ -140,8 +140,8 @@ function StepRow({ step }: { step: TStepResult }) {
   }[step.status]
 
   const statusColor = {
-    passed: "text-emerald-400",
-    failed: "text-red-400",
+    passed: "text-ok-400",
+    failed: "text-err-400",
     skipped: "text-surface-600",
     running: "text-yellow-400",
   }[step.status]
@@ -162,7 +162,7 @@ function StepRow({ step }: { step: TStepResult }) {
         </span>
       </div>
       {showError && step.error && (
-        <div className="ml-10 px-3 py-2 mb-1 bg-red-400/5 border border-red-400/20 rounded text-xs text-red-300 font-mono whitespace-pre">
+        <div className="ml-10 px-3 py-2 mb-1 bg-err-400/5 border border-err-400/20 rounded text-xs text-err-300 font-mono whitespace-pre">
           {step.error}
         </div>
       )}

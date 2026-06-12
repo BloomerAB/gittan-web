@@ -89,13 +89,13 @@ function UsageBar({
 }) {
   const pct = Math.min((current / included) * 100, 100)
   const isOver = current > included
-  const barColor = isOver ? "bg-red-400" : pct > 80 ? "bg-yellow-400" : "bg-accent-400"
+  const barColor = isOver ? "bg-err-400" : pct > 80 ? "bg-yellow-400" : "bg-accent-400"
 
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
         <span className="text-surface-400">{label}</span>
-        <span className={isOver ? "text-red-400" : "text-surface-500"}>
+        <span className={isOver ? "text-err-400" : "text-surface-500"}>
           {current}{unit} / {included}{unit}
         </span>
       </div>

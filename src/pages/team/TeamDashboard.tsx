@@ -193,16 +193,16 @@ function HealthCard({
   status: "good" | "warn" | "bad" | "neutral"
 }) {
   const borderColor = {
-    good: "border-emerald-400/30",
+    good: "border-ok-400/30",
     warn: "border-yellow-400/30",
-    bad: "border-red-400/30",
+    bad: "border-err-400/30",
     neutral: "border-surface-800",
   }[status]
 
   const valueColor = {
-    good: "text-emerald-400",
+    good: "text-ok-400",
     warn: "text-yellow-400",
-    bad: "text-red-400",
+    bad: "text-err-400",
     neutral: "text-surface-400",
   }[status]
 

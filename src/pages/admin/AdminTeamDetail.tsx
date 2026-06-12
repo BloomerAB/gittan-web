@@ -141,7 +141,7 @@ export function AdminTeamDetail({ team }: { team: TTeam }) {
                   </span>
                   <span className="text-xs text-surface-600">{m.addedBy}</span>
                   <span className="text-right">
-                    <button className="text-xs text-red-400/70 hover:text-red-400">
+                    <button className="text-xs text-err-400/70 hover:text-err-400">
                       Remove
                     </button>
                   </span>

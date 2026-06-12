@@ -98,7 +98,7 @@ export function AdminAuth() {
             <section className="flex items-center justify-between py-3 border-t border-surface-800">
               <div>
                 <p className="text-sm text-surface-300">Mandatory SSO</p>
-                <p className="text-xs text-red-400/80">Disables password auth for all users.</p>
+                <p className="text-xs text-err-400/80">Disables password auth for all users.</p>
               </div>
               <div className="w-10 h-5 bg-surface-800 rounded-full relative cursor-pointer">
                 <div className="w-4 h-4 bg-surface-600 rounded-full absolute top-0.5 left-0.5" />
