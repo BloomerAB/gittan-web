@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-950: oklch(0.16 0.01 60);
+  --color-surface-900: oklch(0.20 0.012 55);
+  --color-surface-800: oklch(0.26 0.014 50);
+  --color-surface-700: oklch(0.32 0.012 48);
+  --color-surface-600: oklch(0.42 0.01 45);
+  --color-surface-500: oklch(0.52 0.008 42);
+  --color-surface-400: oklch(0.62 0.006 40);
+  --color-surface-300: oklch(0.75 0.005 38);
+  --color-surface-200: oklch(0.85 0.004 36);
+
+  --color-accent-400: oklch(0.78 0.12 75);
+  --color-accent-500: oklch(0.70 0.13 75);
+  --color-accent-600: oklch(0.62 0.12 75);
+}
