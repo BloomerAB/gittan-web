@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom"
 
 import { api, type THealth, type TRepo, type TTeam } from "./api"
 import { AdminSidebar } from "./components/layout/AdminSidebar"
@@ -78,39 +78,31 @@ export default function App() {
           <Route path="/admin/subscription" element={<AdminPage><AdminSubscription /></AdminPage>} />
           <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
 
-          <Route
-            path="/"
-            element={
-              teams.length > 0 ? (
-                <Navigate to={`/${teams[0].name}`} replace />
-              ) : (
-                <TeamLayout teams={teams} repoCounts={repoCounts}>
+          <Route element={<TeamLayout teams={teams} repoCounts={repoCounts} />}>
+            <Route
+              path="/"
+              element={
+                teams.length > 0 ? (
+                  <Navigate to={`/${teams[0].name}`} replace />
+                ) : (
                   <div className="p-6 text-surface-500">No teams yet.</div>
-                </TeamLayout>
-              )
-            }
-          />
-          <Route
-            path="/:teamName"
-            element={
-              <TeamLayout teams={teams} repoCounts={repoCounts}>
-                <TeamDashboard teams={teams} reposByTeam={reposByTeam} />
-              </TeamLayout>
-            }
-          />
-          <Route
-            path="/:teamName/:repoName"
-            element={
-              <TeamLayout teams={teams} repoCounts={repoCounts}>
-                <RepoLayout teams={teams} reposByTeam={reposByTeam} />
-              </TeamLayout>
-            }
-          >
-            <Route index element={<CodeTab />} />
-            <Route path="code/*" element={<CodeTab />} />
-            <Route path="pipelines" element={<PipelinesTab />} />
-            <Route path="deps" element={<DependenciesTab />} />
-            <Route path="settings" element={<SettingsTab />} />
+                )
+              }
+            />
+            <Route
+              path="/:teamName"
+              element={<TeamDashboard teams={teams} reposByTeam={reposByTeam} />}
+            />
+            <Route
+              path="/:teamName/:repoName"
+              element={<RepoLayout teams={teams} reposByTeam={reposByTeam} />}
+            >
+              <Route index element={<CodeTab />} />
+              <Route path="code/*" element={<CodeTab />} />
+              <Route path="pipelines" element={<PipelinesTab />} />
+              <Route path="deps" element={<DependenciesTab />} />
+              <Route path="settings" element={<SettingsTab />} />
+            </Route>
           </Route>
         </Routes>
       </div>
@@ -121,16 +113,16 @@ export default function App() {
 function TeamLayout({
   teams,
   repoCounts,
-  children,
 }: {
   teams: TTeam[]
   repoCounts: Record<string, number>
-  children: ReactNode
 }) {
   return (
     <div className="flex">
       <Sidebar teams={teams} repoCounts={repoCounts} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        <Outlet />
+      </main>
     </div>
   )
 }
