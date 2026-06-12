@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Link, useOutletContext, useParams, useSearchParams } from "react-router-dom"
+import { useEffect, useState, useCallback } from "react"
+import { Link, useOutletContext, useParams, useSearchParams, useLocation, useNavigate } from "react-router-dom"
 
 import { api, type TBranch, type TCommit, type TFileEntry, type TRepo, type TTeam } from "../../api"
 import { Skeleton } from "../../components/shared/Skeleton"
@@ -10,6 +10,8 @@ export function CodeTab() {
   const params = useParams()
   const { repo } = useOutletContext<TContext>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const teamName = params.teamName
   const repoName = params.repoName
@@ -26,6 +28,9 @@ export function CodeTab() {
   const [loading, setLoading] = useState(true)
   const [showBranches, setShowBranches] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  const hash = location.hash
+  const selectedLines = parseLineHash(hash)
 
   useEffect(() => {
     api.code.branches(orgName, repoName!).then(setBranches).catch(() => {})
@@ -77,6 +82,22 @@ export function CodeTab() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleLineClick = useCallback((lineNum: number, e: React.MouseEvent) => {
+    e.preventDefault()
+    if (e.shiftKey && selectedLines.start) {
+      const newHash = `#L${selectedLines.start}-L${lineNum}`
+      navigate(`${location.pathname}${location.search}${newHash}`, { replace: true })
+    } else {
+      const newHash = `#L${lineNum}`
+      navigate(`${location.pathname}${location.search}${newHash}`, { replace: true })
+    }
+  }, [selectedLines.start, location.pathname, location.search, navigate])
+
+  const copyLineLink = useCallback(() => {
+    const url = window.location.href
+    navigator.clipboard.writeText(url)
+  }, [])
+
   const latestCommit = commits[0]
 
   return (
@@ -84,7 +105,6 @@ export function CodeTab() {
       {/* Clone bar + branch selector */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          {/* Branch selector */}
           <div className="relative">
             <button
               onClick={() => setShowBranches(!showBranches)}
@@ -100,9 +120,7 @@ export function CodeTab() {
             </button>
             {showBranches && (
               <div className="absolute top-full left-0 mt-1 bg-surface-900 border border-surface-700 rounded-md shadow-lg z-10 min-w-[200px] py-1">
-                <div className="px-3 py-1.5 text-[11px] text-surface-600 uppercase tracking-wider">
-                  Branches
-                </div>
+                <div className="px-3 py-1.5 text-[11px] text-surface-600 uppercase tracking-wider">Branches</div>
                 {branches.map((b) => (
                   <button
                     key={b.name}
@@ -111,9 +129,7 @@ export function CodeTab() {
                       b.name === currentRef ? "text-white" : "text-surface-400"
                     }`}
                   >
-                    {b.name === currentRef && (
-                      <span className="text-accent-400 mr-2">✓</span>
-                    )}
+                    {b.name === currentRef && <span className="text-accent-400 mr-2">✓</span>}
                     <span className={b.name === currentRef ? "" : "ml-5"}>{b.name}</span>
                   </button>
                 ))}
@@ -121,21 +137,16 @@ export function CodeTab() {
             )}
           </div>
 
-          {/* Breadcrumb path */}
           {currentPath && (
             <div className="text-sm text-surface-500">
-              <Link to={`/${teamName}/${repoName}`} className="hover:text-accent-400">
-                {repoName}
-              </Link>
+              <Link to={`/${teamName}/${repoName}`} className="hover:text-accent-400">{repoName}</Link>
               {currentPath.split("/").map((part, i, arr) => {
                 const path = arr.slice(0, i + 1).join("/")
                 return (
                   <span key={path}>
                     <span className="text-surface-700 mx-1">/</span>
                     {i < arr.length - 1 ? (
-                      <Link to={`/${teamName}/${repoName}/code/${path}`} className="hover:text-accent-400">
-                        {part}
-                      </Link>
+                      <Link to={`/${teamName}/${repoName}/code/${path}`} className="hover:text-accent-400">{part}</Link>
                     ) : (
                       <span className="text-white font-medium">{part}</span>
                     )}
@@ -146,16 +157,12 @@ export function CodeTab() {
           )}
         </div>
 
-        {/* Clone URL */}
         {!currentPath && (
           <div className="flex items-center gap-2">
             <code className="text-xs text-surface-500 bg-surface-900 border border-surface-800 rounded px-2.5 py-1.5 font-mono">
               {cloneUrl}
             </code>
-            <button
-              onClick={copyClone}
-              className="text-xs bg-surface-800 border border-surface-700 text-surface-400 hover:text-white px-2 py-1.5 rounded transition-colors"
-            >
+            <button onClick={copyClone} className="text-xs bg-surface-800 border border-surface-700 text-surface-400 hover:text-white px-2 py-1.5 rounded transition-colors">
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -171,48 +178,66 @@ export function CodeTab() {
           ))}
         </div>
       ) : fileContent !== null ? (
-        /* File viewer */
+        /* File viewer with line linking */
         <div className="bg-surface-900 border border-surface-800 rounded-md overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2 border-b border-surface-800 bg-surface-800/30">
             <span className="text-sm text-surface-300">{fileName}</span>
-            <span className="text-[11px] text-surface-600">
-              {fileContent.split("\n").length} lines
-            </span>
+            <div className="flex items-center gap-3">
+              {selectedLines.start && (
+                <button
+                  onClick={copyLineLink}
+                  className="text-[11px] text-surface-500 hover:text-accent-400 transition-colors"
+                >
+                  Copy link
+                </button>
+              )}
+              <span className="text-[11px] text-surface-600">
+                {fileContent.split("\n").length} lines
+              </span>
+            </div>
           </div>
           <pre className="text-[13px] text-surface-300 overflow-x-auto font-mono leading-[1.6]">
-            {fileContent.split("\n").map((line, i) => (
-              <div key={i} className="flex hover:bg-surface-800/20 px-4">
-                <span className="w-12 text-right text-surface-700 pr-4 select-none shrink-0 py-px">
-                  {i + 1}
-                </span>
-                <span className="whitespace-pre py-px">{line || " "}</span>
-              </div>
-            ))}
+            {fileContent.split("\n").map((line, i) => {
+              const lineNum = i + 1
+              const isSelected = isLineSelected(lineNum, selectedLines)
+              return (
+                <div
+                  key={i}
+                  id={`L${lineNum}`}
+                  className={`flex px-4 transition-colors ${
+                    isSelected
+                      ? "bg-accent-400/10 border-l-2 border-accent-400"
+                      : "hover:bg-surface-800/20 border-l-2 border-transparent"
+                  }`}
+                >
+                  <a
+                    href={`#L${lineNum}`}
+                    onClick={(e) => handleLineClick(lineNum, e)}
+                    className={`w-12 text-right pr-4 select-none shrink-0 py-px cursor-pointer ${
+                      isSelected ? "text-accent-400" : "text-surface-700 hover:text-surface-500"
+                    }`}
+                  >
+                    {lineNum}
+                  </a>
+                  <span className="whitespace-pre py-px">{line || " "}</span>
+                </div>
+              )
+            })}
           </pre>
         </div>
       ) : (
-        /* File tree with latest commit header (GitHub-style) */
+        /* File tree */
         <div className="bg-surface-900 border border-surface-800 rounded-md overflow-hidden">
-          {/* Latest commit bar — like GitHub's top bar on the file list */}
           {latestCommit && !currentPath && (
             <div className="flex items-center gap-3 px-4 py-2.5 border-b border-surface-800 bg-surface-800/30">
               <AuthorAvatar name={latestCommit.author} />
-              <span className="text-sm text-surface-300 font-medium truncate">
-                {latestCommit.author}
-              </span>
-              <span className="text-sm text-surface-400 truncate flex-1">
-                {latestCommit.message}
-              </span>
-              <span className="text-xs text-surface-600 font-mono shrink-0">
-                {latestCommit.sha.slice(0, 7)}
-              </span>
-              <span className="text-xs text-surface-600 shrink-0">
-                {timeAgo(latestCommit.timestamp)}
-              </span>
+              <span className="text-sm text-surface-300 font-medium truncate">{latestCommit.author}</span>
+              <span className="text-sm text-surface-400 truncate flex-1">{latestCommit.message}</span>
+              <span className="text-xs text-surface-600 font-mono shrink-0">{latestCommit.sha.slice(0, 7)}</span>
+              <span className="text-xs text-surface-600 shrink-0">{timeAgo(latestCommit.timestamp)}</span>
             </div>
           )}
 
-          {/* File list */}
           {entries
             .sort((a, b) => {
               if (a.type !== b.type) return a.type === "dir" ? -1 : 1
@@ -224,7 +249,6 @@ export function CodeTab() {
                 to={`/${teamName}/${repoName}/code/${entry.path}${currentRef !== "main" ? `?ref=${currentRef}` : ""}`}
                 className="flex items-center px-4 py-2 border-b border-surface-800/60 last:border-b-0 hover:bg-surface-800/30 transition-colors group"
               >
-                {/* Icon */}
                 <span className="text-surface-500 mr-3 w-5 flex justify-center">
                   {entry.type === "dir" ? (
                     <svg className="w-4 h-4 text-surface-500" viewBox="0 0 16 16" fill="currentColor">
@@ -236,26 +260,20 @@ export function CodeTab() {
                     </svg>
                   )}
                 </span>
-
-                {/* Name */}
                 <span className={`text-sm group-hover:text-accent-400 transition-colors ${
                   entry.type === "dir" ? "text-surface-200" : "text-surface-400"
                 }`}>
                   {entry.name}
                 </span>
-
-                {/* Size (right-aligned) */}
                 {entry.size !== undefined && entry.type === "file" && (
-                  <span className="text-[11px] text-surface-700 ml-auto">
-                    {formatSize(entry.size)}
-                  </span>
+                  <span className="text-[11px] text-surface-700 ml-auto">{formatSize(entry.size)}</span>
                 )}
               </Link>
             ))}
         </div>
       )}
 
-      {/* Commit history below file tree */}
+      {/* Commits */}
       {!currentPath && !loading && fileContent === null && commits.length > 0 && (
         <div className="mt-6">
           <h3 className="text-sm font-medium text-surface-400 mb-3 flex items-center gap-2">
@@ -275,9 +293,7 @@ export function CodeTab() {
                 <AuthorAvatar name={c.author} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-surface-300 truncate">{c.message}</p>
-                  <p className="text-xs text-surface-600">
-                    {c.author} committed {timeAgo(c.timestamp)}
-                  </p>
+                  <p className="text-xs text-surface-600">{c.author} committed {timeAgo(c.timestamp)}</p>
                 </div>
                 <code className="text-xs text-surface-600 font-mono bg-surface-800 px-2 py-0.5 rounded shrink-0 hover:text-accent-400 cursor-default">
                   {c.sha.slice(0, 7)}
@@ -294,15 +310,32 @@ export function CodeTab() {
 function AuthorAvatar({ name }: { name: string }) {
   const initial = name.charAt(0).toUpperCase()
   const hue = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360
-
   return (
     <div
       className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium text-white shrink-0"
       style={{ backgroundColor: `oklch(0.55 0.12 ${hue})` }}
-    >
-      {initial}
-    </div>
+    >{initial}</div>
   )
+}
+
+type TLineSelection = { start: number | null; end: number | null }
+
+function parseLineHash(hash: string): TLineSelection {
+  if (!hash) return { start: null, end: null }
+  const match = hash.match(/^#L(\d+)(?:-L(\d+))?$/)
+  if (!match) return { start: null, end: null }
+  return {
+    start: parseInt(match[1], 10),
+    end: match[2] ? parseInt(match[2], 10) : null,
+  }
+}
+
+function isLineSelected(lineNum: number, sel: TLineSelection): boolean {
+  if (!sel.start) return false
+  if (!sel.end) return lineNum === sel.start
+  const min = Math.min(sel.start, sel.end)
+  const max = Math.max(sel.start, sel.end)
+  return lineNum >= min && lineNum <= max
 }
 
 function timeAgo(ts: string): string {
