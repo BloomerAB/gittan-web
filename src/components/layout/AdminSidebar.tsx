@@ -6,6 +6,7 @@ const adminLinks = [
   { path: "/admin/steps", label: "Step Registry" },
   { path: "/admin/auth", label: "Authentication" },
   { path: "/admin/settings", label: "Settings" },
+  { path: "/admin/subscription", label: "Subscription" },
   { path: "/admin/audit", label: "Audit Log" },
 ]
 

@@ -83,14 +83,16 @@ export function AdminAuth() {
               />
             </section>
 
-            <section className="flex items-center justify-between py-3 border-t border-surface-800">
-              <div>
-                <p className="text-sm text-surface-300">SCIM provisioning</p>
-                <p className="text-xs text-surface-600">Sync users and groups from your identity provider.</p>
-              </div>
-              <div className="w-10 h-5 bg-surface-800 rounded-full relative cursor-pointer">
-                <div className="w-4 h-4 bg-surface-600 rounded-full absolute top-0.5 left-0.5" />
-              </div>
+            <section>
+              <label className="block text-sm text-surface-400 mb-1">Groups claim</label>
+              <input
+                type="text"
+                defaultValue="groups"
+                className="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+              />
+              <p className="text-xs text-surface-600 mt-1">
+                OIDC claim containing group memberships. Map groups to teams in each team's settings.
+              </p>
             </section>
 
             <section className="flex items-center justify-between py-3 border-t border-surface-800">

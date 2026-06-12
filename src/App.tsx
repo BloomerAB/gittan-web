@@ -10,6 +10,7 @@ import { AdminAuth } from "./pages/admin/AdminOidc"
 import { AdminPolicies } from "./pages/admin/AdminPolicies"
 import { AdminSettings } from "./pages/admin/AdminSettings"
 import { AdminSteps } from "./pages/admin/AdminSteps"
+import { AdminSubscription } from "./pages/admin/AdminSubscription"
 import { AdminTeams } from "./pages/admin/AdminTeams"
 import { CodeTab } from "./pages/repo/CodeTab"
 import { DependenciesTab } from "./pages/repo/DependenciesTab"
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/admin/steps" element={<AdminPage><AdminSteps /></AdminPage>} />
           <Route path="/admin/auth" element={<AdminPage><AdminAuth /></AdminPage>} />
           <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
+          <Route path="/admin/subscription" element={<AdminPage><AdminSubscription /></AdminPage>} />
           <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
 
           <Route
