@@ -16,7 +16,7 @@ server {
     index index.html;
 
     location /api/ {
-        proxy_pass http://gittan-api:4000/;
+        proxy_pass http://gittan-api.gittan.svc.cluster.local:4000/;
     }
 
     location / {
@@ -24,7 +24,10 @@ server {
     }
 }
 NGINX
-RUN adduser -D -u 1001 gittan && chown -R gittan:gittan /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
+RUN adduser -D -u 1001 gittan && \
+    chown -R gittan:gittan /var/cache/nginx /var/log/nginx /etc/nginx/conf.d && \
+    mkdir -p /run && chown gittan:gittan /run && \
+    sed -i 's|/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf
 USER 1001
 EXPOSE 3000
 HEALTHCHECK --interval=15s --timeout=5s CMD wget -q --spider http://localhost:3000/ || exit 1

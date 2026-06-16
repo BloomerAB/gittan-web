@@ -17,6 +17,8 @@ import { DependenciesTab } from "./pages/repo/DependenciesTab"
 import { PipelinesTab } from "./pages/repo/PipelinesTab"
 import { RepoLayout } from "./pages/repo/RepoLayout"
 import { SettingsTab } from "./pages/repo/SettingsTab"
+import { FaqPage } from "./pages/FaqPage"
+import { FlowPage } from "./pages/FlowPage"
 import { TeamDashboard } from "./pages/team/TeamDashboard"
 import type { ReactNode } from "react"
 
@@ -67,6 +69,9 @@ export default function App() {
       <div className="min-h-screen bg-surface-950 text-surface-300">
         <Header orgId={ORG_ID} />
         <Routes>
+          <Route path="/flow" element={<FlowPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+
           <Route path="/admin" element={<Navigate to="/admin/teams" replace />} />
           <Route path="/admin/teams" element={<AdminPage><AdminTeams teams={teams} /></AdminPage>} />
           <Route path="/admin/policies" element={<AdminPage><AdminPolicies /></AdminPage>} />
