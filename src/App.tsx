@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom"
 
-import { api, type THealth, type TRepo, type TTeam } from "./api"
+import { api, type TRepo, type TTeam } from "./api"
 import { AdminSidebar } from "./components/layout/AdminSidebar"
 import { Header } from "./components/layout/Header"
 import { Sidebar } from "./components/layout/Sidebar"
@@ -23,7 +23,6 @@ import type { ReactNode } from "react"
 const ORG_ID = "bloomer"
 
 export default function App() {
-  const [health, setHealth] = useState<THealth | null>(null)
   const [teams, setTeams] = useState<TTeam[]>([])
   const [reposByTeam, setReposByTeam] = useState<Record<string, TRepo[]>>({})
   const [loading, setLoading] = useState(true)
@@ -31,8 +30,7 @@ export default function App() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [h, t] = await Promise.all([api.health(), api.teams(ORG_ID)])
-        setHealth(h)
+        const t = await api.teams(ORG_ID)
         setTeams(t)
 
         const repoMap: Record<string, TRepo[]> = {}

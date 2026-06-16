@@ -33,7 +33,7 @@ const exampleSteps: TStep[] = [
 export function AdminSteps() {
   const [steps, setSteps] = useState<TStep[]>([])
   const [showCreate, setShowCreate] = useState(false)
-  const [showExample, setShowExample] = useState(false)
+  const [, setShowExample] = useState(false)
 
   return (
     <div className="p-6">
