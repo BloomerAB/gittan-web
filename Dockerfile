@@ -8,19 +8,32 @@ COPY public/ public/
 RUN pnpm build
 
 FROM nginx:alpine
-COPY --from=builder /app/dist/ /usr/share/nginx/html/
+COPY --from=builder /app/dist/ /usr/share/nginx/html/app/
+COPY --from=builder /app/dist/landing.html /usr/share/nginx/html/index.html
 COPY <<'NGINX' /etc/nginx/conf.d/default.conf
 server {
     listen 3000;
     root /usr/share/nginx/html;
-    index index.html;
+
+    location = / {
+        try_files /index.html =404;
+    }
+
+    location /landing.html {
+        try_files /index.html =404;
+    }
 
     location /api/ {
         proxy_pass http://gittan-api.gittan.svc.cluster.local:4000/;
     }
 
+    location /app {
+        alias /usr/share/nginx/html/app;
+        try_files $uri $uri/ /app/index.html;
+    }
+
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /app/index.html;
     }
 }
 NGINX
