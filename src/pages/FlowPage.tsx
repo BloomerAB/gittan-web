@@ -4,6 +4,34 @@ export function FlowPage() {
       <h1 className="text-3xl font-semibold text-white mb-2">How Gittan works</h1>
       <p className="text-surface-500 mb-12">From push to production. No ceremony.</p>
 
+      {/* Speed hero */}
+      <div className="mb-16 bg-surface-900 border border-accent-400/20 rounded-lg p-8 text-center">
+        <h2 className="text-2xl font-semibold text-white mb-4">Pipelines like greased lightning</h2>
+        <div className="flex items-center justify-center gap-12 mb-6">
+          <div>
+            <p className="text-4xl font-bold text-surface-600">~90s</p>
+            <p className="text-xs text-surface-600 mt-1">GitHub Actions overhead</p>
+            <p className="text-[10px] text-surface-700">VM boot + tool setup + image pull</p>
+          </div>
+          <div className="text-surface-700 text-2xl">→</div>
+          <div>
+            <p className="text-4xl font-bold text-accent-400">&lt;1s</p>
+            <p className="text-xs text-accent-500 mt-1">Gittan overhead</p>
+            <p className="text-[10px] text-surface-500">container start, everything pre-cached</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-3 max-w-2xl mx-auto text-left">
+          <SpeedFact icon="⚡" title="Pre-pulled images" detail="Runner images cached on every node. Zero download time." />
+          <SpeedFact icon="⚡" title="Sub-second start" detail="Alpine containers. No VM boot. No provisioning." />
+          <SpeedFact icon="⚡" title="Layer caching" detail="npm install, go mod — cached at container layer level. Second run = instant." />
+          <SpeedFact icon="⚡" title="Parallel DAG" detail="Lint + test run simultaneously. Not sequentially." />
+        </div>
+        <p className="text-sm text-surface-500 mt-6">
+          Your pipeline overhead should be measured in milliseconds, not minutes.
+          The only thing that takes time is your actual build — not our infrastructure.
+        </p>
+      </div>
+
       {/* Main flow diagram */}
       <div className="mb-16">
         <h2 className="text-lg font-medium text-white mb-6">The pipeline</h2>
@@ -181,6 +209,15 @@ function Step({ n, text, muted, highlight }: { n: string; text: string; muted?: 
     }`}>
       <span className={`text-xs w-5 text-right ${highlight ? "text-accent-400" : "text-surface-700"}`}>{n}.</span>
       <span>{text}</span>
+    </div>
+  )
+}
+
+function SpeedFact({ icon, title, detail }: { icon: string; title: string; detail: string }) {
+  return (
+    <div>
+      <p className="text-sm text-white">{icon} {title}</p>
+      <p className="text-[11px] text-surface-600 mt-0.5">{detail}</p>
     </div>
   )
 }
