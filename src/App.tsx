@@ -19,6 +19,7 @@ import { RepoLayout } from "./pages/repo/RepoLayout"
 import { SettingsTab } from "./pages/repo/SettingsTab"
 import { FaqPage } from "./pages/FaqPage"
 import { FlowPage } from "./pages/FlowPage"
+import { PricingPage } from "./pages/PricingPage"
 import { TeamDashboard } from "./pages/team/TeamDashboard"
 import type { ReactNode } from "react"
 
@@ -70,6 +71,7 @@ export default function App() {
         <Header orgId={ORG_ID} />
         <Routes>
           <Route path="/flow" element={<FlowPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/faq" element={<FaqPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/teams" replace />} />

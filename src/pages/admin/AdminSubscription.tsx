@@ -9,14 +9,14 @@ export function AdminSubscription() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-medium text-white">Gittan</h3>
-              <p className="text-xs text-surface-600 mt-0.5">Flat rate + usage overages</p>
+              <p className="text-xs text-surface-600 mt-0.5">Flat rate — everything included</p>
             </div>
-            <span className="text-2xl font-semibold text-white">€19<span className="text-sm text-surface-500 font-normal">/mo</span></span>
+            <span className="text-2xl font-semibold text-white">€199<span className="text-sm text-surface-500 font-normal">/mo</span></span>
           </div>
           <div className="text-xs text-surface-500 space-y-1">
-            <p>Includes: 3 users, 10 GB storage, 1000 CI minutes</p>
-            <p>OIDC/SSO included at no extra cost</p>
-            <p>Additional users: free (no per-seat pricing)</p>
+            <p>Unlimited users, repos, and teams</p>
+            <p>10 000 CI minutes, 100 GB storage</p>
+            <p>OIDC/SSO included</p>
           </div>
         </section>
 
@@ -24,28 +24,22 @@ export function AdminSubscription() {
         <section>
           <h3 className="text-sm font-medium text-white mb-3">Current usage</h3>
           <div className="space-y-3">
-            <UsageBar label="Users" current={2} included={3} unit="" />
-            <UsageBar label="Storage" current={0.1} included={10} unit="GB" />
-            <UsageBar label="CI minutes" current={0} included={1000} unit="min" />
-            <UsageBar label="Bandwidth" current={0} included={50} unit="GB" />
+            <UsageBar label="Storage" current={0.1} included={100} unit="GB" />
+            <UsageBar label="CI minutes" current={0} included={10000} unit="min" />
           </div>
         </section>
 
         {/* Overage pricing */}
         <section className="border-t border-surface-800 pt-6">
-          <h3 className="text-sm font-medium text-white mb-3">Overage pricing</h3>
+          <h3 className="text-sm font-medium text-white mb-3">Add-ons</h3>
           <div className="bg-surface-900 border border-surface-800 rounded-md overflow-hidden text-sm">
             <div className="grid grid-cols-2 px-4 py-2 border-b border-surface-800/60">
-              <span className="text-surface-500">Storage</span>
-              <span className="text-surface-300">€0.02/GB/mo</span>
-            </div>
-            <div className="grid grid-cols-2 px-4 py-2 border-b border-surface-800/60">
-              <span className="text-surface-500">CI compute</span>
-              <span className="text-surface-300">€0.03/min</span>
+              <span className="text-surface-500">CI block (10 000 min)</span>
+              <span className="text-surface-300">€79/block</span>
             </div>
             <div className="grid grid-cols-2 px-4 py-2">
-              <span className="text-surface-500">Bandwidth</span>
-              <span className="text-surface-300">€0.01/GB</span>
+              <span className="text-surface-500">Extra storage</span>
+              <span className="text-surface-300">€0.02/GB/mo</span>
             </div>
           </div>
         </section>

@@ -19,6 +19,9 @@ export function Header({ orgId }: { orgId: string }) {
       </div>
 
       <div className="flex items-center gap-4">
+        <Link to="/pricing" className="text-surface-500 hover:text-surface-300 text-sm">
+          Pricing
+        </Link>
         <Link
           to={isAdmin ? "/" : "/admin"}
           className="text-surface-500 hover:text-surface-300 text-sm"
@@ -27,7 +30,7 @@ export function Header({ orgId }: { orgId: string }) {
           {isAdmin ? "Dashboard" : "Admin"}
         </Link>
         <a
-          href="/oauth/authorize?response_type=code&client_id=gittan&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
+          href="/oauth/authorize?response_type=code&client_id=gittan-web&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
           className="text-sm bg-accent-600 hover:bg-accent-500 text-white px-3 py-1.5 rounded-md transition-colors"
         >
           Log in
