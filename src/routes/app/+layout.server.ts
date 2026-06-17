@@ -9,7 +9,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
     redirect(302, '/auth/login')
   }
 
-  const orgs = await apiGet<TOrg[]>('/user/orgs', session)
+  const orgs = await apiGet<TOrg[]>('/user/orgs', session).catch(() => [] as TOrg[])
 
   const savedOrg = cookies.get('gittan-active-org')
   const activeOrgId = orgs.find(o => o.id === savedOrg)?.id ?? orgs[0]?.id ?? ''
