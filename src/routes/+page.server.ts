@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
-export const load: PageServerLoad = () => {
-  redirect(302, '/app')
+export const load: PageServerLoad = ({ locals }) => {
+  redirect(302, locals.session ? '/app' : '/landing.html')
 }
