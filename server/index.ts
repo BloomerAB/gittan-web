@@ -16,7 +16,14 @@ app.use(cookieParser());
 
 app.use('/auth', authRouter);
 
-app.use('/api', createProxyMiddleware({
+app.use('/api', (req, res, next) => {
+  const session = getSession(req);
+  if (!session) {
+    res.status(401).json({ error: 'Not authenticated' });
+    return;
+  }
+  next();
+}, createProxyMiddleware({
   target: config.gittanApiUrl,
   changeOrigin: true,
   pathRewrite: { '^/api': '' },
@@ -40,13 +47,22 @@ app.get('/landing.html', (_req, res) => {
   res.sendFile(path.join(staticDir, 'landing.html'));
 });
 
-app.use('/app', express.static(path.join(staticDir, 'app')));
+const requireAuth: express.RequestHandler = (req, res, next) => {
+  const session = getSession(req);
+  if (!session) {
+    res.redirect('/auth/login');
+    return;
+  }
+  next();
+};
 
-app.get('/app/{*splat}', (_req, res) => {
+app.use('/app', requireAuth, express.static(path.join(staticDir, 'app')));
+
+app.get('/app/{*splat}', requireAuth, (_req, res) => {
   res.sendFile(path.join(staticDir, 'app', 'index.html'));
 });
 
-app.get('/*splat', (req, res) => {
+app.get('/*splat', requireAuth, (req, res) => {
   const reqPath = req.params.splat?.[0] || '';
   const filePath = path.join(staticDir, 'app', reqPath);
   res.sendFile(filePath, (err) => {
