@@ -65,6 +65,28 @@ export type TCommit = {
   timestamp: string
 }
 
+export type TOrgUsage = {
+  orgId: string
+  month: string
+  ciMinutesUsed: number
+  ciMinutesLimit: number
+  storageBytes: number
+  userCount: number
+  teamCount: number
+  repoCount: number
+}
+
+export type TOrgPlan = {
+  orgId: string
+  plan: "starter" | "team"
+  ciBlocks: number
+  ciMinutesLimit: number
+  storageLimitGb: number
+  userLimit: number
+  teamLimit: number
+  repoLimit: number
+}
+
 const API = "/api"
 
 const get = async <T>(path: string): Promise<T> => {
@@ -90,4 +112,7 @@ export const api = {
     commits: (owner: string, repo: string, ref = "main", limit = 20) =>
       get<TCommit[]>(`/repos/${owner}/${repo}/commits?ref=${ref}&limit=${limit}`),
   },
+
+  usage: (orgId: string) => get<TOrgUsage>(`/orgs/${orgId}/usage`),
+  plan: (orgId: string) => get<TOrgPlan>(`/orgs/${orgId}/plan`),
 }

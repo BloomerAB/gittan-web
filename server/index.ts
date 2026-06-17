@@ -42,7 +42,7 @@ app.get('/landing.html', (_req, res) => {
 
 app.use('/app', express.static(path.join(staticDir, 'app')));
 
-app.get('/app/*', (_req, res) => {
+app.get('/app/{*splat}', (_req, res) => {
   res.sendFile(path.join(staticDir, 'app', 'index.html'));
 });
 

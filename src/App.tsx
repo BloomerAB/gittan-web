@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom
 import { api, type TRepo, type TTeam } from "./api"
 import { AdminSidebar } from "./components/layout/AdminSidebar"
 import { Header } from "./components/layout/Header"
+import { QuotaBanner } from "./components/shared/QuotaBanner"
 import { Sidebar } from "./components/layout/Sidebar"
 import { AdminAudit } from "./pages/admin/AdminAudit"
 import { AdminAuth } from "./pages/admin/AdminOidc"
@@ -69,6 +70,7 @@ export default function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-surface-950 text-surface-300">
         <Header orgId={ORG_ID} />
+        <QuotaBanner orgId={ORG_ID} />
         <Routes>
           <Route path="/flow" element={<FlowPage />} />
           <Route path="/pricing" element={<PricingPage />} />
