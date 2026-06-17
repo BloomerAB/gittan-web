@@ -1,9 +1,53 @@
-import { redirect } from '@sveltejs/kit'
-import type { PageServerLoad } from './$types'
+import { redirect, fail } from '@sveltejs/kit'
+import type { PageServerLoad, Actions } from './$types'
+import { apiPost } from '$lib/server/api'
+import type { TOrg } from '$lib/types'
 
 export const load: PageServerLoad = async ({ parent }) => {
-  const { teams } = await parent()
+  const { teams, orgs } = await parent()
+
+  if (orgs.length === 0) {
+    return { needsOnboarding: true as const }
+  }
+
   if (teams.length > 0) {
     redirect(302, `/app/${teams[0].name}`)
   }
+
+  return { needsOnboarding: false as const }
+}
+
+export const actions: Actions = {
+  createOrg: async ({ request, locals, cookies }) => {
+    if (!locals.session) return fail(401, { error: 'Not authenticated' })
+
+    const form = await request.formData()
+    const name = form.get('name')?.toString()?.trim()
+    const displayName = form.get('displayName')?.toString()?.trim()
+
+    if (!name || !displayName) {
+      return fail(400, { error: 'Name and display name are required' })
+    }
+
+    if (!/^[a-z0-9-]+$/.test(name)) {
+      return fail(400, { error: 'Name must be lowercase letters, numbers, and dashes only' })
+    }
+
+    try {
+      const org = await apiPost<TOrg>('/orgs', locals.session, { name, displayName })
+
+      cookies.set('gittan-active-org', org.id, {
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60,
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+
+      return { created: true }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create organization'
+      return fail(500, { error: message })
+    }
+  },
 }
