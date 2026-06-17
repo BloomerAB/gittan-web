@@ -1,4 +1,10 @@
 steps:
+  - name: check
+    image: gittan/node:22
+    run: pnpm check
+    cache:
+      - node_modules
+
   - name: build
     image: gittan/node:22
     run: pnpm build
