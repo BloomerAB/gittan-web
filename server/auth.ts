@@ -36,7 +36,7 @@ authRouter.get('/callback', async (req, res) => {
       refreshToken: tokens.refresh_token,
       expiresAt: Date.now() + tokens.expires_in * 1000,
     });
-    res.redirect('/');
+    res.redirect('/app');
   } catch (err) {
     console.error('Token exchange failed:', err);
     res.redirect('/?auth_error=token_exchange_failed');
