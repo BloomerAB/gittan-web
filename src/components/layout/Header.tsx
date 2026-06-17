@@ -30,7 +30,7 @@ export function Header({ orgId }: { orgId: string }) {
           {isAdmin ? "Dashboard" : "Admin"}
         </Link>
         <a
-          href="https://auth.gittan.eu/oauth/authorize?response_type=code&client_id=gittan-web&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
+          href="/auth/login"
           className="text-sm bg-accent-600 hover:bg-accent-500 text-white px-3 py-1.5 rounded-md transition-colors"
         >
           Log in
