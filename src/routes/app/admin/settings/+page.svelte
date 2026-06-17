@@ -4,6 +4,7 @@
   let orgName = $state(data.orgs?.find((o: any) => o.id === data.activeOrgId)?.displayName ?? '')
   let allowLatest = $state(false)
   let publicRepos = $state(false)
+  let saveMessage = $state('')
 </script>
 
 <div class="p-6">
@@ -68,9 +69,15 @@
     </div>
 
     <div class="pt-4 border-t border-surface-800">
-      <button class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors">
+      <button
+        onclick={() => { saveMessage = 'Settings API not yet available' }}
+        class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+      >
         Save Settings
       </button>
+      {#if saveMessage}
+        <p class="text-xs text-surface-500 mt-2">{saveMessage}</p>
+      {/if}
     </div>
   </div>
 </div>

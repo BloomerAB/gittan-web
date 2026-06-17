@@ -9,6 +9,7 @@
   let groupsClaim = $state('groups')
   let mandatorySso = $state(false)
   let testStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle')
+  let saveMessage = $state('')
 
   function testConnection() {
     if (!issuerUrl || !clientId) return
@@ -155,9 +156,15 @@
     {/if}
 
     <div class="pt-4 border-t border-surface-800">
-      <button class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors">
+      <button
+        onclick={() => { saveMessage = 'Auth configuration API not yet available' }}
+        class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+      >
         Save Configuration
       </button>
+      {#if saveMessage}
+        <p class="text-xs text-surface-500 mt-2">{saveMessage}</p>
+      {/if}
     </div>
   </div>
 </div>

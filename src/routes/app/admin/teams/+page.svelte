@@ -1,11 +1,13 @@
 <script lang="ts">
-  let { data } = $props()
+  import { enhance } from '$app/forms'
+  import { invalidateAll } from '$app/navigation'
+
+  let { data, form } = $props()
 
   let selectedTeamId = $state<string | null>(null)
   let showCreateForm = $state(false)
-
-  let newTeamName = $state('')
-  let newTeamDisplayName = $state('')
+  let creating = $state(false)
+  let saveMessage = $state('')
 
   let editDisplayName = $state('')
   let editSlackChannel = $state('')
@@ -223,9 +225,15 @@
           </div>
         </div>
 
-        <button class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors">
+        <button
+          onclick={() => { saveMessage = 'Team update API not yet available — coming soon' }}
+          class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+        >
           Save Team
         </button>
+        {#if saveMessage}
+          <p class="text-xs text-surface-500 mt-2">{saveMessage}</p>
+        {/if}
       </div>
     </div>
   {:else}
@@ -240,31 +248,59 @@
     </div>
 
     {#if showCreateForm}
-      <div class="bg-surface-900 border border-surface-800 rounded-lg p-4 mb-6 max-w-xl">
+      <form
+        method="POST"
+        action="?/create"
+        use:enhance={() => {
+          creating = true
+          return async ({ update }) => {
+            creating = false
+            await update()
+            await invalidateAll()
+            showCreateForm = false
+          }
+        }}
+        class="bg-surface-900 border border-surface-800 rounded-lg p-4 mb-6 max-w-xl"
+      >
+        {#if form?.error}
+          <div class="text-err-400 text-xs mb-3 px-3 py-2 bg-err-400/10 border border-err-400/20 rounded">
+            {form.error}
+          </div>
+        {/if}
         <div class="space-y-3">
           <div>
-            <label class="block text-xs text-surface-500 mb-1">Team Name</label>
+            <label for="team-name" class="block text-xs text-surface-500 mb-1">Team Name</label>
             <input
+              id="team-name"
               type="text"
-              bind:value={newTeamName}
+              name="name"
+              required
+              pattern="[a-z0-9\-]+"
               placeholder="backend"
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
             />
+            <p class="text-[10px] text-surface-600 mt-1">Lowercase, numbers, dashes only</p>
           </div>
           <div>
-            <label class="block text-xs text-surface-500 mb-1">Display Name</label>
+            <label for="team-display" class="block text-xs text-surface-500 mb-1">Display Name</label>
             <input
+              id="team-display"
               type="text"
-              bind:value={newTeamDisplayName}
+              name="displayName"
+              required
               placeholder="Backend Team"
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
           </div>
-          <button class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors">
-            Create
+          <button
+            type="submit"
+            disabled={creating}
+            class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
+          >
+            {creating ? 'Creating…' : 'Create'}
           </button>
         </div>
-      </div>
+      </form>
     {/if}
 
     {#if data.teams.length === 0}
