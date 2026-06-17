@@ -19,7 +19,7 @@ export function PricingPage() {
 
           <div className="space-y-2 text-sm mb-8">
             <Included text="Up to 2 users" />
-            <Included text="1 team, 10 repos" />
+            <Included text="2 teams, 10 repos" />
             <Included text="2 000 CI minutes" />
             <Included text="20 GB storage" />
             <Included text="SSO / OIDC included" />
