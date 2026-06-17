@@ -308,13 +308,24 @@
       font-size: 1.05rem;
     }
 
+    .price-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      max-width: 40rem;
+      margin: 0 auto;
+    }
+
     .price-card {
       background-color: var(--surface-900);
       border: 1px solid var(--surface-800);
       border-radius: 10px;
       padding: 2.5rem 2rem;
-      max-width: 24rem;
-      margin: 0 auto;
+      text-align: left;
+    }
+
+    .price-card.featured {
+      border-color: var(--accent-500);
     }
 
     .price-amount {
@@ -430,6 +441,10 @@
         font-size: 0.72rem;
         padding: 1rem;
       }
+
+      .price-cards {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (min-width: 48.01rem) and (max-width: 64rem) {
@@ -527,14 +542,30 @@
   <section class="pricing">
     <h2>Simple pricing</h2>
     <p class="subtitle">Per organization. Not per seat. Not per repo.</p>
-    <div class="price-card">
-      <div class="price-amount">&euro;19<span>/mo</span></div>
-      <p class="price-label">per organization</p>
-      <p class="price-detail">
-        Unlimited users. Unlimited repos.<br>
-        <strong>OIDC/SSO included.</strong><br>
-        Pipeline minutes billed at cost.
-      </p>
+    <div class="price-cards">
+      <div class="price-card">
+        <div class="price-amount">&euro;29<span>/mo</span></div>
+        <p class="price-label">Starter</p>
+        <p class="price-detail">
+          Unlimited users.<br>
+          2 teams, 20 repos.<br>
+          2 000 CI minutes.<br>
+          20 GB storage.<br>
+          <strong>OIDC/SSO included.</strong>
+        </p>
+      </div>
+      <div class="price-card featured">
+        <div class="price-amount">&euro;199<span>/mo</span></div>
+        <p class="price-label">Team</p>
+        <p class="price-detail">
+          Unlimited users, teams, repos.<br>
+          10 000 CI minutes.<br>
+          100 GB storage.<br>
+          <strong>OIDC/SSO included.</strong><br>
+          Org policies, cascade pipelines.<br>
+          Extra CI: &euro;79 / 10 000 min block.
+        </p>
+      </div>
     </div>
   </section>
 

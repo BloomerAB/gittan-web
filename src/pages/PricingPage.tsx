@@ -1,44 +1,68 @@
 export function PricingPage() {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-6 py-12">
       <h1 className="text-3xl font-semibold text-white mb-2">Pricing</h1>
       <p className="text-surface-500 mb-12">
-        One plan. Everything included. No per-seat pricing.
+        Two plans. No per-seat pricing. SSO included on both.
       </p>
 
-      <div className="bg-surface-900 border border-accent-400/20 rounded-lg p-8 mb-12">
-        <div className="flex items-baseline justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Gittan</h2>
-            <p className="text-sm text-surface-500 mt-1">Git, pipelines, and teams. Nothing else.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="bg-surface-900 border border-surface-800 rounded-lg p-8">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-white">Starter</h2>
+            <p className="text-sm text-surface-500 mt-1">Small teams getting started</p>
           </div>
-          <div className="text-right">
+          <div className="mb-6">
+            <span className="text-4xl font-bold text-white">€29</span>
+            <span className="text-surface-500 text-sm">/mo</span>
+          </div>
+
+          <div className="space-y-2 text-sm mb-8">
+            <Included text="Unlimited users" />
+            <Included text="2 teams, 20 repos" />
+            <Included text="2 000 CI minutes" />
+            <Included text="20 GB storage" />
+            <Included text="SSO / OIDC included" />
+          </div>
+
+          <a
+            href="/oauth/authorize?response_type=code&client_id=gittan-web&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
+            className="block w-full text-center border border-surface-700 hover:border-surface-500 text-surface-300 py-3 rounded-md text-sm font-medium transition-colors"
+          >
+            Start 14-day free trial
+          </a>
+        </div>
+
+        <div className="bg-surface-900 border border-accent-400/20 rounded-lg p-8">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-white">Team</h2>
+            <p className="text-sm text-surface-500 mt-1">Growing teams that need full control</p>
+          </div>
+          <div className="mb-6">
             <span className="text-4xl font-bold text-white">€199</span>
             <span className="text-surface-500 text-sm">/mo</span>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-8">
-          <Included text="Unlimited users" />
-          <Included text="Unlimited repos" />
-          <Included text="Unlimited teams" />
-          <Included text="SSO / OIDC included" />
-          <Included text="10 000 CI minutes" />
-          <Included text="100 GB storage" />
-          <Included text="Org policies" />
-          <Included text="Cascade pipelines" />
-          <Included text="Dependency graph" />
-          <Included text="Team templates" />
-          <Included text="DORA metrics" />
-          <Included text="Audit log" />
-        </div>
+          <div className="space-y-2 text-sm mb-8">
+            <Included text="Unlimited users, teams, repos" />
+            <Included text="10 000 CI minutes" />
+            <Included text="100 GB storage" />
+            <Included text="SSO / OIDC included" />
+            <Included text="Org policies" />
+            <Included text="Cascade pipelines" />
+            <Included text="Dependency graph" />
+            <Included text="Team templates" />
+            <Included text="DORA metrics" />
+            <Included text="Audit log" />
+          </div>
 
-        <a
-          href="/oauth/authorize?response_type=code&client_id=gittan&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
-          className="block w-full text-center bg-accent-600 hover:bg-accent-500 text-white py-3 rounded-md text-sm font-medium transition-colors"
-        >
-          Start 14-day free trial
-        </a>
+          <a
+            href="/oauth/authorize?response_type=code&client_id=gittan-web&redirect_uri=https://gittan.eu/auth/callback&scope=openid+profile+email"
+            className="block w-full text-center bg-accent-600 hover:bg-accent-500 text-white py-3 rounded-md text-sm font-medium transition-colors"
+          >
+            Start 14-day free trial
+          </a>
+        </div>
       </div>
 
       <div className="mb-12">
@@ -66,7 +90,7 @@ export function PricingPage() {
         <div className="bg-surface-900 border border-surface-800 rounded-lg p-6">
           <div className="flex items-baseline justify-between">
             <div>
-              <p className="text-white font-medium">Beyond 100 GB</p>
+              <p className="text-white font-medium">Beyond included storage</p>
               <p className="text-xs text-surface-500">Billed monthly based on usage</p>
             </div>
             <div className="text-right">
