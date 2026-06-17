@@ -1,3 +1,11 @@
+export type TOrg = {
+  id: string
+  name: string
+  displayName: string
+  role: "owner" | "admin" | "member"
+  plan: "starter" | "team"
+}
+
 export type TTeam = {
   id: string
   orgId: string
@@ -76,6 +84,31 @@ export type TOrgUsage = {
   repoCount: number
 }
 
+export type TPlatformOrgUsage = {
+  orgId: string
+  plan: "starter" | "team"
+  ciBlocks: number
+  ciMinutesUsed: number
+  ciMinutesLimit: number
+  storageBytes: number
+  userCount: number
+  teamCount: number
+  repoCount: number
+  quotaStatus: "ok" | "warning" | "blocked"
+  monthlyRevenue: number
+}
+
+export type TPlatformUsage = {
+  summary: {
+    totalOrgs: number
+    totalRevenue: number
+    totalCiMinutes: number
+    blocked: number
+    warning: number
+  }
+  orgs: TPlatformOrgUsage[]
+}
+
 export type TOrgPlan = {
   orgId: string
   plan: "starter" | "team"
@@ -97,6 +130,7 @@ const get = async <T>(path: string): Promise<T> => {
 
 export const api = {
   health: () => get<THealth>("/healthz"),
+  orgs: () => get<TOrg[]>("/user/orgs"),
   teams: (orgId: string) => get<TTeam[]>(`/orgs/${orgId}/teams`),
   repos: (teamId: string) => get<TRepo[]>(`/teams/${teamId}/repos`),
   activity: (teamId: string) => get<TRepoActivity[]>(`/teams/${teamId}/activity`),
@@ -105,7 +139,7 @@ export const api = {
   code: {
     files: (owner: string, repo: string, path = "", ref = "main") =>
       get<TFileEntry[] | { content: string; name: string }>(
-        `/repos/${owner}/${repo}/contents/${path}?ref=${ref}`,
+        `/repos/${owner}/${repo}/contents?path=${encodeURIComponent(path)}&ref=${ref}`,
       ),
     branches: (owner: string, repo: string) =>
       get<TBranch[]>(`/repos/${owner}/${repo}/branches`),
@@ -115,4 +149,5 @@ export const api = {
 
   usage: (orgId: string) => get<TOrgUsage>(`/orgs/${orgId}/usage`),
   plan: (orgId: string) => get<TOrgPlan>(`/orgs/${orgId}/plan`),
+  platformUsage: () => get<TPlatformUsage>("/platform/usage"),
 }

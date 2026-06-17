@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom"
 
-import { api, type TRepo, type TTeam } from "./api"
+import { api, type TOrg, type TRepo, type TTeam } from "./api"
 import { AdminSidebar } from "./components/layout/AdminSidebar"
 import { Header } from "./components/layout/Header"
 import { QuotaBanner } from "./components/shared/QuotaBanner"
@@ -12,6 +12,7 @@ import { AdminPolicies } from "./pages/admin/AdminPolicies"
 import { AdminSettings } from "./pages/admin/AdminSettings"
 import { AdminSteps } from "./pages/admin/AdminSteps"
 import { AdminSubscription } from "./pages/admin/AdminSubscription"
+import { AdminUsage } from "./pages/admin/AdminUsage"
 import { AdminTeams } from "./pages/admin/AdminTeams"
 import { CodeTab } from "./pages/repo/CodeTab"
 import { DependenciesTab } from "./pages/repo/DependenciesTab"
@@ -24,35 +25,71 @@ import { PricingPage } from "./pages/PricingPage"
 import { TeamDashboard } from "./pages/team/TeamDashboard"
 import type { ReactNode } from "react"
 
-const ORG_ID = "bloomer"
+const STORAGE_KEY = "gittan-active-org"
 
 export default function App() {
+  const [orgs, setOrgs] = useState<TOrg[]>([])
+  const [activeOrgId, setActiveOrgId] = useState<string>(() =>
+    localStorage.getItem(STORAGE_KEY) ?? ""
+  )
   const [teams, setTeams] = useState<TTeam[]>([])
   const [reposByTeam, setReposByTeam] = useState<Record<string, TRepo[]>>({})
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const t = await api.teams(ORG_ID)
-        setTeams(t)
+  const loadOrgData = useCallback(async (orgId: string) => {
+    setLoading(true)
+    try {
+      const t = await api.teams(orgId)
+      setTeams(t)
 
-        const repoMap: Record<string, TRepo[]> = {}
-        await Promise.all(
-          t.map(async (team) => {
-            repoMap[team.id] = await api.repos(team.id)
-          }),
-        )
-        setReposByTeam(repoMap)
+      const repoMap: Record<string, TRepo[]> = {}
+      await Promise.all(
+        t.map(async (team) => {
+          repoMap[team.id] = await api.repos(team.id)
+        }),
+      )
+      setReposByTeam(repoMap)
+    } catch (err) {
+      console.error("Failed to load org data:", err)
+      setTeams([])
+      setReposByTeam({})
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const userOrgs = await api.orgs()
+        setOrgs(userOrgs)
+
+        const savedOrg = localStorage.getItem(STORAGE_KEY)
+        const resolvedOrgId = userOrgs.find((o) => o.id === savedOrg)?.id
+          ?? userOrgs[0]?.id
+          ?? ""
+
+        if (resolvedOrgId) {
+          setActiveOrgId(resolvedOrgId)
+          localStorage.setItem(STORAGE_KEY, resolvedOrgId)
+          await loadOrgData(resolvedOrgId)
+        } else {
+          setLoading(false)
+        }
       } catch (err) {
-        console.error("Failed to load:", err)
-      } finally {
+        console.error("Failed to load orgs:", err)
         setLoading(false)
       }
     }
 
-    load()
-  }, [])
+    init()
+  }, [loadOrgData])
+
+  const handleOrgSwitch = useCallback((orgId: string) => {
+    setActiveOrgId(orgId)
+    localStorage.setItem(STORAGE_KEY, orgId)
+    loadOrgData(orgId)
+  }, [loadOrgData])
 
   const repoCounts = Object.fromEntries(
     Object.entries(reposByTeam).map(([id, repos]) => [id, repos.length]),
@@ -67,23 +104,24 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <div className="min-h-screen bg-surface-950 text-surface-300">
-        <Header orgId={ORG_ID} />
-        <QuotaBanner orgId={ORG_ID} />
+        <Header orgs={orgs} activeOrgId={activeOrgId} onOrgSwitch={handleOrgSwitch} />
+        <QuotaBanner orgId={activeOrgId} />
         <Routes>
           <Route path="/flow" element={<FlowPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/faq" element={<FaqPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/teams" replace />} />
-          <Route path="/admin/teams" element={<AdminPage><AdminTeams teams={teams} /></AdminPage>} />
-          <Route path="/admin/policies" element={<AdminPage><AdminPolicies /></AdminPage>} />
-          <Route path="/admin/steps" element={<AdminPage><AdminSteps /></AdminPage>} />
-          <Route path="/admin/auth" element={<AdminPage><AdminAuth /></AdminPage>} />
-          <Route path="/admin/settings" element={<AdminPage><AdminSettings /></AdminPage>} />
-          <Route path="/admin/subscription" element={<AdminPage><AdminSubscription /></AdminPage>} />
-          <Route path="/admin/audit" element={<AdminPage><AdminAudit /></AdminPage>} />
+          <Route path="/admin/teams" element={<AdminPage orgId={activeOrgId}><AdminTeams teams={teams} /></AdminPage>} />
+          <Route path="/admin/policies" element={<AdminPage orgId={activeOrgId}><AdminPolicies /></AdminPage>} />
+          <Route path="/admin/steps" element={<AdminPage orgId={activeOrgId}><AdminSteps /></AdminPage>} />
+          <Route path="/admin/auth" element={<AdminPage orgId={activeOrgId}><AdminAuth /></AdminPage>} />
+          <Route path="/admin/settings" element={<AdminPage orgId={activeOrgId}><AdminSettings /></AdminPage>} />
+          <Route path="/admin/subscription" element={<AdminPage orgId={activeOrgId}><AdminSubscription /></AdminPage>} />
+          <Route path="/admin/audit" element={<AdminPage orgId={activeOrgId}><AdminAudit /></AdminPage>} />
+          <Route path="/admin/usage" element={<AdminPage orgId={activeOrgId}><AdminUsage /></AdminPage>} />
 
           <Route element={<TeamLayout teams={teams} repoCounts={repoCounts} />}>
             <Route
@@ -134,10 +172,10 @@ function TeamLayout({
   )
 }
 
-function AdminPage({ children }: { children: ReactNode }) {
+function AdminPage({ children, orgId }: { children: ReactNode; orgId: string }) {
   return (
     <div className="flex">
-      <AdminSidebar />
+      <AdminSidebar orgId={orgId} />
       <main className="flex-1">{children}</main>
     </div>
   )

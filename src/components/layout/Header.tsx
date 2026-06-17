@@ -1,8 +1,16 @@
 import { Link, useLocation } from "react-router-dom"
 
 import { GittanLogo } from "../shared/GittanLogo"
+import { OrgSwitcher } from "./OrgSwitcher"
+import type { TOrg } from "../../api"
 
-export function Header({ orgId }: { orgId: string }) {
+type HeaderProps = {
+  orgs: TOrg[]
+  activeOrgId: string
+  onOrgSwitch: (orgId: string) => void
+}
+
+export function Header({ orgs, activeOrgId, onOrgSwitch }: HeaderProps) {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith("/admin")
 
@@ -13,15 +21,10 @@ export function Header({ orgId }: { orgId: string }) {
           <GittanLogo size={22} />
           <span className="text-lg font-semibold tracking-tight">gittan</span>
         </Link>
-        <span className="text-[11px] text-surface-600 border border-surface-800 px-2 py-0.5 rounded">
-          {orgId}
-        </span>
+        <OrgSwitcher orgs={orgs} activeOrgId={activeOrgId} onSwitch={onOrgSwitch} />
       </div>
 
       <div className="flex items-center gap-4">
-        <Link to="/pricing" className="text-surface-500 hover:text-surface-300 text-sm">
-          Pricing
-        </Link>
         <Link
           to={isAdmin ? "/" : "/admin"}
           className="text-surface-500 hover:text-surface-300 text-sm"
@@ -30,10 +33,10 @@ export function Header({ orgId }: { orgId: string }) {
           {isAdmin ? "Dashboard" : "Admin"}
         </Link>
         <a
-          href="/auth/login"
-          className="text-sm bg-accent-600 hover:bg-accent-500 text-white px-3 py-1.5 rounded-md transition-colors"
+          href="/auth/logout"
+          className="text-surface-500 hover:text-surface-300 text-sm"
         >
-          Log in
+          Log out
         </a>
       </div>
     </header>
