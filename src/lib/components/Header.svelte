@@ -18,7 +18,7 @@
   </div>
 
   <div class="flex items-center gap-4">
-    <a href="/app/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
+    <a href="/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
     <a
       href={isAdmin ? '/app' : '/app/admin'}
       class="text-surface-500 hover:text-surface-300 text-sm"
