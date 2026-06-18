@@ -1,6 +1,8 @@
 import { redirect, fail } from '@sveltejs/kit'
 import type { PageServerLoad, Actions } from './$types'
 import { apiPost } from '$lib/server/api'
+import { refreshAccessToken } from '$lib/server/oauth'
+import { setSession } from '$lib/server/session'
 import type { TOrg } from '$lib/types'
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -37,6 +39,13 @@ export const actions: Actions = {
         httpOnly: false,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
+      })
+
+      const tokens = await refreshAccessToken(locals.session.refreshToken)
+      setSession(cookies, {
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        expiresAt: Date.now() + tokens.expires_in * 1000,
       })
 
       return { created: true }
