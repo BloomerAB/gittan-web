@@ -4,7 +4,7 @@
 
 <Article
   title="Teams own everything. Individuals own nothing."
-  subtitle="There is no personal namespace in Gittan. Code belongs to teams, because that is how quality happens."
+  subtitle="There is no personal namespace in gittan. Code belongs to teams, because that is how quality happens."
 >
   <p>
     On GitHub, your profile page shows your repos, your contributions, your activity
@@ -13,7 +13,7 @@
   </p>
 
   <p>
-    Gittan has none of this. There are no personal namespaces. No user profiles with
+    gittan has none of this. There are no personal namespaces. No user profiles with
     activity graphs. No individual contribution metrics. Every repo belongs to a team.
     Every push is a team activity. The individual is a member of a team, not an
     independent actor.
@@ -47,7 +47,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">No individual metrics</h2>
 
   <p>
-    Gittan does not track individual contributions. There is no "lines of code per
+    gittan does not track individual contributions. There is no "lines of code per
     developer." No "commits per week." No activity heatmap on a personal profile. These
     metrics are not just useless — they are actively harmful.
   </p>
@@ -61,7 +61,7 @@
   </p>
 
   <p>
-    Gittan tracks team metrics: deployment frequency, lead time, change failure rate,
+    gittan tracks team metrics: deployment frequency, lead time, change failure rate,
     time to restore. These are the DORA metrics — they predict team performance and they
     cannot be gamed by a single individual inflating their numbers. A team that deploys
     frequently with low failure rates is performing well. It does not matter who wrote
@@ -71,7 +71,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Permissions follow teams</h2>
 
   <p>
-    Access in Gittan is team-based. You are a member of a team. The team has repos. You
+    Access in gittan is team-based. You are a member of a team. The team has repos. You
     have access to those repos. There is no per-user repo access, no individual
     collaborator invitations, no "give this one person write access to this one repo."
   </p>
@@ -79,7 +79,7 @@
   <p>
     Team membership comes from your identity provider's groups claim. When your IdP says
     you are in the "payments" group, you get access to the payments team's repos in
-    Gittan. When you are removed from the group, access is revoked. No manual management.
+    gittan. When you are removed from the group, access is revoked. No manual management.
     No access reviews. No "who has access to what" audits — your IdP is the source of
     truth.
   </p>
@@ -102,7 +102,7 @@
   </p>
 
   <p>
-    Gittan's permission model makes collective code ownership the default, not an
+    gittan's permission model makes collective code ownership the default, not an
     aspiration. You cannot set up individual ownership because the concept does not exist
     in the system. Every team member has the same access to every repo the team owns.
     The code is the team's responsibility, not any one person's.

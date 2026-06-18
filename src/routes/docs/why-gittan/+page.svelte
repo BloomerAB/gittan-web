@@ -3,7 +3,7 @@
 </script>
 
 <Article
-  title="Why we built Gittan"
+  title="Why we built gittan"
   subtitle="Everything available was either too complex, too expensive, too limited, or too opinionated."
 >
   <p>
@@ -54,7 +54,7 @@
   <p>
     Pipelines start in under a second because images are pre-pulled and runners are warm.
     Steps run in parallel via a DAG. A 10-minute GitHub Actions workflow might take 3 minutes
-    on Gittan because we are not provisioning infrastructure on every push.
+    on gittan because we are not provisioning infrastructure on every push.
   </p>
 
   <p>
@@ -76,7 +76,7 @@
   </p>
 
   <p>
-    Gittan does three things: git hosting, pipelines, and team management.
+    gittan does three things: git hosting, pipelines, and team management.
     We would rather do three things well than ten things poorly.
   </p>
 </Article>

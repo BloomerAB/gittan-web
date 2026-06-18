@@ -4,7 +4,7 @@
 
 <Article
   title="Why we ban the latest tag"
-  subtitle="Every image in a Gittan pipeline has a timestamp and a commit SHA. No exceptions."
+  subtitle="Every image in a gittan pipeline has a timestamp and a commit SHA. No exceptions."
 >
   <p>
     The <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">latest</code>
@@ -32,10 +32,10 @@
     a flag your build script depends on.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">Gittan's tag format</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">gittan's tag format</h2>
 
   <p>
-    Gittan enforces a tag format for all images used in pipelines:
+    gittan enforces a tag format for all images used in pipelines:
     <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">YYYYMMDD-HHMMSS-sha</code>.
     For example:
     <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">20260615-143022-a1b2c3d</code>.
@@ -72,7 +72,7 @@
   </p>
 
   <p>
-    Gittan's team reports include advisories when pipeline images have known
+    gittan's team reports include advisories when pipeline images have known
     vulnerabilities or are significantly outdated. The team sees "your build image is 90
     days old and has 3 known CVEs" and can decide when to update. The update is on their
     terms, not forced by a tag that moved overnight.

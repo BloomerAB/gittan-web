@@ -63,7 +63,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Smaller surface, fewer failures</h2>
 
   <p>
-    Gittan does three things: git hosting, pipelines, and team management. There are no
+    gittan does three things: git hosting, pipelines, and team management. There are no
     package registries, no wikis, no Codespaces, no marketplace, no social features, no
     Pages. The operational surface is small because the product surface is small.
   </p>
@@ -85,7 +85,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">An honest starting point</h2>
 
   <p>
-    Gittan is a new product. We are not claiming five-nines uptime on day one. Every
+    gittan is a new product. We are not claiming five-nines uptime on day one. Every
     system has teething problems, and ours will too. We would be lying if we said
     otherwise.
   </p>

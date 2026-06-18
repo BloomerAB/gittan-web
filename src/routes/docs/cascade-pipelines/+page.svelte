@@ -23,14 +23,14 @@
   </p>
 
   <p>
-    Gittan solves this without a monorepo.
+    gittan solves this without a monorepo.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">How cascade pipelines work</h2>
 
   <p>
-    When you declare that repo B depends on repo A, Gittan records the relationship in a
-    dependency graph. When a push to repo A passes its pipeline, Gittan automatically
+    When you declare that repo B depends on repo A, gittan records the relationship in a
+    dependency graph. When a push to repo A passes its pipeline, gittan automatically
     triggers pipelines for every repo that depends on A — in this case, repo B.
   </p>
 
@@ -84,7 +84,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">The dependency graph</h2>
 
   <p>
-    Gittan maintains a dependency graph across all repos in an org. The graph is visible
+    gittan maintains a dependency graph across all repos in an org. The graph is visible
     in the web UI — you can see which repos depend on which, and trace the cascade path
     for any change.
   </p>
@@ -92,7 +92,7 @@
   <p>
     Dependencies are declared in the repo's pipeline config. A team adds
     <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">depends_on: [shared-types]</code>
-    to their config, and Gittan registers the relationship. When shared-types passes, their
+    to their config, and gittan registers the relationship. When shared-types passes, their
     repo is queued for a cascade run.
   </p>
 

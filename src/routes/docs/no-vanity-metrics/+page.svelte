@@ -22,7 +22,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">What we measure instead</h2>
 
   <p>
-    Gittan shows DORA metrics: deployment frequency, lead time for changes, change
+    gittan shows DORA metrics: deployment frequency, lead time for changes, change
     failure rate, and time to restore service. These are the metrics that the Accelerate
     research identified as predictors of software delivery performance. They tell you
     whether a team is shipping effectively — not whether their repo is famous.
@@ -43,7 +43,7 @@
   </p>
 
   <p>
-    Gittan is for teams that work together on private code. Everyone on the team has
+    gittan is for teams that work together on private code. Everyone on the team has
     write access. There is no need to fork — you push to the repo directly. If you need
     to experiment, use a feature flag, not a fork. Forks create divergence. Trunk-based
     development eliminates it.
@@ -58,7 +58,7 @@
   </p>
 
   <p>
-    Gittan does not show individual activity. It shows team delivery. Did the team ship
+    gittan does not show individual activity. It shows team delivery. Did the team ship
     this week? How fast? How reliably? Those are the questions that matter. Whether one
     person made 47 commits and another made 3 is irrelevant — what matters is what the
     team delivered together.
@@ -74,7 +74,7 @@
   </p>
 
   <p>
-    Gittan is not a social network. It is a tool for teams that ship software. Adding
+    gittan is not a social network. It is a tool for teams that ship software. Adding
     social features would not make it better at that job — it would add surface area,
     UI clutter, and features that distract from the thing we actually do well: fast
     pipelines, team ownership, and delivery metrics.

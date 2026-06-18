@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms'
   import { invalidateAll } from '$app/navigation'
   import type { TTeamMember } from '$lib/types'
+  import UserSearch from '$lib/components/UserSearch.svelte'
 
   let { data, form } = $props()
 
@@ -12,27 +13,20 @@
   let saveError = $state('')
 
   let editDisplayName = $state('')
-  let editTopology = $state('stream-aligned')
   let editSlackChannel = $state('')
   let editOidcGroupId = $state('')
-  let editOidcRole = $state<'admin' | 'member'>('member')
 
-  let addMemberEmail = $state('')
-  let addMemberRole = $state<'admin' | 'member'>('member')
   let addMemberError = $state('')
   let addMemberLoading = $state(false)
 
   type TOidcMapping = {
     groupId: string
-    role: 'admin' | 'member'
   }
 
-  // Real members fetched from API per selected team
   let members = $state<TTeamMember[]>([])
   let membersLoading = $state(false)
   let membersError = $state('')
 
-  // OIDC mappings remain UI-only (no API yet)
   let oidcMappings = $state<TOidcMapping[]>([])
 
   let selectedTeam = $derived(data.teams.find((t: { id: string }) => t.id === selectedTeamId))
@@ -57,12 +51,8 @@
     if (!team) return
     selectedTeamId = teamId
     editDisplayName = team.displayName
-    editTopology = team.topology ?? 'stream-aligned'
     editSlackChannel = team.slackChannel ?? ''
     editOidcGroupId = ''
-    editOidcRole = 'member'
-    addMemberEmail = ''
-    addMemberRole = 'member'
     addMemberError = ''
     oidcMappings = []
     void fetchMembers(teamId)
@@ -70,31 +60,28 @@
 
   function addOidcMapping() {
     if (!editOidcGroupId) return
-    oidcMappings = [...oidcMappings, { groupId: editOidcGroupId, role: editOidcRole }]
+    oidcMappings = [...oidcMappings, { groupId: editOidcGroupId }]
     editOidcGroupId = ''
-    editOidcRole = 'member'
   }
 
   function removeOidcMapping(groupId: string) {
     oidcMappings = oidcMappings.filter((m) => m.groupId !== groupId)
   }
 
-  async function addMember() {
-    if (!addMemberEmail || !selectedTeamId) return
+  async function addMemberById(user: { id: string; email: string; name: string }) {
+    if (!selectedTeamId) return
     addMemberLoading = true
     addMemberError = ''
     try {
       const res = await fetch('/app/admin/teams/members/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId: selectedTeamId, email: addMemberEmail, role: addMemberRole }),
+        body: JSON.stringify({ teamId: selectedTeamId, userId: user.id }),
       })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         throw new Error((body as { message?: string }).message ?? `Failed to add member: ${res.status}`)
       }
-      addMemberEmail = ''
-      addMemberRole = 'member'
       await fetchMembers(selectedTeamId)
     } catch (err) {
       addMemberError = err instanceof Error ? err.message : 'Failed to add member'
@@ -140,7 +127,7 @@
         &larr; Back to teams
       </button>
 
-      <h2 class="text-lg font-semibold text-surface-200 mb-6">{selectedTeam.name}</h2>
+      <h2 class="text-lg font-semibold text-surface-200 mb-6">{selectedTeam.displayName}</h2>
 
       <div class="space-y-6 max-w-xl">
         <form
@@ -176,21 +163,6 @@
           </div>
 
           <div>
-            <label for="edit-topology" class="block text-xs text-surface-500 mb-1">Topology</label>
-            <select
-              id="edit-topology"
-              name="topology"
-              bind:value={editTopology}
-              class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            >
-              <option value="stream-aligned">Stream-aligned</option>
-              <option value="platform">Platform</option>
-              <option value="enabling">Enabling</option>
-              <option value="complicated-subsystem">Complicated Subsystem</option>
-            </select>
-          </div>
-
-          <div>
             <label for="edit-slackChannel" class="block text-xs text-surface-500 mb-1">Slack Channel</label>
             <input
               id="edit-slackChannel"
@@ -200,6 +172,7 @@
               placeholder="#team-channel"
               class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
+            <p class="text-[10px] text-surface-600 mt-1">Requires <a href="/app/admin/integrations" class="text-accent-400 hover:text-accent-300">Slack integration</a></p>
           </div>
 
           {#if saveError}
@@ -214,7 +187,7 @@
             disabled={saving}
             class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
           >
-            {saving ? 'Saving…' : 'Save Team'}
+            {saving ? 'Saving...' : 'Save Team'}
           </button>
         </form>
 
@@ -225,7 +198,6 @@
               {#each oidcMappings as mapping}
                 <div class="flex items-center gap-2 text-sm">
                   <span class="font-mono text-surface-300 flex-1">{mapping.groupId}</span>
-                  <span class="text-surface-500">{mapping.role}</span>
                   <button
                     onclick={() => removeOidcMapping(mapping.groupId)}
                     class="text-err-400 hover:text-err-300 text-xs transition-colors"
@@ -240,16 +212,9 @@
             <input
               type="text"
               bind:value={editOidcGroupId}
-              placeholder="Group ID"
+              placeholder="AD Group ID"
               class="flex-1 bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
-            <select
-              bind:value={editOidcRole}
-              class="bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            >
-              <option value="member">member</option>
-              <option value="admin">admin</option>
-            </select>
             <button
               onclick={addOidcMapping}
               class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
@@ -257,24 +222,24 @@
               Add
             </button>
           </div>
-          <p class="text-[10px] text-surface-600 mt-2">OIDC group sync — UI only, API coming soon</p>
+          <p class="text-[10px] text-surface-600 mt-2">Maps AD/OIDC groups to this team -- API coming soon</p>
         </div>
 
         <div>
           <h3 class="text-sm text-surface-400 mb-3">Members</h3>
+          <p class="text-[10px] text-surface-600 mb-3">All team members have full admin access. Team ownership = responsibility.</p>
 
           {#if membersError}
             <p class="text-xs text-err-400 mb-2">{membersError}</p>
           {/if}
 
           {#if membersLoading}
-            <p class="text-xs text-surface-500 mb-3">Loading…</p>
+            <p class="text-xs text-surface-500 mb-3">Loading...</p>
           {:else if members.length > 0}
             <div class="space-y-2 mb-3">
               {#each members as member}
                 <div class="flex items-center gap-2 text-sm">
-                  <span class="font-mono text-surface-300 flex-1 text-xs">{member.userId}</span>
-                  <span class="text-surface-500 text-xs">{member.role}</span>
+                  <span class="font-mono text-surface-300 flex-1 text-xs">{member.email ?? member.userId}</span>
                   <span class="text-surface-600 text-xs">{formatDate(member.addedAt)}</span>
                   <button
                     onclick={() => removeMember(member.userId)}
@@ -291,28 +256,11 @@
             <p class="text-xs text-err-400 mb-2">{addMemberError}</p>
           {/if}
 
-          <div class="flex gap-2">
-            <input
-              type="email"
-              bind:value={addMemberEmail}
-              placeholder="user@example.com"
-              class="flex-1 bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            />
-            <select
-              bind:value={addMemberRole}
-              class="bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            >
-              <option value="member">member</option>
-              <option value="admin">admin</option>
-            </select>
-            <button
-              onclick={addMember}
-              disabled={addMemberLoading}
-              class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
-            >
-              {addMemberLoading ? '…' : 'Add'}
-            </button>
-          </div>
+          <UserSearch
+            onSelect={addMemberById}
+            disabled={addMemberLoading}
+            excludeUserIds={members.map((m) => m.userId)}
+          />
         </div>
       </div>
     </div>
@@ -351,7 +299,7 @@
         {/if}
         <div class="space-y-3">
           <div>
-            <label for="team-display" class="block text-xs text-surface-500 mb-1">Display Name</label>
+            <label for="team-display" class="block text-xs text-surface-500 mb-1">Team Name</label>
             <input
               id="team-display"
               type="text"
@@ -361,26 +309,12 @@
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
           </div>
-          <div>
-            <label for="team-topology" class="block text-xs text-surface-500 mb-1">Topology</label>
-            <select
-              id="team-topology"
-              name="topology"
-              class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            >
-              <option value="stream-aligned">Stream-aligned</option>
-              <option value="platform">Platform</option>
-              <option value="enabling">Enabling</option>
-              <option value="complicated-subsystem">Complicated Subsystem</option>
-            </select>
-            <p class="text-[10px] text-surface-600 mt-1">Team Topologies classification</p>
-          </div>
           <button
             type="submit"
             disabled={creating}
             class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
           >
-            {creating ? 'Creating…' : 'Create'}
+            {creating ? 'Creating...' : 'Create'}
           </button>
         </div>
       </form>
@@ -397,9 +331,8 @@
           <thead>
             <tr class="border-b border-surface-800 text-left">
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Name</th>
-              <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Display Name</th>
-              <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Topology</th>
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Slack</th>
+              <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Members</th>
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2">Created</th>
             </tr>
           </thead>
@@ -409,10 +342,9 @@
                 class="border-b border-surface-800/50 hover:bg-surface-900 cursor-pointer transition-colors"
                 onclick={() => selectTeam(team.id)}
               >
-                <td class="py-2.5 pr-4 font-mono text-surface-300">{team.name}</td>
-                <td class="py-2.5 pr-4 text-surface-400">{team.displayName}</td>
-                <td class="py-2.5 pr-4 text-surface-500">{team.topology ?? 'stream-aligned'}</td>
+                <td class="py-2.5 pr-4 text-surface-300">{team.displayName}</td>
                 <td class="py-2.5 pr-4 text-surface-500">{team.slackChannel ?? '-'}</td>
+                <td class="py-2.5 pr-4 text-surface-500">{team.memberCount ?? '-'}</td>
                 <td class="py-2.5 text-surface-500">{formatDate(team.createdAt)}</td>
               </tr>
             {/each}

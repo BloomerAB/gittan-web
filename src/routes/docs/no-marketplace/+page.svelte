@@ -36,10 +36,10 @@
     every action they use.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">How Gittan pipelines work</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">How gittan pipelines work</h2>
 
   <p>
-    Gittan pipelines use container images. Each step runs in a container that you specify
+    gittan pipelines use container images. Each step runs in a container that you specify
     by image and tag. There is no marketplace, no shared actions, no community plugins.
   </p>
 
@@ -74,7 +74,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Less magic, more control</h2>
 
   <p>
-    Marketplace ecosystems optimize for convenience. Gittan optimizes for control. We believe
+    Marketplace ecosystems optimize for convenience. gittan optimizes for control. We believe
     that in CI — where your code is built, your secrets are present, and your artifacts are
     produced — control matters more than convenience. If a step in your pipeline does something
     unexpected, you should be able to inspect the image, read the Dockerfile, and understand

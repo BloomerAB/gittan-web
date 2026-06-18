@@ -27,10 +27,10 @@
     with shared credentials, screenshots, and copy-pasted snippets.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">How Gittan charges</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">How gittan charges</h2>
 
   <p>
-    Gittan has two plans: Starter and Team. Both charge a flat monthly fee. The Starter plan
+    gittan has two plans: Starter and Team. Both charge a flat monthly fee. The Starter plan
     includes 2 users. The Team plan includes unlimited users. Adding a person to your org
     costs nothing on the Team plan.
   </p>
@@ -52,7 +52,7 @@
   <p>
     Free tiers are a customer acquisition strategy for platforms that compete on network
     effects. GitHub needs millions of users because public repos, stars, and contributions
-    form its moat. Gittan does not have social features. We do not benefit from volume. We
+    form its moat. gittan does not have social features. We do not benefit from volume. We
     benefit from teams that ship software and are willing to pay for a tool that helps them
     do it faster.
   </p>
@@ -68,7 +68,7 @@
   <p>
     A common reaction to our pricing is that 10,000 CI minutes sounds like less than GitHub's
     included minutes. But our minutes are not equivalent. A pipeline that takes 10 minutes on
-    GitHub Actions might take 3 minutes on Gittan because we pre-pull images, use warm runners,
+    GitHub Actions might take 3 minutes on gittan because we pre-pull images, use warm runners,
     and execute steps in parallel via a DAG.
   </p>
 

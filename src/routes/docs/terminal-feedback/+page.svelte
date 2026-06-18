@@ -31,7 +31,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Synchronous feedback</h2>
 
   <p>
-    Gittan streams pipeline output to your terminal during <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">git push</code>.
+    gittan streams pipeline output to your terminal during <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">git push</code>.
     The push does not complete until the pipeline finishes. You see each step start, run, and
     complete — in real time, in the same window where you ran the command.
   </p>
@@ -42,7 +42,7 @@
   </p>
 
   <p>
-    This only works because Gittan pipelines are fast. If a pipeline takes 20 minutes,
+    This only works because gittan pipelines are fast. If a pipeline takes 20 minutes,
     blocking the push is not practical. But when pipelines run in single-digit seconds — which
     they do when you pre-pull images, use warm runners, and parallelize steps — blocking is
     not just practical, it is the better developer experience.
@@ -51,7 +51,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">The web dashboard still exists</h2>
 
   <p>
-    Gittan has a web UI. It shows pipeline history, DORA metrics, team activity, and repo
+    gittan has a web UI. It shows pipeline history, DORA metrics, team activity, and repo
     status. It is useful for managers, for debugging intermittent failures, and for getting
     a high-level view of team health.
   </p>

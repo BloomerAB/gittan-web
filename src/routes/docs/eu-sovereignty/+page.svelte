@@ -3,11 +3,11 @@
 </script>
 
 <Article
-  title="Why Gittan runs in the EU"
+  title="Why gittan runs in the EU"
   subtitle="Your source code is your business. It should stay in your jurisdiction."
 >
   <p>
-    Gittan runs on EU infrastructure. Your source code, pipeline logs, metadata, and
+    gittan runs on EU infrastructure. Your source code, pipeline logs, metadata, and
     credentials never leave the European Union. This is not a compliance checkbox — it
     is a deliberate architectural decision about where your most sensitive asset lives.
   </p>
@@ -56,7 +56,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">EU infrastructure, EU company</h2>
 
   <p>
-    Gittan is operated by Bloomer AB, a Swedish company. We are subject to Swedish and
+    gittan is operated by Bloomer AB, a Swedish company. We are subject to Swedish and
     EU law. We are not subject to the US CLOUD Act. A US warrant cannot compel us to
     produce your data because we are not a US entity and your data is not on US
     infrastructure.
@@ -86,7 +86,7 @@
   </p>
 
   <p>
-    Gittan is ready for that question. Your code lives in the EU. It is operated by an
+    gittan is ready for that question. Your code lives in the EU. It is operated by an
     EU company. It is subject to EU law. The answer is simple because we designed it to
     be.
   </p>

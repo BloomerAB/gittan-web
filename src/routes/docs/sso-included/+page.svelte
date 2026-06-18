@@ -51,21 +51,21 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Our approach</h2>
 
   <p>
-    Every Gittan plan includes OIDC. Connect your identity provider on day one. We
+    Every gittan plan includes OIDC. Connect your identity provider on day one. We
     support any standard OpenID Connect provider: Azure AD, Google Workspace, Okta,
     Keycloak, Auth0 — anything that speaks OIDC.
   </p>
 
   <p>
     Team membership is derived from your identity provider's groups claim. When someone
-    joins a team in your IdP, they get access to that team's repos in Gittan. When they
+    joins a team in your IdP, they get access to that team's repos in gittan. When they
     leave, access is revoked. No manual user management. No SCIM provisioning. Your org
     chart is your access model.
   </p>
 
   <p>
     We do not offer password-based authentication at all. There is no "local accounts"
-    option. This is a deliberate constraint. It means every Gittan user is authenticated
+    option. This is a deliberate constraint. It means every gittan user is authenticated
     through a real identity provider, which means every access event is auditable through
     your IdP's logs.
   </p>

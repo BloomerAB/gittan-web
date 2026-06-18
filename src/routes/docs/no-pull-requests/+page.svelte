@@ -29,7 +29,7 @@
   </p>
 
   <p>
-    Gittan replaces the manual gate with an automated one. When you push to main, a
+    gittan replaces the manual gate with an automated one. When you push to main, a
     pre-receive hook triggers your pipeline. If the pipeline passes, the push is accepted.
     If it fails, the push is rejected and the error output streams to your terminal. The
     gate is still there — it is just faster, more consistent, and never on vacation.
@@ -78,7 +78,7 @@
 
   <p>
     Some regulated environments require pre-merge review as policy. If that is your
-    situation, Gittan's org policies can enforce a review step in the pipeline — a sign-off
+    situation, gittan's org policies can enforce a review step in the pipeline — a sign-off
     that is recorded and auditable. But the mechanism is a pipeline step, not a PR. The
     policy is enforced by code, not by human process.
   </p>

@@ -9,6 +9,7 @@
     { path: '/app/admin/teams', label: 'Teams' },
     { path: '/app/admin/policies', label: 'Policies' },
     { path: '/app/admin/steps', label: 'Step Registry' },
+    { path: '/app/admin/integrations', label: 'Integrations' },
     { path: '/app/admin/auth', label: 'Authentication' },
     { path: '/app/admin/settings', label: 'Settings' },
     { path: '/app/admin/subscription', label: 'Subscription' },

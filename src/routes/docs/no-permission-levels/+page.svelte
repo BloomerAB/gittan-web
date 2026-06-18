@@ -14,7 +14,7 @@
   </p>
 
   <p>
-    Gittan has two: org member and team member. Org members can read everything. Team
+    gittan has two: org member and team member. Org members can read everything. Team
     members are admins of their team's repos. That is it. There is no write-without-admin.
     No read-only team member. No maintainer-but-not-owner. You are in the team, or you
     are not.
@@ -47,7 +47,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Everyone reads everything</h2>
 
   <p>
-    Every member of your Gittan org can read every repo in the org. There is no private
+    Every member of your gittan org can read every repo in the org. There is no private
     repo that only one team can see. There is no hidden service that requires a special
     access request.
   </p>
@@ -92,21 +92,21 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Onboarding is an AD group</h2>
 
   <p>
-    We recommend mapping Gittan teams to groups in your identity provider — Azure AD,
+    We recommend mapping gittan teams to groups in your identity provider — Azure AD,
     Google Workspace, Okta, whatever you use. When a new developer joins, your IT team
-    adds them to the right AD group. That is it. Next time they log in to Gittan, they
+    adds them to the right AD group. That is it. Next time they log in to gittan, they
     are on the team, with full access to everything the team owns.
   </p>
 
   <p>
     Offboarding is the same. Remove them from the AD group, access is revoked. No
-    Gittan admin needs to do anything. No access review. No "can someone remove this
+    gittan admin needs to do anything. No access review. No "can someone remove this
     person from the 14 repos they had access to." The identity provider is the source
-    of truth, and Gittan follows it.
+    of truth, and gittan follows it.
   </p>
 
   <p>
-    You can also manage team membership manually in Gittan if your organization does not
+    You can also manage team membership manually in gittan if your organization does not
     use group claims. But for any team larger than a handful of people, IdP-driven
     membership eliminates an entire category of onboarding and offboarding tasks. One
     group change, all access updated. That is how it should work.
@@ -116,7 +116,7 @@
 
   <p>
     Product owners, designers, QA — if they are on the team, they are admins. This sounds
-    radical until you think about what admin access actually means in Gittan. There are no
+    radical until you think about what admin access actually means in gittan. There are no
     issues to misconfigure, no wiki to accidentally delete, no marketplace apps to install.
     Admin means: push code, manage pipelines, update settings. If a PO is added to the
     team and pushes bad code, the pipeline rejects it. The gated push is the safety net,
@@ -139,7 +139,7 @@
   </p>
 
   <p>
-    Gittan's model says: if you are on the team, we trust you fully. If we do not trust
+    gittan's model says: if you are on the team, we trust you fully. If we do not trust
     you fully, you should not be on the team. There is no permission level that
     communicates "sort of trusted." That ambiguity helps no one.
   </p>

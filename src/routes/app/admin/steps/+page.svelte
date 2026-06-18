@@ -60,16 +60,18 @@
         registering = true
         return async ({ result, update }) => {
           registering = false
-          await update()
           if (result.type === 'success') {
+            showRegisterForm = false
             newName = ''
             newDescription = ''
             newImage = ''
             newRun = ''
             newDefaults = ''
             newCache = ''
-            showRegisterForm = false
+            await update({ reset: false })
             await invalidateAll()
+          } else {
+            await update()
           }
         }
       }}

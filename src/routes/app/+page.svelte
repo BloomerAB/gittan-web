@@ -11,7 +11,7 @@
   <div class="min-h-[80vh] flex items-center justify-center p-6">
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-surface-200 mb-2">Welcome to Gittan</h1>
+        <h1 class="text-2xl font-bold text-surface-200 mb-2">Welcome to gittan</h1>
         <p class="text-surface-500">Create your organization to get started.</p>
       </div>
 

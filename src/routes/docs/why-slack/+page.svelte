@@ -7,7 +7,7 @@
   subtitle="Everything about Teams is a project. We chose not to start one."
 >
   <p>
-    Gittan sends notifications to your team's chat when pipelines pass, fail, or when
+    gittan sends notifications to your team's chat when pipelines pass, fail, or when
     the org changelog is updated. We integrate with Slack. We do not integrate with
     Microsoft Teams. This is not because we have not been asked — it is the most
     requested integration we do not have. We looked at what it would take to build it,
@@ -76,7 +76,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">What Teams users can do</h2>
 
   <p>
-    Gittan has a webhook API. When a pipeline completes or a changelog entry is added,
+    gittan has a webhook API. When a pipeline completes or a changelog entry is added,
     we can POST a JSON payload to any URL you configure. If your organization requires
     Teams, you can point this webhook at a Power Automate flow, an Azure Function, or
     any middleware that bridges HTTP webhooks to the Teams Graph API.

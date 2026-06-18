@@ -38,11 +38,11 @@
     },
     {
       q: 'Why is SSO/OIDC included on every plan?',
-      a: 'SSO is a security feature, not a luxury. Gating it behind enterprise tiers forces small teams to use less secure authentication. Every Gittan plan includes OIDC.',
+      a: 'SSO is a security feature, not a luxury. Gating it behind enterprise tiers forces small teams to use less secure authentication. Every gittan plan includes OIDC.',
     },
     {
       q: 'Why are CI minutes worth more here?',
-      a: 'Our CI starts in under a second with pre-pulled images and parallel DAG execution. You get more done per minute. A 10-minute GitHub Actions workflow might take 3 minutes on Gittan.',
+      a: 'Our CI starts in under a second with pre-pulled images and parallel DAG execution. You get more done per minute. A 10-minute GitHub Actions workflow might take 3 minutes on gittan.',
     },
     {
       q: 'Can I try before buying?',

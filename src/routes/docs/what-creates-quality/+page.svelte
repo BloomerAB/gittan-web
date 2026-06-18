@@ -153,10 +153,10 @@
     </li>
   </ul>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">How Gittan maps to this</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">How gittan maps to this</h2>
 
   <p>
-    Every feature in Gittan exists because the research says it contributes to quality:
+    Every feature in gittan exists because the research says it contributes to quality:
   </p>
 
   <ul class="list-none space-y-2">

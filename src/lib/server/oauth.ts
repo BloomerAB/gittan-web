@@ -68,3 +68,29 @@ export async function exchangeCodeForTokens(code: string): Promise<OAuthTokens> 
   }
   return tokens
 }
+
+export async function refreshAccessToken(refreshToken: string): Promise<OAuthTokens> {
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: config.oauthClientId,
+    client_secret: config.oauthClientSecret,
+  })
+
+  const response = await fetch(`${config.authApiUrl}/oauth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error_description || error.error || 'Token refresh failed')
+  }
+
+  const tokens = await response.json() as OAuthTokens
+  if (!tokens.access_token) {
+    throw new Error('Invalid token response from auth server')
+  }
+  return tokens
+}

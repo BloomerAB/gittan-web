@@ -6,15 +6,13 @@ export type TOrg = {
   plan: 'starter' | 'team'
 }
 
-export type TTopology = 'stream-aligned' | 'platform' | 'enabling' | 'complicated-subsystem'
-
 export type TTeam = {
   id: string
   orgId: string
   name: string
   displayName: string
-  topology: TTopology
   slackChannel?: string
+  memberCount?: number
   createdAt: string
   updatedAt: string
 }
@@ -55,7 +53,7 @@ export type TTeamMetrics = {
 
 export type TTeamMember = {
   userId: string
-  role: 'admin' | 'member'
+  email: string | null
   addedAt: string
 }
 

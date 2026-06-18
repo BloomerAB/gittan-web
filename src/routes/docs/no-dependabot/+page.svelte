@@ -3,7 +3,7 @@
 </script>
 
 <Article
-  title="Why Gittan does not update your dependencies"
+  title="Why gittan does not update your dependencies"
   subtitle="Dependency updates are engineering decisions. Not automation."
 >
   <p>
@@ -15,8 +15,8 @@
   </p>
 
   <p>
-    Gittan does not include automated dependency updates. You can run Renovate or
-    Dependabot against your Gittan repos if you want — nothing prevents it. But we will
+    gittan does not include automated dependency updates. You can run Renovate or
+    Dependabot against your gittan repos if you want — nothing prevents it. But we will
     not build it into the product, and we recommend against it.
   </p>
 
@@ -62,10 +62,10 @@
     checks the diff, and understands the implications can.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">What Gittan does instead</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">What gittan does instead</h2>
 
   <p>
-    Gittan's team reports include dependency health as part of the continuous report.
+    gittan's team reports include dependency health as part of the continuous report.
     When a dependency has known vulnerabilities, is significantly outdated, or has been
     flagged by the org's license policy, it appears in the report. The team sees it
     alongside their other risks and recommendations.

@@ -3,7 +3,7 @@
 </script>
 
 <Article
-  title="Why Gittan is SaaS only"
+  title="Why gittan is SaaS only"
   subtitle="Shared infrastructure, many moving parts, and a deliberate choice."
 >
   <p>
@@ -15,7 +15,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Shared infrastructure is cheaper</h2>
 
   <p>
-    Gittan's pipeline speed depends on warm runners and pre-pulled images. Runner pods
+    gittan's pipeline speed depends on warm runners and pre-pulled images. Runner pods
     are standing by before you push. Common base images are cached on every node. This
     infrastructure is expensive to run — and it is economical because hundreds of
     customers share it.
@@ -29,7 +29,7 @@
   </p>
 
   <p>
-    A self-hosted Gittan would need the same infrastructure, but serving only your
+    A self-hosted gittan would need the same infrastructure, but serving only your
     organization. You would pay for warm runners that sit idle most of the day. You
     would pay for pre-pulled images that only your team uses. The economics do not
     work unless you are running pipelines at a scale where you would be better served
@@ -39,7 +39,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Many moving parts</h2>
 
   <p>
-    Gittan is not a single application you install. It is a distributed system:
+    gittan is not a single application you install. It is a distributed system:
     Forgejo for git storage, ScyllaDB for data, NATS for messaging, a runner fleet
     for pipeline execution, a DAG executor for step orchestration, an API server, and
     a web dashboard. These components need to be deployed, monitored, upgraded, and
@@ -64,7 +64,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">It is our service</h2>
 
   <p>
-    We built Gittan. We operate it. We are responsible for its uptime, its performance,
+    We built gittan. We operate it. We are responsible for its uptime, its performance,
     and its reliability. That is the deal. You pay us to run it well so that you can
     focus on your software instead of your tools.
   </p>
@@ -80,7 +80,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Data residency</h2>
 
   <p>
-    The most legitimate reason for self-hosting is data residency. Gittan runs in EU
+    The most legitimate reason for self-hosting is data residency. gittan runs in EU
     infrastructure. Your source code, pipeline logs, and metadata stay in the EU. If
     you need a specific region or dedicated tenancy, we are open to that conversation —
     but it is still our infrastructure, managed by us.
@@ -92,6 +92,6 @@
     If your organization requires self-hosted git hosting, Forgejo is excellent. We run
     it under the hood ourselves — we know it is good software. What it does not have is
     gated push with fast pipelines, cascade testing, DORA metrics, or team-level reports.
-    Those are the things Gittan adds, and they work best on infrastructure we operate.
+    Those are the things gittan adds, and they work best on infrastructure we operate.
   </p>
 </Article>

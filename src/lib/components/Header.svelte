@@ -12,7 +12,7 @@
   <div class="flex items-center gap-3">
     <a href="/app" class="flex items-center gap-2 text-white hover:text-surface-200 transition-colors">
       <GittanLogo size={22} />
-      <span class="text-lg font-semibold tracking-tight">gittan</span>
+      <span class="text-lg font-semibold tracking-tight">gittan<span style="color: #c4993a">.</span></span>
     </a>
     <OrgSwitcher {orgs} {activeOrgId} />
   </div>

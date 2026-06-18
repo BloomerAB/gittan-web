@@ -56,7 +56,7 @@ steps:
 
   const terminalLines = [
     { text: '$ git push origin main', color: 'text-surface-300', delay: 0 },
-    { text: 'remote: Gittan pipeline started', color: 'text-surface-500', delay: 1 },
+    { text: 'remote: gittan pipeline started', color: 'text-surface-500', delay: 1 },
     { text: 'remote: ', color: 'text-surface-500', delay: 2 },
     { text: 'remote: [license-check] running...', color: 'text-policy-400', delay: 2 },
     { text: 'remote: [license-check] passed (0.4s)', color: 'text-ok-400', delay: 3 },
@@ -100,7 +100,7 @@ steps:
 
   <!-- Speed hero -->
   <section class="text-center space-y-6">
-    <h1 class="text-4xl font-bold text-surface-200 tracking-tight">How Gittan works</h1>
+    <h1 class="text-4xl font-bold text-surface-200 tracking-tight">How gittan works</h1>
     <p class="text-surface-400 text-lg max-w-2xl mx-auto">
       Push code. Pipeline runs. Results stream to your terminal. No tabs, no waiting, no ceremony.
     </p>
@@ -118,7 +118,7 @@ steps:
         </ul>
       </div>
       <div class="bg-surface-900 border border-accent-900 rounded-lg p-6 space-y-3">
-        <p class="text-[11px] uppercase tracking-wider text-accent-400">Gittan</p>
+        <p class="text-[11px] uppercase tracking-wider text-accent-400">gittan</p>
         <p class="text-4xl font-bold text-accent-400">&lt;1s</p>
         <p class="text-sm text-surface-500">from push to first step executing</p>
         <ul class="text-xs text-surface-600 space-y-1 text-left pt-2 border-t border-surface-800">
@@ -178,9 +178,9 @@ steps:
     </div>
   </section>
 
-  <!-- GitHub vs Gittan -->
+  <!-- GitHub vs gittan -->
   <section class="space-y-6">
-    <h2 class="text-2xl font-semibold text-surface-200">GitHub vs Gittan</h2>
+    <h2 class="text-2xl font-semibold text-surface-200">GitHub vs gittan</h2>
     <p class="text-surface-500 text-sm">Ship a change to main.</p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -198,7 +198,7 @@ steps:
 
       <div class="bg-surface-900 border border-accent-900 rounded-lg p-5 space-y-3">
         <div class="flex items-center justify-between">
-          <p class="text-sm font-semibold text-accent-400">Gittan</p>
+          <p class="text-sm font-semibold text-accent-400">gittan</p>
           <span class="text-[10px] bg-accent-900 text-accent-400 px-2 py-0.5 rounded-full">1 step</span>
         </div>
         <div class="mt-4 bg-surface-950 rounded p-4 font-mono text-sm text-accent-400">

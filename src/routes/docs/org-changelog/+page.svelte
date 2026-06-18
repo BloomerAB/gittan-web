@@ -25,7 +25,7 @@
   <h2 class="text-lg font-semibold text-surface-300 pt-2">The org changelog</h2>
 
   <p>
-    Gittan maintains an org-level changelog — a feed of what each team has shipped,
+    gittan maintains an org-level changelog — a feed of what each team has shipped,
     written in plain language. Not commit messages. Not ticket IDs. Descriptions of
     features, fixes, and changes that a non-engineer can understand.
   </p>
@@ -39,7 +39,7 @@
 
   <p>
     These entries accumulate into a timeline per team. At the org level, every team's
-    timeline merges into a single feed. A CTO opening Gittan on Monday morning sees
+    timeline merges into a single feed. A CTO opening gittan on Monday morning sees
     what every team shipped last week — in language they can forward to the board, paste
     into a stakeholder update, or use in a quarterly review.
   </p>

@@ -23,3 +23,6 @@ dist
 dist-server
 
 tests/ai/.results/
+tests/e2e/.results/
+tests/e2e/.auth/
+test-results/

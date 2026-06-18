@@ -15,14 +15,14 @@
   </p>
 
   <p>
-    Gittan takes a different approach. Pipelines are not just something you write — they
+    gittan takes a different approach. Pipelines are not just something you write — they
     are something the platform provides.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Automatic pipelines for small teams</h2>
 
   <p>
-    When a team creates a repo, Gittan detects the project type and applies a sensible
+    When a team creates a repo, gittan detects the project type and applies a sensible
     pipeline automatically. A Node.js project gets lint, test, and build steps. A Go
     project gets vet, test, and build. A Dockerfile-only repo gets build and scan. The
     team does not have to configure anything to get a working CI pipeline on their first
@@ -53,7 +53,7 @@
   </p>
 
   <p>
-    Gittan's org policies give platform teams a better mechanism. An org policy is a set
+    gittan's org policies give platform teams a better mechanism. An org policy is a set
     of pipeline steps that are injected into every pipeline in the organization. The
     platform team controls these steps. Stream-aligned teams cannot remove or skip them.
     But critically — the default behavior is to report, not to block.
@@ -69,7 +69,7 @@
   </p>
 
   <p>
-    Gittan policies default to advisory mode. A security scan runs on every push. If it
+    gittan policies default to advisory mode. A security scan runs on every push. If it
     finds a vulnerability, the result is added to a continuously updated report for the
     team. The push is not rejected. The developer sees the finding in their terminal
     output. The report accumulates findings over time — risks, recommendations,

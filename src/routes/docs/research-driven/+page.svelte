@@ -7,7 +7,7 @@
   subtitle="Accelerate and Team Topologies are our product spec. Not customer wishlists."
 >
   <p>
-    Gittan is not shaped by feature requests. It is shaped by research. Specifically, the
+    gittan is not shaped by feature requests. It is shaped by research. Specifically, the
     findings in <em class="text-surface-300">Accelerate</em> by Nicole Forsgren, Jez Humble,
     and Gene Kim, and <em class="text-surface-300">Team Topologies</em> by Matthew Skelton
     and Manuel Pais. These books are not opinions — they are the result of years of
@@ -32,7 +32,7 @@
   </p>
 
   <p>
-    Every feature in Gittan maps to one or more of these capabilities. Gated push enforces
+    Every feature in gittan maps to one or more of these capabilities. Gated push enforces
     continuous integration. Terminal feedback shortens the feedback loop. No long-lived
     branches means trunk-based development. DORA metrics on the dashboard make performance
     visible, not as a management surveillance tool, but as a team health indicator.
@@ -48,7 +48,7 @@
   </p>
 
   <p>
-    Gittan's permission model is team-centric because Team Topologies says that is how
+    gittan's permission model is team-centric because Team Topologies says that is how
     high-performing organizations work. Teams own repos, not individuals. Access follows
     team boundaries, not org charts of individual contributors. When a team is responsible
     for a service, they control its code, its pipeline, and its deployment. No tickets to
@@ -73,7 +73,7 @@
   </p>
 
   <p>
-    Gittan owns the entire pipeline from push to deploy. We know exactly when a commit
+    gittan owns the entire pipeline from push to deploy. We know exactly when a commit
     was pushed, how long the pipeline took, whether it passed or failed, and when the
     change reached production. We do not need to guess or scrape. The four DORA metrics
     are computed directly from data we already have:
@@ -82,7 +82,7 @@
   <ul class="list-none space-y-2">
     <li class="flex gap-2">
       <span class="text-accent-400 shrink-0">&#8227;</span>
-      <span><strong class="text-surface-300">Deployment frequency</strong> — how often the team pushes to main. Gittan counts every accepted push.</span>
+      <span><strong class="text-surface-300">Deployment frequency</strong> — how often the team pushes to main. gittan counts every accepted push.</span>
     </li>
     <li class="flex gap-2">
       <span class="text-accent-400 shrink-0">&#8227;</span>
@@ -94,7 +94,7 @@
     </li>
     <li class="flex gap-2">
       <span class="text-accent-400 shrink-0">&#8227;</span>
-      <span><strong class="text-surface-300">Time to restore service</strong> — how quickly the team ships a fix after a failure. Gittan tracks the time between a failed push and the next successful one.</span>
+      <span><strong class="text-surface-300">Time to restore service</strong> — how quickly the team ships a fix after a failure. gittan tracks the time between a failed push and the next successful one.</span>
     </li>
   </ul>
 
@@ -177,13 +177,13 @@
   </p>
 
   <p>
-    Gittan exists to prove that a tool built on those principles can work for real teams
+    gittan exists to prove that a tool built on those principles can work for real teams
     at real companies. Not as an experiment, but as production infrastructure. If we can
     demonstrate that fewer features and more trust produces better outcomes, maybe the rest
     of the industry will follow.
   </p>
 
   <p>
-    If not, at least the teams that use Gittan will ship faster.
+    If not, at least the teams that use gittan will ship faster.
   </p>
 </Article>

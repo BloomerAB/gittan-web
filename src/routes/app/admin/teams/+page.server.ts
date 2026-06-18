@@ -2,40 +2,22 @@ import { fail } from '@sveltejs/kit'
 import type { Actions } from './$types'
 import { apiPost, apiPut } from '$lib/server/api'
 
-const VALID_TOPOLOGIES = ['stream-aligned', 'platform', 'enabling', 'complicated-subsystem']
-
 export const actions: Actions = {
   create: async ({ request, locals, cookies }) => {
     if (!locals.session) return fail(401, { error: 'Not authenticated' })
 
     const form = await request.formData()
     const displayName = form.get('displayName')?.toString()?.trim()
-    const topology = form.get('topology')?.toString()?.trim() || 'stream-aligned'
 
     if (!displayName) {
-      return fail(400, { error: 'Display name is required' })
-    }
-
-    const name = displayName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-
-    if (!name) {
-      return fail(400, { error: 'Display name must contain at least one alphanumeric character' })
-    }
-
-    if (!VALID_TOPOLOGIES.includes(topology)) {
-      return fail(400, { error: 'Invalid topology value' })
+      return fail(400, { error: 'Team name is required' })
     }
 
     const orgId = cookies.get('gittan-active-org')
     if (!orgId) return fail(400, { error: 'No active organization' })
 
     try {
-      await apiPost(`/orgs/${orgId}/teams`, locals.session, { name, displayName, topology })
+      await apiPost(`/orgs/${orgId}/teams`, locals.session, { displayName })
       return { created: true }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create team'
@@ -52,18 +34,12 @@ export const actions: Actions = {
     const form = await request.formData()
     const teamId = form.get('teamId')?.toString()?.trim()
     const displayName = form.get('displayName')?.toString()?.trim()
-    const topology = form.get('topology')?.toString()?.trim()
     const slackChannel = form.get('slackChannel')?.toString()?.trim()
 
     if (!teamId) return fail(400, { error: 'teamId required' })
 
-    if (topology && !VALID_TOPOLOGIES.includes(topology)) {
-      return fail(400, { error: 'Invalid topology value' })
-    }
-
     const updates: Record<string, string> = {}
     if (displayName) updates.displayName = displayName
-    if (topology) updates.topology = topology
     if (slackChannel !== undefined) updates.slackChannel = slackChannel ?? ''
 
     try {

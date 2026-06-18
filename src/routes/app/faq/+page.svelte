@@ -5,7 +5,7 @@
       items: [
         {
           q: 'Why no pull requests?',
-          a: 'Pull requests solve two problems: code review and gating. Gittan replaces the gating part with a pre-receive hook that runs your pipeline before accepting the push. If the pipeline fails, the push is rejected. Code review happens through pair programming, mob programming, or async review of commits on main. PRs add ceremony that slows teams down without making code better.',
+          a: 'Pull requests solve two problems: code review and gating. gittan replaces the gating part with a pre-receive hook that runs your pipeline before accepting the push. If the pipeline fails, the push is rejected. Code review happens through pair programming, mob programming, or async review of commits on main. PRs add ceremony that slows teams down without making code better.',
         },
         {
           q: 'Why trunk-based development?',
@@ -13,7 +13,7 @@
         },
         {
           q: 'Why terminal feedback?',
-          a: 'You just ran git push. You are already in the terminal. Opening a browser to watch CI is a context switch. Gittan streams pipeline output directly to your terminal during push. You see results where you already are. No tabs, no notifications, no polling a web UI.',
+          a: 'You just ran git push. You are already in the terminal. Opening a browser to watch CI is a context switch. gittan streams pipeline output directly to your terminal during push. You see results where you already are. No tabs, no notifications, no polling a web UI.',
         },
       ],
     },
@@ -26,7 +26,7 @@
         },
         {
           q: 'Why no Actions marketplace?',
-          a: 'GitHub Actions marketplace is a supply chain nightmare. You pull in third-party code that runs with full access to your secrets and source code. One compromised action poisons thousands of repos. Gittan pipelines use container images you control. Pin a specific image tag, scan it, sign it. Your org policy can enforce image sources.',
+          a: 'GitHub Actions marketplace is a supply chain nightmare. You pull in third-party code that runs with full access to your secrets and source code. One compromised action poisons thousands of repos. gittan pipelines use container images you control. Pin a specific image tag, scan it, sign it. Your org policy can enforce image sources.',
         },
         {
           q: 'Why no issues, wiki, or project boards?',
@@ -39,15 +39,15 @@
       items: [
         {
           q: 'Why no per-seat pricing?',
-          a: 'Per-seat pricing punishes collaboration. Need a contractor for two weeks? That costs you a seat. Want a junior to shadow a senior? That costs you a seat. Gittan charges per team, not per person. Add as many people as you need on the Team plan.',
+          a: 'Per-seat pricing punishes collaboration. Need a contractor for two weeks? That costs you a seat. Want a junior to shadow a senior? That costs you a seat. gittan charges per team, not per person. Add as many people as you need on the Team plan.',
         },
         {
           q: 'Why is OIDC/SSO included on every plan?',
-          a: 'Because SSO is a security feature, not a premium add-on. Every other git host charges extra for SSO, which means small teams are forced to use passwords. That is backwards. Every Gittan plan includes OIDC. Connect your identity provider on day one.',
+          a: 'Because SSO is a security feature, not a premium add-on. Every other git host charges extra for SSO, which means small teams are forced to use passwords. That is backwards. Every gittan plan includes OIDC. Connect your identity provider on day one.',
         },
         {
-          q: 'Can I self-host Gittan?',
-          a: 'No. Gittan is SaaS only. Self-hosting creates a support surface we cannot control and splits focus between product and infrastructure. If you need on-prem git hosting, Forgejo and Gitea are excellent options. We run Forgejo under the hood.',
+          q: 'Can I self-host gittan?',
+          a: 'No. gittan is SaaS only. Self-hosting creates a support surface we cannot control and splits focus between product and infrastructure. If you need on-prem git hosting, Forgejo and Gitea are excellent options. We run Forgejo under the hood.',
         },
       ],
     },
@@ -56,11 +56,11 @@
       items: [
         {
           q: 'Why no stars or popularity metrics?',
-          a: 'Stars measure marketing, not engineering. A repo with 50,000 stars and 200-second CI is worse than one with zero stars and 8-second CI. Gittan tracks DORA metrics: deployment frequency, lead time for changes, change failure rate, and time to restore. These measure engineering effectiveness, not popularity.',
+          a: 'Stars measure marketing, not engineering. A repo with 50,000 stars and 200-second CI is worse than one with zero stars and 8-second CI. gittan tracks DORA metrics: deployment frequency, lead time for changes, change failure rate, and time to restore. These measure engineering effectiveness, not popularity.',
         },
         {
           q: 'Will you add feature X?',
-          a: 'Probably not. Gittan is intentionally limited. Every feature we add is a feature we have to maintain, document, and support. We would rather do three things well than ten things poorly. If the feature you want is covered by a dedicated tool, use that tool instead.',
+          a: 'Probably not. gittan is intentionally limited. Every feature we add is a feature we have to maintain, document, and support. We would rather do three things well than ten things poorly. If the feature you want is covered by a dedicated tool, use that tool instead.',
         },
         {
           q: 'Why are you building this?',
