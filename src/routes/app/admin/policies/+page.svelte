@@ -4,12 +4,6 @@
   import EmptyState from '$lib/components/EmptyState.svelte'
   import type { PageData, ActionData } from './$types'
 
-  type TMatchCriteria = {
-    files?: string
-    team?: string
-    name?: string
-  }
-
   type TInjectStep = {
     position: 'before' | 'after'
     name: string
@@ -23,7 +17,7 @@
     matchFiles?: string
     matchTeam?: string
     matchName?: string
-    steps?: TInjectStep[]
+    steps?: { position: string; name: string; use?: string }[]
   }
 
   let { data, form }: { data: PageData; form: ActionData } = $props()
