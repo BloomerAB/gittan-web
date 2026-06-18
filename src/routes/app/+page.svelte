@@ -3,19 +3,8 @@
 
   let { data, form } = $props()
 
-  let name = $state('')
   let displayName = $state('')
   let submitting = $state(false)
-
-  function slugify(input: string): string {
-    return input.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-  }
-
-  function handleDisplayNameInput(e: Event) {
-    const target = e.target as HTMLInputElement
-    displayName = target.value
-    name = slugify(displayName)
-  }
 </script>
 
 {#if data.needsOnboarding}
@@ -51,32 +40,16 @@
               type="text"
               id="displayName"
               name="displayName"
-              value={displayName}
-              oninput={handleDisplayNameInput}
+              bind:value={displayName}
               placeholder="Acme Engineering"
               required
               class="w-full bg-surface-800 border border-surface-700 rounded-md px-3 py-2 text-surface-200 placeholder-surface-600 focus:outline-none focus:border-accent-500"
             />
           </div>
 
-          <div>
-            <label for="name" class="block text-xs text-surface-400 mb-1">URL slug</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              bind:value={name}
-              placeholder="acme-engineering"
-              required
-              pattern="^[a-z0-9-]+$"
-              class="w-full bg-surface-800 border border-surface-700 rounded-md px-3 py-2 text-surface-200 placeholder-surface-600 focus:outline-none focus:border-accent-500 font-mono text-sm"
-            />
-            <p class="text-xs text-surface-600 mt-1">Lowercase letters, numbers, and dashes only</p>
-          </div>
-
           <button
             type="submit"
-            disabled={submitting || !name || !displayName}
+            disabled={submitting || !displayName}
             class="w-full bg-accent-600 hover:bg-accent-500 text-surface-950 font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Creating...' : 'Create organization'}
