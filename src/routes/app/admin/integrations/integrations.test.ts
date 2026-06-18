@@ -24,6 +24,8 @@ vi.mock('./$types', () => ({}))
 
 import { actions, load } from './+page.server.js'
 
+type TLoadResult = { org: Record<string, unknown> | null }
+
 const TEST_SESSION = {
   accessToken: 'test-access-token',
   refreshToken: 'test-refresh-token',
@@ -70,7 +72,7 @@ describe('integrations page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: TEST_SESSION },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toEqual(orgData)
     expect(mockApiGet).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION)
@@ -83,7 +85,7 @@ describe('integrations page load', () => {
         activeOrgId: undefined,
       }),
       locals: { session: TEST_SESSION },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toBeNull()
     expect(mockApiGet).not.toHaveBeenCalled()
@@ -96,7 +98,7 @@ describe('integrations page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: null },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toBeNull()
   })
@@ -114,7 +116,7 @@ describe('integrations page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: TEST_SESSION },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toEqual(orgs[0])
   })
@@ -128,7 +130,7 @@ describe('integrations page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: TEST_SESSION },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toBeNull()
   })
