@@ -13,7 +13,7 @@
     {
       slug: 'teams-own-everything',
       title: 'Teams own everything. Individuals own nothing.',
-      subtitle: 'There is no personal namespace in Gittan. Code belongs to teams, because that is how quality happens.',
+      subtitle: 'There is no personal namespace in gittan. Code belongs to teams, because that is how quality happens.',
     },
     {
       slug: 'no-permission-levels',
@@ -22,7 +22,7 @@
     },
     {
       slug: 'why-gittan',
-      title: 'Why we built Gittan',
+      title: 'Why we built gittan',
       subtitle: 'Everything available was either too complex, too expensive, too limited, or too opinionated.',
     },
     {
@@ -56,13 +56,18 @@
       subtitle: 'Everything about Teams is a project. We chose not to start one.',
     },
     {
+      slug: 'polyrepo',
+      title: 'Why we built for polyrepos',
+      subtitle: 'Monorepos solve a tooling problem by creating a platform problem. We solved the tooling problem instead.',
+    },
+    {
       slug: 'cascade-pipelines',
       title: 'Cascade pipelines: monorepo safety without the monorepo',
       subtitle: 'When a shared dependency passes, downstream repos are tested automatically.',
     },
     {
       slug: 'no-dependabot',
-      title: 'Why Gittan does not update your dependencies',
+      title: 'Why gittan does not update your dependencies',
       subtitle: 'Dependency updates are engineering decisions. Not automation.',
     },
     {
@@ -73,7 +78,7 @@
     {
       slug: 'no-latest-tags',
       title: 'Why we ban the latest tag',
-      subtitle: 'Every image in a Gittan pipeline has a timestamp and a commit SHA. No exceptions.',
+      subtitle: 'Every image in a gittan pipeline has a timestamp and a commit SHA. No exceptions.',
     },
     {
       slug: 'no-vanity-metrics',
@@ -87,12 +92,12 @@
     },
     {
       slug: 'eu-sovereignty',
-      title: 'Why Gittan runs in the EU',
+      title: 'Why gittan runs in the EU',
       subtitle: 'Your source code is your business. It should stay in your jurisdiction.',
     },
     {
       slug: 'saas-only',
-      title: 'Why Gittan is SaaS only',
+      title: 'Why gittan is SaaS only',
       subtitle: 'The product is the infrastructure. You cannot separate them.',
     },
     {
@@ -108,7 +113,7 @@
   <section class="space-y-2">
     <h1 class="text-3xl font-bold text-surface-200 tracking-tight">How we think</h1>
     <p class="text-surface-500 text-sm">
-      Gittan is an opinionated product. These posts explain why.
+      gittan is an opinionated product. These posts explain why.
     </p>
   </section>
 
