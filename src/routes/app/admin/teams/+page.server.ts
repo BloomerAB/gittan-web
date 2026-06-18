@@ -9,6 +9,7 @@ export const actions: Actions = {
     const form = await request.formData()
     const name = form.get('name')?.toString()?.trim()
     const displayName = form.get('displayName')?.toString()?.trim()
+    const topology = form.get('topology')?.toString()?.trim() || 'stream-aligned'
 
     if (!name || !displayName) {
       return fail(400, { error: 'Name and display name are required' })
@@ -18,11 +19,16 @@ export const actions: Actions = {
       return fail(400, { error: 'Name must be lowercase alphanumeric with dashes' })
     }
 
+    const validTopologies = ['stream-aligned', 'platform', 'enabling', 'complicated-subsystem']
+    if (!validTopologies.includes(topology)) {
+      return fail(400, { error: 'Invalid topology value' })
+    }
+
     const orgId = cookies.get('gittan-active-org')
     if (!orgId) return fail(400, { error: 'No active organization' })
 
     try {
-      await apiPost(`/orgs/${orgId}/teams`, locals.session, { name, displayName })
+      await apiPost(`/orgs/${orgId}/teams`, locals.session, { name, displayName, topology })
       return { created: true }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create team'

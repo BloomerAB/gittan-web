@@ -10,6 +10,7 @@
   let saveMessage = $state('')
 
   let editDisplayName = $state('')
+  let editTopology = $state('stream-aligned')
   let editSlackChannel = $state('')
   let editOidcGroupId = $state('')
   let editOidcRole = $state<'admin' | 'member'>('member')
@@ -37,6 +38,7 @@
     if (!team) return
     selectedTeamId = teamId
     editDisplayName = team.displayName
+    editTopology = team.topology ?? 'stream-aligned'
     editSlackChannel = team.slackChannel ?? ''
     editOidcGroupId = ''
     editOidcRole = 'member'
@@ -113,6 +115,19 @@
             bind:value={editDisplayName}
             class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
           />
+        </div>
+
+        <div>
+          <label class="block text-xs text-surface-500 mb-1">Topology</label>
+          <select
+            bind:value={editTopology}
+            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+          >
+            <option value="stream-aligned">Stream-aligned</option>
+            <option value="platform">Platform</option>
+            <option value="enabling">Enabling</option>
+            <option value="complicated-subsystem">Complicated Subsystem</option>
+          </select>
         </div>
 
         <div>
@@ -276,7 +291,7 @@
               name="name"
               required
               pattern="[a-z0-9\-]+"
-              placeholder="backend"
+              placeholder="checkout-flow"
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
             />
             <p class="text-[10px] text-surface-600 mt-1">Lowercase, numbers, dashes only</p>
@@ -288,9 +303,23 @@
               type="text"
               name="displayName"
               required
-              placeholder="Backend Team"
+              placeholder="Checkout Flow"
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
+          </div>
+          <div>
+            <label for="team-topology" class="block text-xs text-surface-500 mb-1">Topology</label>
+            <select
+              id="team-topology"
+              name="topology"
+              class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+            >
+              <option value="stream-aligned">Stream-aligned</option>
+              <option value="platform">Platform</option>
+              <option value="enabling">Enabling</option>
+              <option value="complicated-subsystem">Complicated Subsystem</option>
+            </select>
+            <p class="text-[10px] text-surface-600 mt-1">Team Topologies classification</p>
           </div>
           <button
             type="submit"
@@ -315,6 +344,7 @@
             <tr class="border-b border-surface-800 text-left">
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Name</th>
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Display Name</th>
+              <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Topology</th>
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2 pr-4">Slack</th>
               <th class="text-[11px] uppercase text-surface-500 tracking-wider py-2">Created</th>
             </tr>
@@ -327,6 +357,7 @@
               >
                 <td class="py-2.5 pr-4 font-mono text-surface-300">{team.name}</td>
                 <td class="py-2.5 pr-4 text-surface-400">{team.displayName}</td>
+                <td class="py-2.5 pr-4 text-surface-500">{team.topology ?? 'stream-aligned'}</td>
                 <td class="py-2.5 pr-4 text-surface-500">{team.slackChannel ?? '-'}</td>
                 <td class="py-2.5 text-surface-500">{formatDate(team.createdAt)}</td>
               </tr>
