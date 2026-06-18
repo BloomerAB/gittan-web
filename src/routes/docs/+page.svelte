@@ -23,7 +23,7 @@
     {
       slug: 'why-gittan',
       title: 'Why we built gittan',
-      subtitle: 'Everything available was either too complex, too expensive, too limited, or too opinionated.',
+      subtitle: 'The existing platforms have no direction. We built one that cares whether your team ships well.',
     },
     {
       slug: 'no-pull-requests',
