@@ -29,12 +29,12 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
   let usage: TOrgUsage | null = null
 
   if (activeOrgId) {
-    teams = await apiGet<TTeam[]>(`/orgs/${activeOrgId}/teams`, session)
+    teams = await apiGet<TTeam[]>(`/orgs/${activeOrgId}/teams`, session).catch(() => [] as TTeam[])
 
     const repoMap: Record<string, TRepo[]> = {}
     await Promise.all(
       teams.map(async (team) => {
-        repoMap[team.id] = await apiGet<TRepo[]>(`/teams/${team.id}/repos`, session)
+        repoMap[team.id] = await apiGet<TRepo[]>(`/teams/${team.id}/repos`, session).catch(() => [] as TRepo[])
       }),
     )
     reposByTeam = repoMap
