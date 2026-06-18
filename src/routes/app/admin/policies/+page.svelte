@@ -29,6 +29,7 @@
   let { data, form }: { data: PageData; form: ActionData } = $props()
 
   let showCreateForm = $state(false)
+  let creating = $state(false)
   let newName = $state('')
   let newDescription = $state('')
   let newMatchFiles = $state('')
@@ -101,7 +102,9 @@
       action="?/createPolicy"
       use:enhance={({ formData }) => {
         formData.set('steps', stepsJson())
+        creating = true
         return async ({ result, update }) => {
+          creating = false
           await update()
           if (result.type === 'success') {
             resetForm()
@@ -229,9 +232,10 @@
 
         <button
           type="submit"
-          class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+          disabled={creating}
+          class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
         >
-          Create Policy
+          {creating ? 'Creating...' : 'Create Policy'}
         </button>
       </div>
     </form>

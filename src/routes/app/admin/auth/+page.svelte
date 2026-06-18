@@ -4,21 +4,26 @@
 
   let { data, form } = $props()
 
-  let mode = $state<'builtin' | 'oidc'>('builtin')
+  let mode = $state<'builtin' | 'oidc'>(data.org?.oidcIssuer ? 'oidc' : 'builtin')
 
-  let selfRegistration = $state(false)
-  let emailVerification = $state(true)
+  let selfRegistration = $state(data.org?.selfRegistration ?? false)
+  let emailVerification = $state(data.org?.emailVerification ?? true)
 
   let issuerUrl = $state(data.org?.oidcIssuer ?? '')
   let clientId = $state(data.org?.oidcClientId ?? '')
-  let groupsClaim = $state('groups')
-  let mandatorySso = $state(false)
+  let groupsClaim = $state(data.org?.groupsClaim ?? 'groups')
+  let mandatorySso = $state(data.org?.mandatorySso ?? false)
   let testStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle')
   let saving = $state(false)
 
   $effect(() => {
     issuerUrl = data.org?.oidcIssuer ?? ''
     clientId = data.org?.oidcClientId ?? ''
+    groupsClaim = data.org?.groupsClaim ?? 'groups'
+    mandatorySso = data.org?.mandatorySso ?? false
+    selfRegistration = data.org?.selfRegistration ?? false
+    emailVerification = data.org?.emailVerification ?? true
+    mode = data.org?.oidcIssuer ? 'oidc' : 'builtin'
   })
 
   function testConnection() {
@@ -62,17 +67,20 @@
       action="?/saveAuth"
       use:enhance={() => {
         saving = true
-        return async ({ update }) => {
+        return async ({ result, update }) => {
           saving = false
           await update()
-          if (form?.saved) {
+          if (result.type === 'success') {
             await invalidateAll()
           }
         }
       }}
     >
       <div class="max-w-xl space-y-6">
+        <input type="hidden" name="mode" value={mode} />
         {#if mode === 'builtin'}
+          <input type="hidden" name="selfRegistration" value={selfRegistration ? 'true' : 'false'} />
+          <input type="hidden" name="emailVerification" value={emailVerification ? 'true' : 'false'} />
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-surface-300">Self-registration</p>
@@ -150,6 +158,7 @@
             <p class="text-[11px] text-surface-600 mt-1">JWT claim containing group memberships for team mapping</p>
           </div>
 
+          <input type="hidden" name="mandatorySso" value={mandatorySso ? 'true' : 'false'} />
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-surface-300">Mandatory SSO</p>

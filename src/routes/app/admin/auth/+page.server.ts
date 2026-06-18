@@ -6,6 +6,10 @@ import type { TOrg } from '$lib/types'
 type TOrgDetail = TOrg & {
   oidcIssuer?: string
   oidcClientId?: string
+  groupsClaim?: string
+  mandatorySso?: boolean
+  selfRegistration?: boolean
+  emailVerification?: boolean
 }
 
 export const load: PageServerLoad = async ({ parent, locals }) => {
@@ -29,14 +33,26 @@ export const actions: Actions = {
     if (!orgId) return fail(400, { error: 'No active org' })
 
     const data = await request.formData()
+    const authMode = data.get('mode') as string
     const oidcIssuer = data.get('oidcIssuer') as string
     const oidcClientId = data.get('oidcClientId') as string
+    const groupsClaim = data.get('groupsClaim') as string
+    const mandatorySso = data.get('mandatorySso') === 'true'
+    const selfRegistration = data.get('selfRegistration') === 'true'
+    const emailVerification = data.get('emailVerification') === 'true'
+
+    const payload: Record<string, unknown> =
+      authMode === 'oidc'
+        ? {
+            oidcIssuer: oidcIssuer || undefined,
+            oidcClientId: oidcClientId || undefined,
+            groupsClaim: groupsClaim || undefined,
+            mandatorySso,
+          }
+        : { selfRegistration, emailVerification }
 
     try {
-      await apiPut(`/orgs/${orgId}`, locals.session, {
-        oidcIssuer: oidcIssuer || undefined,
-        oidcClientId: oidcClientId || undefined,
-      })
+      await apiPut(`/orgs/${orgId}`, locals.session, payload)
       return { saved: true }
     } catch {
       return fail(500, { error: 'Failed to save auth configuration' })

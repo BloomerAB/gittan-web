@@ -11,7 +11,7 @@
 
   let { data } = $props()
 
-  const auditEvents: TAuditEvent[] = data.auditEvents ?? []
+  let auditEvents = $derived<TAuditEvent[]>(data.auditEvents ?? [])
 
   function formatTime(ts: string): string {
     const d = new Date(ts)

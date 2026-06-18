@@ -16,6 +16,7 @@
   let { data, form }: { data: PageData; form: ActionData } = $props()
 
   let showRegisterForm = $state(false)
+  let registering = $state(false)
   let newName = $state('')
   let newDescription = $state('')
   let newImage = $state('')
@@ -56,7 +57,9 @@
       method="POST"
       action="?/registerStep"
       use:enhance={() => {
+        registering = true
         return async ({ result, update }) => {
+          registering = false
           await update()
           if (result.type === 'success') {
             newName = ''
@@ -80,7 +83,7 @@
             type="text"
             name="name"
             bind:value={newName}
-            placeholder="node/test"
+            placeholder="node-test"
             class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
           />
         </div>
@@ -141,9 +144,10 @@
         </div>
         <button
           type="submit"
-          class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+          disabled={registering}
+          class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
         >
-          Register
+          {registering ? 'Registering...' : 'Register'}
         </button>
       </div>
     </form>

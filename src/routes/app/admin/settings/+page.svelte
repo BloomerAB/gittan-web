@@ -5,12 +5,14 @@
   let { data, form } = $props()
 
   let orgName = $state(data.org?.displayName ?? '')
-  let allowLatest = $state(false)
-  let publicRepos = $state(false)
+  let allowLatest = $state(data.org?.allowLatest ?? false)
+  let publicRepos = $state(data.org?.publicRepos ?? false)
   let saving = $state(false)
 
   $effect(() => {
     orgName = data.org?.displayName ?? ''
+    allowLatest = data.org?.allowLatest ?? false
+    publicRepos = data.org?.publicRepos ?? false
   })
 </script>
 
@@ -25,10 +27,10 @@
       action="?/saveSettings"
       use:enhance={() => {
         saving = true
-        return async ({ update }) => {
+        return async ({ result, update }) => {
           saving = false
           await update()
-          if (form?.saved) {
+          if (result.type === 'success') {
             await invalidateAll()
           }
         }
@@ -61,6 +63,7 @@
             <p class="text-sm text-surface-300">Allow <code class="font-mono text-xs">latest</code> tag</p>
             <p class="text-xs text-err-400">Not recommended. Breaks reproducibility and rollback guarantees.</p>
           </div>
+          <input type="hidden" name="allowLatest" value={allowLatest ? 'true' : 'false'} />
           <button
             type="button"
             onclick={() => { allowLatest = !allowLatest }}
@@ -81,6 +84,7 @@
             <p class="text-sm text-surface-300">Public repositories</p>
             <p class="text-xs text-surface-600">Allow teams to create publicly visible repositories</p>
           </div>
+          <input type="hidden" name="publicRepos" value={publicRepos ? 'true' : 'false'} />
           <button
             type="button"
             onclick={() => { publicRepos = !publicRepos }}

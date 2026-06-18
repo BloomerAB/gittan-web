@@ -1,15 +1,25 @@
 import { fail } from '@sveltejs/kit'
-import { apiPut } from '$lib/server/api'
+import { apiGet, apiPut } from '$lib/server/api'
 import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
 
-export const load: PageServerLoad = async ({ parent, locals, cookies }) => {
+type TOrgSettings = TOrg & {
+  allowLatest?: boolean
+  publicRepos?: boolean
+}
+
+export const load: PageServerLoad = async ({ parent, locals }) => {
   const { orgs, activeOrgId } = await parent()
   const orgId = activeOrgId
   if (!orgId || !locals.session) return { org: null }
 
-  const org = orgs.find((o: TOrg) => o.id === orgId) ?? null
-  return { org }
+  try {
+    const org = await apiGet<TOrgSettings>(`/orgs/${orgId}`, locals.session)
+    return { org }
+  } catch {
+    const org = (orgs.find((o: TOrg) => o.id === orgId) as TOrgSettings | undefined) ?? null
+    return { org }
+  }
 }
 
 export const actions: Actions = {
@@ -20,9 +30,11 @@ export const actions: Actions = {
 
     const data = await request.formData()
     const displayName = data.get('displayName') as string
+    const allowLatest = data.get('allowLatest') === 'true'
+    const publicRepos = data.get('publicRepos') === 'true'
 
     try {
-      await apiPut(`/orgs/${orgId}`, locals.session, { displayName })
+      await apiPut(`/orgs/${orgId}`, locals.session, { displayName, allowLatest, publicRepos })
       return { saved: true }
     } catch {
       return fail(500, { error: 'Failed to save settings' })
