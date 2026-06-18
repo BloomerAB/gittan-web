@@ -20,16 +20,18 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
     redirect(302, '/?auth_error=invalid_state')
   }
 
+  let tokens
   try {
-    const tokens = await exchangeCodeForTokens(code)
-    setSession(cookies, {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt: Date.now() + tokens.expires_in * 1000,
-    })
-    redirect(302, '/app')
+    tokens = await exchangeCodeForTokens(code)
   } catch (err) {
     console.error('Token exchange failed:', err)
     redirect(302, '/?auth_error=token_exchange_failed')
   }
+
+  setSession(cookies, {
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresAt: Date.now() + tokens.expires_in * 1000,
+  })
+  redirect(302, '/app')
 }

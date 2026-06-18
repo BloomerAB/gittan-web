@@ -333,11 +333,13 @@
         action="?/create"
         use:enhance={() => {
           creating = true
-          return async ({ update }) => {
+          return async ({ result, update }) => {
             creating = false
             await update()
-            await invalidateAll()
-            showCreateForm = false
+            if (result.type === 'success') {
+              await invalidateAll()
+              showCreateForm = false
+            }
           }
         }}
         class="bg-surface-900 border border-surface-800 rounded-lg p-4 mb-6 max-w-xl"
@@ -348,19 +350,6 @@
           </div>
         {/if}
         <div class="space-y-3">
-          <div>
-            <label for="team-name" class="block text-xs text-surface-500 mb-1">Team Name</label>
-            <input
-              id="team-name"
-              type="text"
-              name="name"
-              required
-              pattern="[a-z0-9\-]+"
-              placeholder="checkout-flow"
-              class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
-            />
-            <p class="text-[10px] text-surface-600 mt-1">Lowercase, numbers, dashes only</p>
-          </div>
           <div>
             <label for="team-display" class="block text-xs text-surface-500 mb-1">Display Name</label>
             <input

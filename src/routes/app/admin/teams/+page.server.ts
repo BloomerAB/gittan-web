@@ -9,16 +9,22 @@ export const actions: Actions = {
     if (!locals.session) return fail(401, { error: 'Not authenticated' })
 
     const form = await request.formData()
-    const name = form.get('name')?.toString()?.trim()
     const displayName = form.get('displayName')?.toString()?.trim()
     const topology = form.get('topology')?.toString()?.trim() || 'stream-aligned'
 
-    if (!name || !displayName) {
-      return fail(400, { error: 'Name and display name are required' })
+    if (!displayName) {
+      return fail(400, { error: 'Display name is required' })
     }
 
-    if (!/^[a-z0-9-]+$/.test(name)) {
-      return fail(400, { error: 'Name must be lowercase alphanumeric with dashes' })
+    const name = displayName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+
+    if (!name) {
+      return fail(400, { error: 'Display name must contain at least one alphanumeric character' })
     }
 
     if (!VALID_TOPOLOGIES.includes(topology)) {
