@@ -28,19 +28,8 @@ export const actions: Actions = {
       return fail(400, { error: 'Organization name is required' })
     }
 
-    const name = displayName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-
-    if (!name) {
-      return fail(400, { error: 'Organization name must contain at least one letter or number' })
-    }
-
     try {
-      const org = await apiPost<TOrg>('/orgs', locals.session, { name, displayName })
+      const org = await apiPost<TOrg>('/orgs', locals.session, { displayName })
 
       cookies.set('gittan-active-org', org.id, {
         path: '/',
