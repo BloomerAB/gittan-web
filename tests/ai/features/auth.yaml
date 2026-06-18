@@ -1,0 +1,28 @@
+name: "Auth"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "auth-001"
+    name: "Switch to OIDC tab and fill in issuer URL and client ID"
+    steps:
+      - action: "Navigate to the Auth page in the admin sidebar"
+        expect: "Auth configuration page is visible. Tabs or sections for different auth methods (OTP, OIDC, etc.) are shown"
+      - action: "Click the OIDC tab or section"
+        expect: "OIDC configuration form is shown with fields for issuer URL, client ID, and possibly client secret"
+      - action: "Fill in issuer URL 'https://accounts.google.com' and client ID 'test-client-id-12345'"
+        expect: "Fields are populated. No validation errors yet (fields accept the input)"
+
+  - id: "auth-002"
+    name: "Test connection validation client-side"
+    steps:
+      - action: "Navigate to the Auth page and switch to OIDC tab. Fill in an intentionally invalid issuer URL 'https://invalid.example.invalid' and click Save or Test Connection"
+        expect: "Client-side or server-side validation shows an error — either a validation message on the field or an error toast/banner indicating the issuer URL is unreachable or invalid"

@@ -1,0 +1,26 @@
+name: "Audit"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "audit-001"
+    name: "Navigate to audit page and verify events are listed"
+    steps:
+      - action: "Navigate to the Audit page in the admin sidebar"
+        expect: "Audit log page is visible. A list of audit events is shown (or an empty state message if no events exist)"
+      - action: "Verify that the audit list contains at least one entry"
+        expect: "At least one audit event row is visible in the list"
+
+  - id: "audit-002"
+    name: "Verify audit entries have actor, action, and timestamp"
+    steps:
+      - action: "Navigate to the Audit page and inspect the first audit entry"
+        expect: "Each audit entry shows: actor (user or system identity), action (what happened), and a timestamp. All three fields are present and non-empty on the first visible entry"

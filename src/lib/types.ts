@@ -53,6 +53,12 @@ export type TTeamMetrics = {
   failedPushes: number
 }
 
+export type TTeamMember = {
+  userId: string
+  role: 'admin' | 'member'
+  addedAt: string
+}
+
 export type TFileEntry = {
   name: string
   path: string

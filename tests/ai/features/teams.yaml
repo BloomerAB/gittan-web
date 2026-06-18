@@ -1,0 +1,36 @@
+name: "Teams"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "teams-001"
+    name: "Create a new team with stream-aligned topology"
+    steps:
+      - action: "Navigate to the Teams page in the admin sidebar"
+        expect: "Teams page is visible with a list of existing teams or empty state"
+      - action: "Click the 'New team' or 'Create team' button"
+        expect: "Team creation form or modal is shown with fields for name and topology"
+      - action: "Fill in team name 'AI Test Team', select topology 'stream-aligned', submit the form"
+        expect: "Team is created and appears in the team list with name 'AI Test Team' and topology 'stream-aligned'"
+
+  - id: "teams-002"
+    name: "Edit a team's display name and save"
+    steps:
+      - action: "Navigate to the Teams page. Click on 'AI Test Team' or its edit button"
+        expect: "Team edit form is visible with current name populated"
+      - action: "Clear the display name field and type 'AI Test Team Renamed', then save"
+        expect: "Team is updated. The team list or detail shows 'AI Test Team Renamed'"
+
+  - id: "teams-003"
+    name: "View team list with topology column"
+    steps:
+      - action: "Navigate to the Teams page"
+        expect: "Team list is shown with columns including team name and topology. At least one team is listed with a topology value (e.g. 'stream-aligned')"

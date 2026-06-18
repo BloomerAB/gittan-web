@@ -1,13 +1,15 @@
 <script lang="ts">
   import { enhance } from '$app/forms'
   import { invalidateAll } from '$app/navigation'
+  import type { TTeamMember } from '$lib/types'
 
   let { data, form } = $props()
 
   let selectedTeamId = $state<string | null>(null)
   let showCreateForm = $state(false)
   let creating = $state(false)
-  let saveMessage = $state('')
+  let saving = $state(false)
+  let saveError = $state('')
 
   let editDisplayName = $state('')
   let editTopology = $state('stream-aligned')
@@ -17,24 +19,41 @@
 
   let addMemberEmail = $state('')
   let addMemberRole = $state<'admin' | 'member'>('member')
-
-  type TMember = {
-    email: string
-    role: 'admin' | 'member'
-  }
+  let addMemberError = $state('')
+  let addMemberLoading = $state(false)
 
   type TOidcMapping = {
     groupId: string
     role: 'admin' | 'member'
   }
 
-  let mockMembers = $state<Record<string, TMember[]>>({})
-  let mockOidcMappings = $state<Record<string, TOidcMapping[]>>({})
+  // Real members fetched from API per selected team
+  let members = $state<TTeamMember[]>([])
+  let membersLoading = $state(false)
+  let membersError = $state('')
 
-  let selectedTeam = $derived(data.teams.find((t: any) => t.id === selectedTeamId))
+  // OIDC mappings remain UI-only (no API yet)
+  let oidcMappings = $state<TOidcMapping[]>([])
+
+  let selectedTeam = $derived(data.teams.find((t: { id: string }) => t.id === selectedTeamId))
+
+  async function fetchMembers(teamId: string): Promise<void> {
+    membersLoading = true
+    membersError = ''
+    try {
+      const res = await fetch(`/app/admin/teams/members?teamId=${encodeURIComponent(teamId)}`)
+      if (!res.ok) throw new Error(`Failed to load members: ${res.status}`)
+      members = (await res.json()) as TTeamMember[]
+    } catch (err) {
+      membersError = err instanceof Error ? err.message : 'Failed to load members'
+      members = []
+    } finally {
+      membersLoading = false
+    }
+  }
 
   function selectTeam(teamId: string) {
-    const team = data.teams.find((t: any) => t.id === teamId)
+    const team = data.teams.find((t: { id: string }) => t.id === teamId)
     if (!team) return
     selectedTeamId = teamId
     editDisplayName = team.displayName
@@ -44,45 +63,61 @@
     editOidcRole = 'member'
     addMemberEmail = ''
     addMemberRole = 'member'
+    addMemberError = ''
+    oidcMappings = []
+    void fetchMembers(teamId)
   }
 
   function addOidcMapping() {
-    if (!editOidcGroupId || !selectedTeamId) return
-    const existing = mockOidcMappings[selectedTeamId] ?? []
-    mockOidcMappings = {
-      ...mockOidcMappings,
-      [selectedTeamId]: [...existing, { groupId: editOidcGroupId, role: editOidcRole }],
-    }
+    if (!editOidcGroupId) return
+    oidcMappings = [...oidcMappings, { groupId: editOidcGroupId, role: editOidcRole }]
     editOidcGroupId = ''
     editOidcRole = 'member'
   }
 
-  function addMember() {
-    if (!addMemberEmail || !selectedTeamId) return
-    const existing = mockMembers[selectedTeamId] ?? []
-    mockMembers = {
-      ...mockMembers,
-      [selectedTeamId]: [...existing, { email: addMemberEmail, role: addMemberRole }],
-    }
-    addMemberEmail = ''
-    addMemberRole = 'member'
-  }
-
-  function removeMember(email: string) {
-    if (!selectedTeamId) return
-    const existing = mockMembers[selectedTeamId] ?? []
-    mockMembers = {
-      ...mockMembers,
-      [selectedTeamId]: existing.filter((m) => m.email !== email),
-    }
-  }
-
   function removeOidcMapping(groupId: string) {
+    oidcMappings = oidcMappings.filter((m) => m.groupId !== groupId)
+  }
+
+  async function addMember() {
+    if (!addMemberEmail || !selectedTeamId) return
+    addMemberLoading = true
+    addMemberError = ''
+    try {
+      const res = await fetch('/app/admin/teams/members/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: selectedTeamId, email: addMemberEmail, role: addMemberRole }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error((body as { message?: string }).message ?? `Failed to add member: ${res.status}`)
+      }
+      addMemberEmail = ''
+      addMemberRole = 'member'
+      await fetchMembers(selectedTeamId)
+    } catch (err) {
+      addMemberError = err instanceof Error ? err.message : 'Failed to add member'
+    } finally {
+      addMemberLoading = false
+    }
+  }
+
+  async function removeMember(userId: string) {
     if (!selectedTeamId) return
-    const existing = mockOidcMappings[selectedTeamId] ?? []
-    mockOidcMappings = {
-      ...mockOidcMappings,
-      [selectedTeamId]: existing.filter((m) => m.groupId !== groupId),
+    try {
+      const res = await fetch('/app/admin/teams/members/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: selectedTeamId, userId }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error((body as { message?: string }).message ?? `Failed to remove member: ${res.status}`)
+      }
+      await fetchMembers(selectedTeamId)
+    } catch (err) {
+      membersError = err instanceof Error ? err.message : 'Failed to remove member'
     }
   }
 
@@ -108,43 +143,86 @@
       <h2 class="text-lg font-semibold text-surface-200 mb-6">{selectedTeam.name}</h2>
 
       <div class="space-y-6 max-w-xl">
-        <div>
-          <label class="block text-xs text-surface-500 mb-1">Display Name</label>
-          <input
-            type="text"
-            bind:value={editDisplayName}
-            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-          />
-        </div>
+        <form
+          method="POST"
+          action="?/updateTeam"
+          use:enhance={() => {
+            saving = true
+            saveError = ''
+            return async ({ result, update }) => {
+              saving = false
+              if (result.type === 'failure') {
+                saveError = (result.data as { error?: string })?.error ?? 'Failed to save'
+              } else {
+                saveError = ''
+                await update()
+                await invalidateAll()
+              }
+            }
+          }}
+          class="space-y-4"
+        >
+          <input type="hidden" name="teamId" value={selectedTeam.id} />
 
-        <div>
-          <label class="block text-xs text-surface-500 mb-1">Topology</label>
-          <select
-            bind:value={editTopology}
-            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+          <div>
+            <label for="edit-displayName" class="block text-xs text-surface-500 mb-1">Display Name</label>
+            <input
+              id="edit-displayName"
+              type="text"
+              name="displayName"
+              bind:value={editDisplayName}
+              class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="edit-topology" class="block text-xs text-surface-500 mb-1">Topology</label>
+            <select
+              id="edit-topology"
+              name="topology"
+              bind:value={editTopology}
+              class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+            >
+              <option value="stream-aligned">Stream-aligned</option>
+              <option value="platform">Platform</option>
+              <option value="enabling">Enabling</option>
+              <option value="complicated-subsystem">Complicated Subsystem</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="edit-slackChannel" class="block text-xs text-surface-500 mb-1">Slack Channel</label>
+            <input
+              id="edit-slackChannel"
+              type="text"
+              name="slackChannel"
+              bind:value={editSlackChannel}
+              placeholder="#team-channel"
+              class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+            />
+          </div>
+
+          {#if saveError}
+            <p class="text-xs text-err-400">{saveError}</p>
+          {/if}
+          {#if form?.updated}
+            <p class="text-xs text-ok-400">Team saved.</p>
+          {/if}
+
+          <button
+            type="submit"
+            disabled={saving}
+            class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
           >
-            <option value="stream-aligned">Stream-aligned</option>
-            <option value="platform">Platform</option>
-            <option value="enabling">Enabling</option>
-            <option value="complicated-subsystem">Complicated Subsystem</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs text-surface-500 mb-1">Slack Channel</label>
-          <input
-            type="text"
-            bind:value={editSlackChannel}
-            placeholder="#team-channel"
-            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-          />
-        </div>
+            {saving ? 'Saving…' : 'Save Team'}
+          </button>
+        </form>
 
         <div>
           <h3 class="text-sm text-surface-400 mb-3">OIDC Group Mapping</h3>
-          {#if (mockOidcMappings[selectedTeamId ?? ''] ?? []).length > 0}
+          {#if oidcMappings.length > 0}
             <div class="space-y-2 mb-3">
-              {#each mockOidcMappings[selectedTeamId ?? ''] ?? [] as mapping}
+              {#each oidcMappings as mapping}
                 <div class="flex items-center gap-2 text-sm">
                   <span class="font-mono text-surface-300 flex-1">{mapping.groupId}</span>
                   <span class="text-surface-500">{mapping.role}</span>
@@ -179,36 +257,27 @@
               Add
             </button>
           </div>
+          <p class="text-[10px] text-surface-600 mt-2">OIDC group sync — UI only, API coming soon</p>
         </div>
 
         <div>
           <h3 class="text-sm text-surface-400 mb-3">Members</h3>
-          {#if (mockMembers[selectedTeamId ?? ''] ?? []).length > 0}
+
+          {#if membersError}
+            <p class="text-xs text-err-400 mb-2">{membersError}</p>
+          {/if}
+
+          {#if membersLoading}
+            <p class="text-xs text-surface-500 mb-3">Loading…</p>
+          {:else if members.length > 0}
             <div class="space-y-2 mb-3">
-              {#each mockMembers[selectedTeamId ?? ''] ?? [] as member}
+              {#each members as member}
                 <div class="flex items-center gap-2 text-sm">
-                  <span class="text-surface-300 flex-1">{member.email}</span>
-                  <select
-                    value={member.role}
-                    onchange={(e) => {
-                      if (!selectedTeamId) return
-                      const existing = mockMembers[selectedTeamId] ?? []
-                      mockMembers = {
-                        ...mockMembers,
-                        [selectedTeamId]: existing.map((m) =>
-                          m.email === member.email
-                            ? { ...m, role: (e.target as HTMLSelectElement).value as 'admin' | 'member' }
-                            : m,
-                        ),
-                      }
-                    }}
-                    class="bg-surface-900 border border-surface-800 rounded-md px-2 py-1 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-                  >
-                    <option value="member">member</option>
-                    <option value="admin">admin</option>
-                  </select>
+                  <span class="font-mono text-surface-300 flex-1 text-xs">{member.userId}</span>
+                  <span class="text-surface-500 text-xs">{member.role}</span>
+                  <span class="text-surface-600 text-xs">{formatDate(member.addedAt)}</span>
                   <button
-                    onclick={() => removeMember(member.email)}
+                    onclick={() => removeMember(member.userId)}
                     class="text-err-400 hover:text-err-300 text-xs transition-colors"
                   >
                     remove
@@ -217,6 +286,11 @@
               {/each}
             </div>
           {/if}
+
+          {#if addMemberError}
+            <p class="text-xs text-err-400 mb-2">{addMemberError}</p>
+          {/if}
+
           <div class="flex gap-2">
             <input
               type="email"
@@ -233,22 +307,13 @@
             </select>
             <button
               onclick={addMember}
-              class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
+              disabled={addMemberLoading}
+              class="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-md transition-colors"
             >
-              Add
+              {addMemberLoading ? '…' : 'Add'}
             </button>
           </div>
         </div>
-
-        <button
-          onclick={() => { saveMessage = 'Team update API not yet available — coming soon' }}
-          class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
-        >
-          Save Team
-        </button>
-        {#if saveMessage}
-          <p class="text-xs text-surface-500 mt-2">{saveMessage}</p>
-        {/if}
       </div>
     </div>
   {:else}

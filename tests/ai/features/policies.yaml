@@ -1,0 +1,36 @@
+name: "Policies"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "policies-001"
+    name: "Create a new policy with match criteria"
+    steps:
+      - action: "Navigate to the Policies page in the admin sidebar"
+        expect: "Policies page is visible with a list of existing policies or empty state, and a button to add a new policy"
+      - action: "Click the 'New policy' or 'Create policy' button"
+        expect: "Policy creation form or modal is shown with fields for name and match criteria (e.g. branch, repo, or team patterns)"
+      - action: "Fill in policy name 'ai-test-policy', set a match criterion such as branch pattern 'main', then submit"
+        expect: "Policy is created. Success message appears or the policy list refreshes showing 'ai-test-policy'"
+
+  - id: "policies-002"
+    name: "Verify policy appears in the list"
+    steps:
+      - action: "Navigate to the Policies page"
+        expect: "Policy list is visible. The policy 'ai-test-policy' appears in the list with its match criteria"
+
+  - id: "policies-003"
+    name: "Delete a policy"
+    steps:
+      - action: "Navigate to the Policies page. Find 'ai-test-policy' and click its delete button or menu"
+        expect: "Delete confirmation dialog or button is shown"
+      - action: "Confirm the deletion"
+        expect: "Policy 'ai-test-policy' is removed from the list. Success toast or list refresh confirms deletion"

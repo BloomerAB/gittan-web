@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { enhance } from '$app/forms'
+  import { invalidateAll } from '$app/navigation'
   import EmptyState from '$lib/components/EmptyState.svelte'
+  import type { PageData, ActionData } from './$types'
 
   type TMatchCriteria = {
     files?: string
@@ -9,22 +12,23 @@
 
   type TInjectStep = {
     position: 'before' | 'after'
-    stepName: string
-    use: string
+    name: string
+    use?: string
   }
 
   type TPolicy = {
     id: string
     name: string
-    description: string
-    enabled: boolean
-    match: TMatchCriteria
-    steps: TInjectStep[]
+    description?: string
+    matchFiles?: string
+    matchTeam?: string
+    matchName?: string
+    steps?: TInjectStep[]
   }
 
-  let showCreateForm = $state(false)
-  let policies = $state<TPolicy[]>([])
+  let { data, form }: { data: PageData; form: ActionData } = $props()
 
+  let showCreateForm = $state(false)
   let newName = $state('')
   let newDescription = $state('')
   let newMatchFiles = $state('')
@@ -38,7 +42,7 @@
 
   function addStep() {
     if (!stepName || !stepUse) return
-    newSteps = [...newSteps, { position: stepPosition, stepName, use: stepUse }]
+    newSteps = [...newSteps, { position: stepPosition, name: stepName, use: stepUse }]
     stepName = ''
     stepUse = ''
     stepPosition = 'before'
@@ -48,35 +52,28 @@
     newSteps = newSteps.filter((_, i) => i !== index)
   }
 
-  function createPolicy() {
-    if (!newName) return
-    const policy: TPolicy = {
-      id: crypto.randomUUID(),
-      name: newName,
-      description: newDescription,
-      enabled: true,
-      match: {
-        ...(newMatchFiles ? { files: newMatchFiles } : {}),
-        ...(newMatchTeam ? { team: newMatchTeam } : {}),
-        ...(newMatchName ? { name: newMatchName } : {}),
-      },
-      steps: [...newSteps],
-    }
-    policies = [...policies, policy]
+  function stepsJson(): string {
+    return newSteps.length > 0 ? JSON.stringify(newSteps) : ''
+  }
+
+  function resetForm() {
     newName = ''
     newDescription = ''
     newMatchFiles = ''
     newMatchTeam = ''
     newMatchName = ''
     newSteps = []
+    stepName = ''
+    stepUse = ''
+    stepPosition = 'before'
     showCreateForm = false
   }
 
-  function matchTags(match: TMatchCriteria): string[] {
+  function matchTags(policy: TPolicy): string[] {
     const tags: string[] = []
-    if (match.files) tags.push(`files:${match.files}`)
-    if (match.team) tags.push(`team:${match.team}`)
-    if (match.name) tags.push(`name:${match.name}`)
+    if (policy.matchFiles) tags.push(`files:${policy.matchFiles}`)
+    if (policy.matchTeam) tags.push(`team:${policy.matchTeam}`)
+    if (policy.matchName) tags.push(`name:${policy.matchName}`)
     return tags
   }
 </script>
@@ -92,22 +89,46 @@
     </button>
   </div>
 
+  {#if form?.error}
+    <div class="mb-4 px-3 py-2 rounded-md bg-err-400/10 text-err-400 text-sm">
+      {form.error}
+    </div>
+  {/if}
+
   {#if showCreateForm}
-    <div class="bg-surface-900 border border-surface-800 rounded-lg p-4 mb-6 max-w-xl">
+    <form
+      method="POST"
+      action="?/createPolicy"
+      use:enhance={({ formData }) => {
+        formData.set('steps', stepsJson())
+        return async ({ result, update }) => {
+          await update()
+          if (result.type === 'success') {
+            resetForm()
+            await invalidateAll()
+          }
+        }
+      }}
+      class="bg-surface-900 border border-surface-800 rounded-lg p-4 mb-6 max-w-xl"
+    >
       <div class="space-y-3">
         <div>
-          <label class="block text-xs text-surface-500 mb-1">Name</label>
+          <label class="block text-xs text-surface-500 mb-1" for="policy-name">Name</label>
           <input
+            id="policy-name"
             type="text"
+            name="name"
             bind:value={newName}
             placeholder="require-security-scan"
             class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
           />
         </div>
         <div>
-          <label class="block text-xs text-surface-500 mb-1">Description</label>
+          <label class="block text-xs text-surface-500 mb-1" for="policy-description">Description</label>
           <input
+            id="policy-description"
             type="text"
+            name="description"
             bind:value={newDescription}
             placeholder="Require Trivy scan on all pushes"
             class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
@@ -118,27 +139,33 @@
           <p class="text-xs text-surface-500 mb-2">Match Criteria</p>
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-[11px] text-surface-600 mb-1">Files</label>
+              <label class="block text-[11px] text-surface-600 mb-1" for="match-files">Files</label>
               <input
+                id="match-files"
                 type="text"
+                name="matchFiles"
                 bind:value={newMatchFiles}
                 placeholder="*.tf"
                 class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
               />
             </div>
             <div>
-              <label class="block text-[11px] text-surface-600 mb-1">Team</label>
+              <label class="block text-[11px] text-surface-600 mb-1" for="match-team">Team</label>
               <input
+                id="match-team"
                 type="text"
+                name="matchTeam"
                 bind:value={newMatchTeam}
                 placeholder="backend"
                 class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
               />
             </div>
             <div>
-              <label class="block text-[11px] text-surface-600 mb-1">Name</label>
+              <label class="block text-[11px] text-surface-600 mb-1" for="match-name">Name</label>
               <input
+                id="match-name"
                 type="text"
+                name="matchName"
                 bind:value={newMatchName}
                 placeholder="api-*"
                 class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
@@ -154,10 +181,11 @@
               {#each newSteps as step, i}
                 <div class="flex items-center gap-2 text-sm text-surface-400">
                   <span class="text-policy-400">{step.position}</span>
-                  <span class="font-mono">{step.stepName}</span>
+                  <span class="font-mono">{step.name}</span>
                   <span class="text-surface-600">use:</span>
                   <span class="font-mono">{step.use}</span>
                   <button
+                    type="button"
                     onclick={() => removeStep(i)}
                     class="text-err-400 hover:text-err-300 text-xs ml-auto transition-colors"
                   >
@@ -188,51 +216,67 @@
               class="flex-1 bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
             <button
+              type="button"
               onclick={addStep}
               class="bg-surface-800 hover:bg-surface-700 text-surface-300 text-sm px-3 py-2 rounded-md transition-colors"
             >
               +
             </button>
           </div>
+          <!-- steps serialized to JSON for form submission -->
+          <input type="hidden" name="steps" value={stepsJson()} />
         </div>
 
         <button
-          onclick={createPolicy}
+          type="submit"
           class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors"
         >
           Create Policy
         </button>
       </div>
-    </div>
+    </form>
   {/if}
 
-  {#if policies.length === 0}
+  {#if data.policies.length === 0}
     <EmptyState
       title="No policies configured"
       description="Policies inject steps into pipelines based on match criteria"
     />
   {:else}
     <div class="space-y-3">
-      {#each policies as policy}
+      {#each data.policies as policy (policy.id)}
         <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
           <div class="flex items-center gap-3 mb-2">
             <span class="font-mono text-sm text-surface-200">{policy.name}</span>
-            <span
-              class="text-[11px] px-2 py-0.5 rounded-full {policy.enabled
-                ? 'bg-ok-400/10 text-ok-400'
-                : 'bg-surface-800 text-surface-500'}"
-            >
-              {policy.enabled ? 'enabled' : 'disabled'}
-            </span>
             <span class="text-[11px] text-surface-500 ml-auto">
-              {policy.steps.length} step{policy.steps.length !== 1 ? 's' : ''}
+              {policy.steps?.length ?? 0} step{(policy.steps?.length ?? 0) !== 1 ? 's' : ''}
             </span>
+            <form
+              method="POST"
+              action="?/deletePolicy"
+              use:enhance={() => {
+                return async ({ result, update }) => {
+                  await update()
+                  if (result.type === 'success') {
+                    await invalidateAll()
+                  }
+                }
+              }}
+            >
+              <input type="hidden" name="policyId" value={policy.id} />
+              <button
+                type="submit"
+                class="text-err-400 hover:text-err-300 text-xs transition-colors"
+              >
+                remove
+              </button>
+            </form>
           </div>
           {#if policy.description}
             <p class="text-xs text-surface-500 mb-2">{policy.description}</p>
           {/if}
           <div class="flex gap-2 flex-wrap">
-            {#each matchTags(policy.match) as tag}
+            {#each matchTags(policy) as tag}
               <span class="text-[11px] bg-policy-400/10 text-policy-400 px-2 py-0.5 rounded font-mono">
                 {tag}
               </span>

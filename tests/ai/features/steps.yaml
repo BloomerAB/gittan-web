@@ -1,0 +1,36 @@
+name: "Steps"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "steps-001"
+    name: "Register a new step definition"
+    steps:
+      - action: "Navigate to the Steps page in the admin sidebar"
+        expect: "Step registry page is visible with a list of existing steps or empty state, and a button to add a new step"
+      - action: "Click the 'New step' or 'Add step' button"
+        expect: "Step creation form or modal is shown with fields for name, image, and run command"
+      - action: "Fill in name 'ai-test-step', image 'alpine:3.20', run command 'echo hello', then submit"
+        expect: "Step is created. A success message appears or the step list refreshes showing 'ai-test-step'"
+
+  - id: "steps-002"
+    name: "Verify step appears in the list"
+    steps:
+      - action: "Navigate to the Steps page"
+        expect: "Step list is visible. The step 'ai-test-step' appears in the list with its image 'alpine:3.20'"
+
+  - id: "steps-003"
+    name: "Delete a step"
+    steps:
+      - action: "Navigate to the Steps page. Find 'ai-test-step' and click its delete button or menu"
+        expect: "Delete confirmation dialog or button is shown"
+      - action: "Confirm the deletion"
+        expect: "Step 'ai-test-step' is removed from the list. Success toast or list refresh confirms deletion"

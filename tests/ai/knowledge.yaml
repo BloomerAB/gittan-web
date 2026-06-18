@@ -1,0 +1,32 @@
+app:
+  name: Gittan
+  description: Team-centric git hosting platform. Desktop-first.
+  base_url: http://localhost:5555
+  language: English (admin pages)
+
+device:
+  name: Desktop
+  viewport: "1280x800"
+  note: Standard desktop viewport, no mobile emulation needed
+
+auth:
+  method: OTP email login via separate login app
+  login_app_url: http://localhost:5176
+  test_user: mal.nordstrom@gmail.com
+  flow:
+    - App redirects to auth-server which redirects to login app
+    - Enter email, submit, receive OTP
+    - Enter OTP, submit, redirected back to app with session
+  get_otp: >
+    docker exec gittan-scylla cqlsh -e
+    "SELECT otp FROM gittan_auth.otp_codes WHERE email='mal.nordstrom@gmail.com' LIMIT 1;"
+
+seed_data:
+  org: Bloomer (org-admin)
+  teams: depends on what's been created in the app
+
+quirks:
+  - Admin sidebar navigation on the left
+  - Dark theme (surface-900 backgrounds, accent-600 gold buttons)
+  - After creating resources, page refreshes via SvelteKit invalidateAll
+  - Active org stored in cookie (gittan-active-org)
