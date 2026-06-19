@@ -69,6 +69,20 @@ export async function exchangeCodeForTokens(code: string): Promise<OAuthTokens> 
   return tokens
 }
 
+export async function revokeToken(token: string): Promise<void> {
+  const body = new URLSearchParams({
+    token,
+    client_id: config.oauthClientId,
+    client_secret: config.oauthClientSecret,
+  })
+
+  await fetch(`${config.authApiUrl}/oauth/revoke`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  }).catch(() => {})
+}
+
 export async function refreshAccessToken(refreshToken: string): Promise<OAuthTokens> {
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
