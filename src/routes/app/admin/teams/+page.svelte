@@ -136,14 +136,14 @@
           use:enhance={() => {
             saving = true
             saveError = ''
-            return async ({ result, update }) => {
+            return async ({ result }) => {
               saving = false
               if (result.type === 'failure') {
                 saveError = (result.data as { error?: string })?.error ?? 'Failed to save'
               } else {
                 saveError = ''
-                await update()
                 await invalidateAll()
+                if (selectedTeamId) selectTeam(selectedTeamId)
               }
             }
           }}
