@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit'
 import { apiGet, apiPut } from '$lib/server/api'
+import { config } from '$lib/server/config'
 import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
 
@@ -11,14 +12,14 @@ type TOrgIntegrations = TOrg & {
 export const load: PageServerLoad = async ({ parent, locals }) => {
   const { orgs, activeOrgId } = await parent()
   const orgId = activeOrgId
-  if (!orgId || !locals.session) return { org: null }
+  if (!orgId || !locals.session) return { org: null, slackConfigured: false }
 
   try {
     const org = await apiGet<TOrgIntegrations>(`/orgs/${orgId}`, locals.session)
-    return { org }
+    return { org, slackConfigured: config.slackConfigured }
   } catch {
     const org = (orgs.find((o: TOrg) => o.id === orgId) as TOrgIntegrations | undefined) ?? null
-    return { org }
+    return { org, slackConfigured: config.slackConfigured }
   }
 }
 

@@ -7,6 +7,7 @@
   let disconnecting = $state(false)
 
   let slackConnected = $derived(!!data.org?.slackTeamName)
+  let slackConfigured = $derived(!!data.slackConfigured)
 </script>
 
 <div class="p-6">
@@ -17,10 +18,10 @@
   {:else}
     <div class="max-w-xl space-y-6">
       <div>
-        <p class="text-sm text-surface-300 mb-1">Slack App</p>
+        <p class="text-sm text-surface-300 mb-1">Slack</p>
         <p class="text-xs text-surface-600 mb-4">
-          Install the gittan Slack App to your workspace. Pipeline notifications, deploy alerts,
-          and team mentions are sent to each team's configured channel.
+          Connect your Slack workspace to receive pipeline notifications, deploy alerts,
+          and team mentions in your configured channels.
         </p>
       </div>
 
@@ -64,10 +65,10 @@
             </button>
           </form>
         </div>
-      {:else}
+      {:else if slackConfigured}
         <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
           <p class="text-sm text-surface-400 mb-4">
-            No Slack workspace connected. Install the gittan app to enable notifications.
+            No Slack workspace connected. Click below to authorize gittan in your Slack workspace.
           </p>
 
           <a
@@ -80,9 +81,15 @@
             Add to Slack
           </a>
 
-          <p class="text-[11px] text-surface-600 mt-3">
-            This installs a Slack App via OAuth. gittan requests <code class="font-mono">chat:write</code>
-            and <code class="font-mono">channels:read</code> scopes.
+          <div class="mt-4 text-xs text-surface-600 space-y-2">
+            <p>After connecting, invite <code class="font-mono bg-surface-950 px-1 py-0.5 rounded text-surface-300">@gittan</code> to the channels where you want notifications.</p>
+            <p>Then set each team's Slack channel under <a href="/app/admin/teams" class="text-accent-400 hover:text-accent-300">Teams</a>.</p>
+          </div>
+        </div>
+      {:else}
+        <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
+          <p class="text-sm text-surface-400">
+            Slack integration is coming soon.
           </p>
         </div>
       {/if}
