@@ -10,7 +10,12 @@ vi.mock('$lib/server/api', () => ({
   apiPut: mockApiPut,
 }))
 
-// SvelteKit's fail() returns an ActionFailure object
+vi.mock('$lib/server/config', () => ({
+  config: {
+    slackConfigured: false,
+  },
+}))
+
 vi.mock('@sveltejs/kit', () => ({
   fail: (status: number, data: Record<string, unknown>) => ({
     status,
@@ -19,25 +24,16 @@ vi.mock('@sveltejs/kit', () => ({
   }),
 }))
 
-// Mock the SvelteKit generated types
 vi.mock('./$types', () => ({}))
 
 import { actions, load } from './+page.server.js'
 
-type TLoadResult = { org: Record<string, unknown> | null }
+type TLoadResult = { org: Record<string, unknown> | null; slackConfigured: boolean }
 
 const TEST_SESSION = {
   accessToken: 'test-access-token',
   refreshToken: 'test-refresh-token',
   expiresAt: Date.now() + 3600 * 1000,
-}
-
-function createFormData(entries: Record<string, string>): FormData {
-  const fd = new FormData()
-  for (const [key, value] of Object.entries(entries)) {
-    fd.set(key, value)
-  }
-  return fd
 }
 
 function createMockCookies(activeOrg?: string) {
@@ -61,8 +57,7 @@ describe('integrations page load', () => {
       id: 'org-1',
       name: 'test-org',
       displayName: 'Test Org',
-      oidcIssuer: 'https://idp.example.com',
-      oidcClientId: 'oidc-client',
+      slackTeamName: 'My Workspace',
     }
     mockApiGet.mockResolvedValue(orgData)
 
@@ -103,6 +98,20 @@ describe('integrations page load', () => {
     expect(result.org).toBeNull()
   })
 
+  it('includes slackConfigured flag', async () => {
+    mockApiGet.mockResolvedValue({ id: 'org-1' })
+
+    const result = await load({
+      parent: async () => ({
+        orgs: [],
+        activeOrgId: 'org-1',
+      }),
+      locals: { session: TEST_SESSION },
+    } as any) as TLoadResult
+
+    expect(result).toHaveProperty('slackConfigured')
+  })
+
   it('falls back to orgs list when API fails', async () => {
     mockApiGet.mockRejectedValue(new Error('API error'))
 
@@ -133,138 +142,6 @@ describe('integrations page load', () => {
     } as any) as TLoadResult
 
     expect(result.org).toBeNull()
-  })
-})
-
-describe('integrations actions - saveOidc', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('saves OIDC configuration successfully', async () => {
-    mockApiPut.mockResolvedValue({})
-    const cookies = createMockCookies('org-1')
-
-    const result = await actions.saveOidc({
-      request: {
-        formData: async () => createFormData({
-          oidcIssuer: 'https://idp.example.com',
-          oidcClientId: 'my-oidc-client',
-          groupsClaim: 'groups',
-          mandatorySso: 'true',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(result).toEqual({ savedOidc: true })
-    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
-      oidcIssuer: 'https://idp.example.com',
-      oidcClientId: 'my-oidc-client',
-      groupsClaim: 'groups',
-      mandatorySso: true,
-    })
-  })
-
-  it('converts empty strings to undefined', async () => {
-    mockApiPut.mockResolvedValue({})
-    const cookies = createMockCookies('org-1')
-
-    await actions.saveOidc({
-      request: {
-        formData: async () => createFormData({
-          oidcIssuer: '',
-          oidcClientId: '',
-          groupsClaim: '',
-          mandatorySso: 'false',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
-      oidcIssuer: undefined,
-      oidcClientId: undefined,
-      groupsClaim: undefined,
-      mandatorySso: false,
-    })
-  })
-
-  it('returns 401 when not authenticated', async () => {
-    const result = await actions.saveOidc({
-      request: { formData: async () => createFormData({}) },
-      locals: { session: null },
-      cookies: createMockCookies('org-1'),
-    } as any)
-
-    expect(result).toEqual({
-      status: 401,
-      data: { error: 'Unauthorized' },
-      type: 'failure',
-    })
-    expect(mockApiPut).not.toHaveBeenCalled()
-  })
-
-  it('returns 400 when no active org', async () => {
-    const result = await actions.saveOidc({
-      request: { formData: async () => createFormData({}) },
-      locals: { session: TEST_SESSION },
-      cookies: createMockCookies(undefined),
-    } as any)
-
-    expect(result).toEqual({
-      status: 400,
-      data: { error: 'No active org' },
-      type: 'failure',
-    })
-    expect(mockApiPut).not.toHaveBeenCalled()
-  })
-
-  it('returns 500 when API call fails', async () => {
-    mockApiPut.mockRejectedValue(new Error('Network error'))
-    const cookies = createMockCookies('org-1')
-
-    const result = await actions.saveOidc({
-      request: {
-        formData: async () => createFormData({
-          oidcIssuer: 'https://idp.example.com',
-          oidcClientId: 'client',
-          groupsClaim: '',
-          mandatorySso: 'false',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(result).toEqual({
-      status: 500,
-      data: { error: 'Failed to save OIDC configuration' },
-      type: 'failure',
-    })
-  })
-
-  it('treats mandatorySso as false when value is not "true"', async () => {
-    mockApiPut.mockResolvedValue({})
-    const cookies = createMockCookies('org-1')
-
-    await actions.saveOidc({
-      request: {
-        formData: async () => createFormData({
-          oidcIssuer: 'https://idp.example.com',
-          oidcClientId: 'client',
-          groupsClaim: '',
-          mandatorySso: 'false',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    const putBody = mockApiPut.mock.calls[0][2]
-    expect(putBody.mandatorySso).toBe(false)
   })
 })
 
