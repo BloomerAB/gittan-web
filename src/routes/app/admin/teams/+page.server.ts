@@ -8,6 +8,7 @@ export const actions: Actions = {
 
     const form = await request.formData()
     const displayName = form.get('displayName')?.toString()?.trim()
+    const slackChannel = form.get('slackChannel')?.toString()?.trim()
 
     if (!displayName) {
       return fail(400, { error: 'Team name is required' })
@@ -17,7 +18,10 @@ export const actions: Actions = {
     if (!orgId) return fail(400, { error: 'No active organization' })
 
     try {
-      await apiPost(`/orgs/${orgId}/teams`, locals.session, { displayName })
+      await apiPost(`/orgs/${orgId}/teams`, locals.session, {
+        displayName,
+        ...(slackChannel && { slackChannel }),
+      })
       return { created: true }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create team'

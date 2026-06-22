@@ -309,6 +309,17 @@
               class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
           </div>
+          <div>
+            <label for="team-slack" class="block text-xs text-surface-500 mb-1">Slack Channel</label>
+            <input
+              id="team-slack"
+              type="text"
+              name="slackChannel"
+              placeholder="#team-channel"
+              class="w-full bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
+            />
+            <p class="text-[11px] text-surface-600 mt-1">Pipeline notifications are sent here (requires Slack integration)</p>
+          </div>
           <button
             type="submit"
             disabled={creating}
