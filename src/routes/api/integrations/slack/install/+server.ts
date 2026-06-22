@@ -1,13 +1,10 @@
-import { redirect, json } from '@sveltejs/kit'
+import { redirect, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { config } from '$lib/server/config'
 
 export const GET: RequestHandler = async () => {
   if (!config.slackConfigured) {
-    return json(
-      { error: 'Slack integration is not configured yet. Contact your platform administrator.' },
-      { status: 503 },
-    )
+    error(503, 'Slack integration is not configured yet. The platform needs SLACK_CLIENT_ID and SLACK_CLIENT_SECRET to be set.')
   }
 
   const params = new URLSearchParams({

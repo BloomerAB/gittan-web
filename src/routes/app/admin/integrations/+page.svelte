@@ -7,7 +7,6 @@
   let disconnecting = $state(false)
 
   let slackConnected = $derived(!!data.org?.slackTeamName)
-  let slackConfigured = $derived(!!data.slackConfigured)
 </script>
 
 <div class="p-6">
@@ -88,11 +87,24 @@
         </div>
       {:else}
         <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
-          <p class="text-sm text-surface-400">Slack integration is coming soon.</p>
-          <p class="text-xs text-surface-600 mt-2">
-            Once available, you'll be able to connect your Slack workspace with one click
-            to receive pipeline notifications in your team channels.
+          <p class="text-sm text-surface-400 mb-4">
+            No Slack workspace connected. Click below to authorize gittan in your Slack workspace.
           </p>
+
+          <a
+            href="/api/integrations/slack/install"
+            class="inline-flex items-center gap-2 bg-[#4A154B] hover:bg-[#611f64] text-white text-sm px-4 py-2.5 rounded-md transition-colors"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.27 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.163 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.163 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.163 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.27a2.527 2.527 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.52h6.315A2.528 2.528 0 0 1 24 15.163a2.528 2.528 0 0 1-2.522 2.523h-6.315z"/>
+            </svg>
+            Add to Slack
+          </a>
+
+          <div class="mt-4 text-xs text-surface-600 space-y-1">
+            <p>After connecting, invite <code class="font-mono bg-surface-950 px-1 py-0.5 rounded text-surface-300">@gittan</code> to the channels where you want notifications.</p>
+            <p>Then set each team's Slack channel under <a href="/app/admin/teams" class="text-accent-400 hover:text-accent-300">Teams</a>.</p>
+          </div>
         </div>
       {/if}
 
