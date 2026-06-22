@@ -22,6 +22,8 @@ vi.mock('./$types', () => ({}))
 
 import { actions, load } from './+page.server.js'
 
+type TLoadResult = { org: Record<string, unknown> | null }
+
 const TEST_SESSION = {
   accessToken: 'test-access-token',
   refreshToken: 'test-refresh-token',
@@ -69,7 +71,7 @@ describe('auth page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: TEST_SESSION },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toEqual(orgData)
   })
@@ -81,7 +83,7 @@ describe('auth page load', () => {
         activeOrgId: 'org-1',
       }),
       locals: { session: null },
-    } as any)
+    } as any) as TLoadResult
 
     expect(result.org).toBeNull()
   })
