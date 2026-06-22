@@ -87,34 +87,12 @@
           </div>
         </div>
       {:else}
-        <div class="bg-surface-900 border border-surface-800 rounded-lg p-4 space-y-4">
-          <p class="text-sm text-surface-300">Slack integration is not configured yet.</p>
-          <p class="text-xs text-surface-500">To enable it, create a Slack App and add the credentials to the gittan deployment:</p>
-
-          <ol class="text-xs text-surface-400 space-y-3 list-decimal list-inside">
-            <li>
-              Go to <a href="https://api.slack.com/apps" target="_blank" rel="noopener" class="text-accent-400 hover:text-accent-300">api.slack.com/apps</a> and click <strong class="text-surface-300">Create New App</strong> → <strong class="text-surface-300">From scratch</strong>
-            </li>
-            <li>
-              Name it <code class="font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300">gittan</code> and select your workspace
-            </li>
-            <li>
-              Under <strong class="text-surface-300">OAuth & Permissions</strong>, add Bot Token Scopes:
-              <span class="font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300">chat:write</span>
-              <span class="font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300">channels:read</span>
-            </li>
-            <li>
-              Add this Redirect URL under <strong class="text-surface-300">OAuth & Permissions</strong>:
-              <code class="block mt-1 font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300 text-[11px]">https://gittan.eu/api/integrations/slack/callback</code>
-            </li>
-            <li>
-              Copy <strong class="text-surface-300">Client ID</strong> and <strong class="text-surface-300">Client Secret</strong> from <strong class="text-surface-300">Basic Information</strong> and set them as env vars:
-              <code class="block mt-1 font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300 text-[11px]">SLACK_CLIENT_ID</code>
-              <code class="block mt-1 font-mono bg-surface-950 px-1.5 py-0.5 rounded text-surface-300 text-[11px]">SLACK_CLIENT_SECRET</code>
-            </li>
-          </ol>
-
-          <p class="text-[11px] text-surface-600">Once configured, the "Add to Slack" button appears here for all organizations.</p>
+        <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
+          <p class="text-sm text-surface-400">Slack integration is coming soon.</p>
+          <p class="text-xs text-surface-600 mt-2">
+            Once available, you'll be able to connect your Slack workspace with one click
+            to receive pipeline notifications in your team channels.
+          </p>
         </div>
       {/if}
 
