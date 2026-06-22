@@ -16,6 +16,9 @@ vi.mock('@sveltejs/kit', () => ({
     data,
     type: 'failure',
   }),
+  redirect: (status: number, location: string) => {
+    throw Object.assign(new Error('redirect'), { status, location })
+  },
 }))
 
 vi.mock('./$types', () => ({}))
@@ -123,17 +126,32 @@ describe('integrations actions - saveSlackCredentials', () => {
     vi.clearAllMocks()
   })
 
-  it('saves credentials successfully', async () => {
+  it('saves credentials and redirects to Slack install', async () => {
     mockApiPut.mockResolvedValue({})
     const cookies = createMockCookies('org-1')
 
-    const result = await actions.saveSlackCredentials({
+    await expect(actions.saveSlackCredentials({
       request: { formData: async () => createMockFormData({ slackClientId: 'cid', slackClientSecret: 'csec' }) },
       locals: { session: TEST_SESSION },
       cookies,
-    } as any)
+    } as any)).rejects.toMatchObject({ status: 302, location: '/api/integrations/slack/install' })
 
-    expect(result).toEqual({ savedCredentials: true })
+    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
+      slackClientId: 'cid',
+      slackClientSecret: 'csec',
+    })
+  })
+
+  it('trims whitespace from credentials', async () => {
+    mockApiPut.mockResolvedValue({})
+    const cookies = createMockCookies('org-1')
+
+    await expect(actions.saveSlackCredentials({
+      request: { formData: async () => createMockFormData({ slackClientId: '  cid  ', slackClientSecret: ' csec ' }) },
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)).rejects.toMatchObject({ status: 302 })
+
     expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
       slackClientId: 'cid',
       slackClientSecret: 'csec',

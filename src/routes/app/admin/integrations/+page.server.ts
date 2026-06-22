@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit'
+import { fail, redirect } from '@sveltejs/kit'
 import { apiGet, apiPut } from '$lib/server/api'
 import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
@@ -31,8 +31,8 @@ export const actions: Actions = {
     if (!orgId) return fail(400, { error: 'No active org' })
 
     const data = await request.formData()
-    const slackClientId = data.get('slackClientId') as string
-    const slackClientSecret = data.get('slackClientSecret') as string
+    const slackClientId = (data.get('slackClientId') as string).trim()
+    const slackClientSecret = (data.get('slackClientSecret') as string).trim()
 
     if (!slackClientId || !slackClientSecret) {
       return fail(400, { error: 'Both Client ID and Client Secret are required' })
@@ -43,10 +43,11 @@ export const actions: Actions = {
         slackClientId,
         slackClientSecret,
       })
-      return { savedCredentials: true }
     } catch {
       return fail(500, { error: 'Failed to save Slack credentials' })
     }
+
+    redirect(302, '/api/integrations/slack/install')
   },
 
   disconnectSlack: async ({ locals, cookies }) => {
