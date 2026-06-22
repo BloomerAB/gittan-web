@@ -8,6 +8,7 @@ type TOrgAuth = TOrg & {
   emailVerification?: boolean
   oidcIssuer?: string
   oidcClientId?: string
+  oidcClientSecret?: string
   groupsClaim?: string
   mandatorySso?: boolean
 }
