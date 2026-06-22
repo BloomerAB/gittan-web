@@ -14,7 +14,4 @@ export const config = {
   get oauthClientSecret() { return required('OAUTH_CLIENT_SECRET') },
   get cookieSecret() { return required('COOKIE_SECRET') },
   get gittanApiUrl() { return required('GITTAN_API_URL') },
-  get slackClientId() { return env.SLACK_CLIENT_ID ?? '' },
-  get slackClientSecret() { return env.SLACK_CLIENT_SECRET ?? '' },
-  get slackConfigured() { return !!(env.SLACK_CLIENT_ID && env.SLACK_CLIENT_SECRET) },
 } as const

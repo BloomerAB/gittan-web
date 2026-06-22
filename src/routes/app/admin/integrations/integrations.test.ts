@@ -10,12 +10,6 @@ vi.mock('$lib/server/api', () => ({
   apiPut: mockApiPut,
 }))
 
-vi.mock('$lib/server/config', () => ({
-  config: {
-    slackConfigured: false,
-  },
-}))
-
 vi.mock('@sveltejs/kit', () => ({
   fail: (status: number, data: Record<string, unknown>) => ({
     status,
@@ -28,7 +22,7 @@ vi.mock('./$types', () => ({}))
 
 import { actions, load } from './+page.server.js'
 
-type TLoadResult = { org: Record<string, unknown> | null; slackConfigured: boolean }
+type TLoadResult = { org: Record<string, unknown> | null }
 
 const TEST_SESSION = {
   accessToken: 'test-access-token',
@@ -47,6 +41,12 @@ function createMockCookies(activeOrg?: string) {
   }
 }
 
+function createMockFormData(data: Record<string, string>) {
+  return {
+    get: vi.fn((key: string) => data[key] ?? null),
+  }
+}
+
 describe('integrations page load', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -58,6 +58,7 @@ describe('integrations page load', () => {
       name: 'test-org',
       displayName: 'Test Org',
       slackTeamName: 'My Workspace',
+      slackBotToken: 'xoxb-token',
     }
     mockApiGet.mockResolvedValue(orgData)
 
@@ -98,25 +99,11 @@ describe('integrations page load', () => {
     expect(result.org).toBeNull()
   })
 
-  it('includes slackConfigured flag', async () => {
-    mockApiGet.mockResolvedValue({ id: 'org-1' })
-
-    const result = await load({
-      parent: async () => ({
-        orgs: [],
-        activeOrgId: 'org-1',
-      }),
-      locals: { session: TEST_SESSION },
-    } as any) as TLoadResult
-
-    expect(result).toHaveProperty('slackConfigured')
-  })
-
   it('falls back to orgs list when API fails', async () => {
     mockApiGet.mockRejectedValue(new Error('API error'))
 
     const orgs = [
-      { id: 'org-1', name: 'test-org', displayName: 'Test Org', role: 'owner', plan: 'team' },
+      { id: 'org-1', name: 'test-org', displayName: 'Test Org' },
     ]
 
     const result = await load({
@@ -129,19 +116,58 @@ describe('integrations page load', () => {
 
     expect(result.org).toEqual(orgs[0])
   })
+})
 
-  it('falls back to null when API fails and org not in list', async () => {
-    mockApiGet.mockRejectedValue(new Error('API error'))
+describe('integrations actions - saveSlackCredentials', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-    const result = await load({
-      parent: async () => ({
-        orgs: [],
-        activeOrgId: 'org-1',
-      }),
+  it('saves credentials successfully', async () => {
+    mockApiPut.mockResolvedValue({})
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.saveSlackCredentials({
+      request: { formData: async () => createMockFormData({ slackClientId: 'cid', slackClientSecret: 'csec' }) },
       locals: { session: TEST_SESSION },
-    } as any) as TLoadResult
+      cookies,
+    } as any)
 
-    expect(result.org).toBeNull()
+    expect(result).toEqual({ savedCredentials: true })
+    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
+      slackClientId: 'cid',
+      slackClientSecret: 'csec',
+    })
+  })
+
+  it('returns 400 when credentials missing', async () => {
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.saveSlackCredentials({
+      request: { formData: async () => createMockFormData({ slackClientId: '', slackClientSecret: '' }) },
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)
+
+    expect(result).toEqual({
+      status: 400,
+      data: { error: 'Both Client ID and Client Secret are required' },
+      type: 'failure',
+    })
+  })
+
+  it('returns 401 when not authenticated', async () => {
+    const result = await actions.saveSlackCredentials({
+      request: { formData: async () => createMockFormData({ slackClientId: 'cid', slackClientSecret: 'csec' }) },
+      locals: { session: null },
+      cookies: createMockCookies('org-1'),
+    } as any)
+
+    expect(result).toEqual({
+      status: 401,
+      data: { error: 'Unauthorized' },
+      type: 'failure',
+    })
   })
 })
 
@@ -161,8 +187,10 @@ describe('integrations actions - disconnectSlack', () => {
 
     expect(result).toEqual({ disconnected: true })
     expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
-      slackTeamName: null,
+      slackClientId: null,
+      slackClientSecret: null,
       slackBotToken: null,
+      slackTeamName: null,
     })
   })
 
@@ -177,21 +205,6 @@ describe('integrations actions - disconnectSlack', () => {
       data: { error: 'Unauthorized' },
       type: 'failure',
     })
-    expect(mockApiPut).not.toHaveBeenCalled()
-  })
-
-  it('returns 400 when no active org', async () => {
-    const result = await actions.disconnectSlack({
-      locals: { session: TEST_SESSION },
-      cookies: createMockCookies(undefined),
-    } as any)
-
-    expect(result).toEqual({
-      status: 400,
-      data: { error: 'No active org' },
-      type: 'failure',
-    })
-    expect(mockApiPut).not.toHaveBeenCalled()
   })
 
   it('returns 500 when API call fails', async () => {
@@ -205,7 +218,7 @@ describe('integrations actions - disconnectSlack', () => {
 
     expect(result).toEqual({
       status: 500,
-      data: { slackError: 'Failed to disconnect Slack' },
+      data: { error: 'Failed to disconnect Slack' },
       type: 'failure',
     })
   })
