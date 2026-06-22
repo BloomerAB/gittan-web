@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms'
   import { invalidateAll } from '$app/navigation'
   import EmptyState from '$lib/components/EmptyState.svelte'
+  import SearchSelect from '$lib/components/SearchSelect.svelte'
   import type { PageData, ActionData } from './$types'
 
   type TInjectStep = {
@@ -21,6 +22,14 @@
   }
 
   let { data, form }: { data: PageData; form: ActionData } = $props()
+
+  let stepOptions = $derived(
+    (data.steps ?? []).map((s) => ({
+      value: s.name,
+      label: s.name,
+      detail: s.description ?? s.image,
+    })),
+  )
 
   let showCreateForm = $state(false)
   let creating = $state(false)
@@ -206,12 +215,13 @@
               placeholder="Step name"
               class="flex-1 bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
             />
-            <input
-              type="text"
-              bind:value={stepUse}
-              placeholder="use: platform/trivy"
-              class="flex-1 bg-surface-950 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
-            />
+            <div class="flex-1">
+              <SearchSelect
+                options={stepOptions}
+                onSelect={(o) => { stepUse = o.value }}
+                placeholder="use: platform/trivy"
+              />
+            </div>
             <button
               type="button"
               onclick={addStep}

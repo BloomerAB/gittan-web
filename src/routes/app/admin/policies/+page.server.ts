@@ -18,15 +18,25 @@ type TPolicy = {
   steps?: TPolicyStep[]
 }
 
+type TStep = {
+  name: string
+  image: string
+  run: string
+  description?: string
+}
+
 export const load: PageServerLoad = async ({ parent, locals }) => {
   const { activeOrgId } = await parent()
-  if (!activeOrgId || !locals.session) return { policies: [] as TPolicy[] }
+  if (!activeOrgId || !locals.session) return { policies: [] as TPolicy[], steps: [] as TStep[] }
 
   try {
-    const policies = await apiGet<TPolicy[]>(`/orgs/${activeOrgId}/policies`, locals.session)
-    return { policies: policies ?? [] }
+    const [policies, steps] = await Promise.all([
+      apiGet<TPolicy[]>(`/orgs/${activeOrgId}/policies`, locals.session).catch(() => []),
+      apiGet<TStep[]>(`/orgs/${activeOrgId}/steps`, locals.session).catch(() => []),
+    ])
+    return { policies: policies ?? [], steps: steps ?? [] }
   } catch {
-    return { policies: [] as TPolicy[] }
+    return { policies: [] as TPolicy[], steps: [] as TStep[] }
   }
 }
 
