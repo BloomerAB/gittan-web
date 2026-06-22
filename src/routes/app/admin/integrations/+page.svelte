@@ -197,9 +197,6 @@
       {#if form?.error}
         <p class="text-xs text-err-400">{form.error}</p>
       {/if}
-      {#if form?.savedCredentials}
-        <p class="text-xs text-ok-400">Credentials saved. Click "Add to Slack" to connect your workspace.</p>
-      {/if}
       {#if form?.disconnected}
         <p class="text-xs text-ok-400">Slack disconnected.</p>
       {/if}
