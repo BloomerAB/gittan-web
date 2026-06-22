@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit'
 import type { LayoutServerLoad } from './$types'
 import { apiGet } from '$lib/server/api'
+import { getLinkedIdentities } from '$lib/server/auth-identity'
 import type { TOrg, TTeam, TRepo, TOrgUsage } from '$lib/types'
 
 export const load: LayoutServerLoad = async ({ locals, cookies }) => {
@@ -42,5 +43,14 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
     usage = await apiGet<TOrgUsage>(`/orgs/${activeOrgId}/usage`, session).catch(() => null)
   }
 
-  return { orgs, activeOrgId, teams, reposByTeam, usage }
+  const activeOrg = orgs.find((o) => o.id === activeOrgId)
+  let ssoRequired = false
+
+  if (activeOrg?.oidcIssuer && activeOrg.mandatorySso && activeOrg.role !== 'owner') {
+    const links = await getLinkedIdentities(session)
+    const hasLink = links.some((l) => l.issuer === activeOrg.oidcIssuer)
+    ssoRequired = !hasLink
+  }
+
+  return { orgs, activeOrgId, teams, reposByTeam, usage, ssoRequired }
 }

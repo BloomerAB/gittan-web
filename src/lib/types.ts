@@ -4,6 +4,8 @@ export type TOrg = {
   displayName: string
   role: 'owner' | 'admin' | 'member'
   plan: 'starter' | 'team'
+  oidcIssuer?: string
+  mandatorySso?: boolean
 }
 
 export type TTeam = {
