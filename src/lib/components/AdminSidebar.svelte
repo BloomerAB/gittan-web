@@ -12,8 +12,12 @@
 
   const adminSections: ReadonlyArray<TNavSection> = [
     {
+      heading: 'Administration',
       links: [
         { path: '/app/admin/teams', label: 'Teams' },
+        { path: '/app/admin/settings', label: 'Settings' },
+        { path: '/app/admin/subscription', label: 'Subscription' },
+        { path: '/app/admin/audit', label: 'Audit Log' },
       ],
     },
     {
@@ -24,12 +28,10 @@
       ],
     },
     {
+      heading: 'Integrations',
       links: [
         { path: '/app/admin/integrations', label: 'Integrations' },
         { path: '/app/admin/auth', label: 'Authentication' },
-        { path: '/app/admin/settings', label: 'Settings' },
-        { path: '/app/admin/subscription', label: 'Subscription' },
-        { path: '/app/admin/audit', label: 'Audit Log' },
       ],
     },
   ]
@@ -42,13 +44,12 @@
 </script>
 
 <nav class="w-52 border-r border-surface-800 min-h-[calc(100vh-48px)] p-4">
-  <p class="text-[11px] text-surface-600 uppercase tracking-wider mb-3">Administration</p>
   {#each adminSections as section, i}
-    {#if section.heading}
-      <div class="border-t border-surface-800 mt-3 mb-2"></div>
-      <p class="text-[11px] text-surface-600 uppercase tracking-wider mb-2">{section.heading}</p>
-    {:else if i > 0}
+    {#if i > 0}
       <div class="border-t border-surface-800 my-3"></div>
+    {/if}
+    {#if section.heading}
+      <p class="text-[11px] text-surface-600 uppercase tracking-wider mb-2">{section.heading}</p>
     {/if}
     {#each section.links as link}
       {@const active = page.url.pathname.startsWith(link.path)}
