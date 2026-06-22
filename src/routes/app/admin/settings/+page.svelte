@@ -6,13 +6,11 @@
 
   let orgName = $state(data.org?.displayName ?? '')
   let allowLatest = $state(data.org?.allowLatest ?? false)
-  let publicRepos = $state(data.org?.publicRepos ?? false)
   let saving = $state(false)
 
   $effect(() => {
     orgName = data.org?.displayName ?? ''
     allowLatest = data.org?.allowLatest ?? false
-    publicRepos = data.org?.publicRepos ?? false
   })
 </script>
 
@@ -66,6 +64,7 @@
           <input type="hidden" name="allowLatest" value={allowLatest ? 'true' : 'false'} />
           <button
             type="button"
+            aria-label="Toggle allow latest tag"
             onclick={() => { allowLatest = !allowLatest }}
             class="relative w-11 h-6 rounded-full transition-colors {allowLatest
               ? 'bg-err-400'
@@ -73,27 +72,6 @@
           >
             <span
               class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform {allowLatest
-                ? 'translate-x-5'
-                : ''}"
-            ></span>
-          </button>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-surface-300">Public repositories</p>
-            <p class="text-xs text-surface-600">Allow teams to create publicly visible repositories</p>
-          </div>
-          <input type="hidden" name="publicRepos" value={publicRepos ? 'true' : 'false'} />
-          <button
-            type="button"
-            onclick={() => { publicRepos = !publicRepos }}
-            class="relative w-11 h-6 rounded-full transition-colors {publicRepos
-              ? 'bg-accent-600'
-              : 'bg-surface-800'}"
-          >
-            <span
-              class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform {publicRepos
                 ? 'translate-x-5'
                 : ''}"
             ></span>
