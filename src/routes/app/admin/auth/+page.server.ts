@@ -55,6 +55,7 @@ export const actions: Actions = {
     const data = await request.formData()
     const oidcIssuer = data.get('oidcIssuer') as string
     const oidcClientId = data.get('oidcClientId') as string
+    const oidcClientSecret = data.get('oidcClientSecret') as string
     const groupsClaim = data.get('groupsClaim') as string
     const mandatorySso = data.get('mandatorySso') === 'true'
 
@@ -62,6 +63,7 @@ export const actions: Actions = {
       await apiPut(`/orgs/${orgId}`, locals.session, {
         oidcIssuer: oidcIssuer || undefined,
         oidcClientId: oidcClientId || undefined,
+        oidcClientSecret: oidcClientSecret || undefined,
         groupsClaim: groupsClaim || undefined,
         mandatorySso,
       })

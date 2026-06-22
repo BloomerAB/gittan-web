@@ -10,6 +10,7 @@
 
   let issuerUrl = $state(data.org?.oidcIssuer ?? '')
   let clientId = $state(data.org?.oidcClientId ?? '')
+  let clientSecret = $state(data.org?.oidcClientSecret ?? '')
   let groupsClaim = $state(data.org?.groupsClaim ?? 'groups')
   let mandatorySso = $state(data.org?.mandatorySso ?? false)
   let oidcTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle')
@@ -23,6 +24,7 @@
     emailVerification = data.org?.emailVerification ?? true
     issuerUrl = data.org?.oidcIssuer ?? ''
     clientId = data.org?.oidcClientId ?? ''
+    clientSecret = data.org?.oidcClientSecret ?? ''
     groupsClaim = data.org?.groupsClaim ?? 'groups'
     mandatorySso = data.org?.mandatorySso ?? false
   })
@@ -177,6 +179,19 @@
             placeholder="gittan-web"
             class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
           />
+        </div>
+
+        <div>
+          <label class="block text-xs text-surface-500 mb-1" for="oidcClientSecret">Client Secret</label>
+          <input
+            id="oidcClientSecret"
+            name="oidcClientSecret"
+            type="password"
+            bind:value={clientSecret}
+            placeholder="Enter client secret"
+            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
+          />
+          <p class="text-[11px] text-surface-600 mt-1">From your identity provider's app registration. Stored encrypted.</p>
         </div>
 
         <div>
