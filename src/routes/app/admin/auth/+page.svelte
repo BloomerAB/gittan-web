@@ -13,7 +13,10 @@
   let groupsClaim = $state(data.org?.groupsClaim ?? 'groups')
   let mandatorySso = $state(data.org?.mandatorySso ?? false)
   let oidcTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle')
+  let oidcTestError = $state('')
   let savingOidc = $state(false)
+
+  let oidcConfigured = $derived(!!(data.org?.oidcIssuer && data.org?.oidcClientId))
 
   $effect(() => {
     selfRegistration = data.org?.selfRegistration ?? false
@@ -24,12 +27,23 @@
     mandatorySso = data.org?.mandatorySso ?? false
   })
 
-  function testOidc() {
+  async function testOidc() {
     if (!issuerUrl || !clientId) return
     oidcTestStatus = 'testing'
-    setTimeout(() => {
-      oidcTestStatus = issuerUrl.includes('://') ? 'success' : 'error'
-    }, 1500)
+    oidcTestError = ''
+    try {
+      const res = await fetch(`/api/admin/oidc-test?issuer=${encodeURIComponent(issuerUrl)}`)
+      const result = await res.json() as { ok: boolean; error?: string; issuer?: string }
+      if (result.ok) {
+        oidcTestStatus = 'success'
+      } else {
+        oidcTestStatus = 'error'
+        oidcTestError = result.error ?? 'Unknown error'
+      }
+    } catch {
+      oidcTestStatus = 'error'
+      oidcTestError = 'Failed to reach test endpoint'
+    }
   }
 </script>
 
@@ -61,7 +75,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-surface-300">Self-registration</p>
-            <p class="text-xs text-surface-600">Allow users to create accounts without an invitation</p>
+            <p class="text-xs text-surface-600">Allow users to create accounts without an invitation (applies to both email/password and SSO)</p>
           </div>
           <button
             type="button"
@@ -179,15 +193,19 @@
         </div>
 
         <input type="hidden" name="mandatorySso" value={mandatorySso ? 'true' : 'false'} />
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between {oidcConfigured ? '' : 'opacity-50'}">
           <div>
             <p class="text-sm text-surface-300">Mandatory SSO</p>
-            <p class="text-xs text-surface-600">Disable built-in email/password when OIDC is configured</p>
+            <p class="text-xs text-surface-600">Require all members to sign in via SSO. Does not apply to org owners.</p>
+            {#if !oidcConfigured}
+              <p class="text-xs text-surface-600 mt-0.5">Save OIDC configuration first to enable this.</p>
+            {/if}
           </div>
           <button
             type="button"
+            disabled={!oidcConfigured}
             onclick={() => { mandatorySso = !mandatorySso }}
-            class="relative w-11 h-6 rounded-full transition-colors {mandatorySso
+            class="relative w-11 h-6 rounded-full transition-colors disabled:cursor-not-allowed {mandatorySso
               ? 'bg-accent-600'
               : 'bg-surface-800'}"
             aria-label="Toggle mandatory SSO"
@@ -218,9 +236,9 @@
             {/if}
           </button>
           {#if oidcTestStatus === 'success'}
-            <span class="text-xs text-ok-400">OIDC discovery endpoint responded</span>
+            <span class="text-xs text-ok-400">OIDC discovery endpoint OK</span>
           {:else if oidcTestStatus === 'error'}
-            <span class="text-xs text-err-400">Could not reach issuer URL</span>
+            <span class="text-xs text-err-400">{oidcTestError || 'Could not reach issuer'}</span>
           {/if}
         </div>
 
