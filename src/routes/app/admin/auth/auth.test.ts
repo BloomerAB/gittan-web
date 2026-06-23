@@ -16,6 +16,18 @@ vi.mock('@sveltejs/kit', () => ({
     data,
     type: 'failure',
   }),
+  redirect: (status: number, url: string) => {
+    throw { status, location: url }
+  },
+}))
+
+vi.mock('$lib/server/auth-identity', () => ({
+  getProviderIdForIssuer: vi.fn().mockResolvedValue(null),
+  startIdentityLink: vi.fn().mockResolvedValue(null),
+}))
+
+vi.mock('$lib/server/config', () => ({
+  config: { appUrl: 'https://gittan.eu' },
 }))
 
 vi.mock('./$types', () => ({}))
@@ -145,6 +157,8 @@ describe('auth actions - saveOidc', () => {
         formData: async () => createFormData({
           oidcIssuer: 'https://idp.example.com',
           oidcClientId: 'my-oidc-client',
+          oidcClientSecret: '',
+          ssoEmailDomain: 'example.com',
           groupsClaim: 'groups',
           mandatorySso: 'true',
         }),
@@ -157,12 +171,14 @@ describe('auth actions - saveOidc', () => {
     expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
       oidcIssuer: 'https://idp.example.com',
       oidcClientId: 'my-oidc-client',
+      oidcClientSecret: undefined,
+      ssoEmailDomain: 'example.com',
       groupsClaim: 'groups',
       mandatorySso: true,
     })
   })
 
-  it('converts empty strings to undefined', async () => {
+  it('converts empty strings to undefined/null', async () => {
     mockApiPut.mockResolvedValue({})
     const cookies = createMockCookies('org-1')
 
@@ -171,6 +187,8 @@ describe('auth actions - saveOidc', () => {
         formData: async () => createFormData({
           oidcIssuer: '',
           oidcClientId: '',
+          oidcClientSecret: '',
+          ssoEmailDomain: '',
           groupsClaim: '',
           mandatorySso: 'false',
         }),
@@ -182,6 +200,8 @@ describe('auth actions - saveOidc', () => {
     expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
       oidcIssuer: undefined,
       oidcClientId: undefined,
+      oidcClientSecret: undefined,
+      ssoEmailDomain: null,
       groupsClaim: undefined,
       mandatorySso: false,
     })
@@ -224,6 +244,8 @@ describe('auth actions - saveOidc', () => {
         formData: async () => createFormData({
           oidcIssuer: 'https://idp.example.com',
           oidcClientId: 'client',
+          oidcClientSecret: '',
+          ssoEmailDomain: '',
           groupsClaim: '',
           mandatorySso: 'false',
         }),
@@ -248,6 +270,8 @@ describe('auth actions - saveOidc', () => {
         formData: async () => createFormData({
           oidcIssuer: 'https://idp.example.com',
           oidcClientId: 'client',
+          oidcClientSecret: '',
+          ssoEmailDomain: '',
           groupsClaim: '',
           mandatorySso: 'false',
         }),
