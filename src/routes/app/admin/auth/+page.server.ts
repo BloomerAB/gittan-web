@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit'
 import { apiGet, apiPut } from '$lib/server/api'
-import { getProviderIdForIssuer, startIdentityLink } from '$lib/server/auth-identity'
+import { getLinkedIdentities, getProviderIdForIssuer, startIdentityLink } from '$lib/server/auth-identity'
 import { config } from '$lib/server/config'
 import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
@@ -21,12 +21,14 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
   const orgId = activeOrgId
   if (!orgId || !locals.session) return { org: null }
 
+  const linkedIdentities = await getLinkedIdentities(locals.session)
+
   try {
     const org = await apiGet<TOrgAuth>(`/orgs/${orgId}`, locals.session)
-    return { org }
+    return { org, linkedIdentities }
   } catch {
     const org = (orgs.find((o: TOrg) => o.id === orgId) as TOrgAuth | undefined) ?? null
-    return { org }
+    return { org, linkedIdentities }
   }
 }
 

@@ -290,5 +290,34 @@
         </div>
       </div>
     </form>
+
+    {#if data.linkedIdentities?.length}
+      <div class="border-t border-surface-800 my-8"></div>
+
+      <div class="max-w-xl space-y-4">
+        <div>
+          <p class="text-sm text-surface-300 mb-1">Linked Identities</p>
+          <p class="text-xs text-surface-600 mb-4">
+            Your account is federated with the following external identities.
+          </p>
+        </div>
+
+        {#each data.linkedIdentities as identity}
+          <div class="flex items-start justify-between bg-surface-900 border border-surface-800 rounded-md px-4 py-3">
+            <div class="min-w-0">
+              <p class="text-sm text-surface-200 truncate">{identity.displayName || identity.email}</p>
+              {#if identity.displayName && identity.email}
+                <p class="text-xs text-surface-500 truncate">{identity.email}</p>
+              {/if}
+              <p class="text-xs text-surface-600 mt-1 truncate font-mono">{identity.issuer}</p>
+            </div>
+            <span class="shrink-0 ml-3 mt-0.5 inline-flex items-center gap-1 text-xs text-ok-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-ok-400"></span>
+              Verified
+            </span>
+          </div>
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
