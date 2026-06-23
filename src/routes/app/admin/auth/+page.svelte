@@ -11,6 +11,7 @@
   let issuerUrl = $state(data.org?.oidcIssuer ?? '')
   let clientId = $state(data.org?.oidcClientId ?? '')
   let clientSecret = $state(data.org?.oidcClientSecret ?? '')
+  let ssoEmailDomain = $state(data.org?.ssoEmailDomain ?? '')
   let groupsClaim = $state(data.org?.groupsClaim ?? 'groups')
   let mandatorySso = $state(data.org?.mandatorySso ?? false)
   let oidcTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle')
@@ -25,6 +26,7 @@
     issuerUrl = data.org?.oidcIssuer ?? ''
     clientId = data.org?.oidcClientId ?? ''
     clientSecret = data.org?.oidcClientSecret ?? ''
+    ssoEmailDomain = data.org?.ssoEmailDomain ?? ''
     groupsClaim = data.org?.groupsClaim ?? 'groups'
     mandatorySso = data.org?.mandatorySso ?? false
   })
@@ -195,6 +197,19 @@
         </div>
 
         <div>
+          <label class="block text-xs text-surface-500 mb-1" for="ssoEmailDomain">Email Domain</label>
+          <input
+            id="ssoEmailDomain"
+            name="ssoEmailDomain"
+            type="text"
+            bind:value={ssoEmailDomain}
+            placeholder="bloomer.se"
+            class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
+          />
+          <p class="text-[11px] text-surface-600 mt-1">Required email domain for SSO users. Shown to users joining this organization.</p>
+        </div>
+
+        <div>
           <label class="block text-xs text-surface-500 mb-1" for="groupsClaim">Groups Claim</label>
           <input
             id="groupsClaim"
@@ -263,7 +278,7 @@
             disabled={savingOidc}
             class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors disabled:opacity-50"
           >
-            {savingOidc ? 'Saving...' : 'Save OIDC'}
+            {savingOidc ? 'Saving...' : 'Save & Verify'}
           </button>
           {#if form?.savedOidc}
             <span class="text-xs text-ok-400 ml-3">Saved.</span>

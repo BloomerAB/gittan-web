@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { orgName }: { orgName: string } = $props()
+  let { orgName, ssoEmailDomain }: { orgName: string; ssoEmailDomain?: string } = $props()
   let loading = $state(false)
 
   async function startLinking() {
@@ -25,6 +25,11 @@
     <p class="text-sm text-surface-400">
       <span class="text-surface-300 font-medium">{orgName}</span> requires you to verify your identity through their single sign-on provider before you can access this organization.
     </p>
+    {#if ssoEmailDomain}
+      <p class="text-xs text-surface-500">
+        You will need to sign in with a <span class="text-surface-300 font-mono">@{ssoEmailDomain}</span> account.
+      </p>
+    {/if}
     <button
       onclick={startLinking}
       disabled={loading}

@@ -12,7 +12,7 @@
 <div class="min-h-screen bg-surface-950 text-surface-300">
   <Header orgs={data.orgs} activeOrgId={data.activeOrgId} />
   {#if data.ssoRequired}
-    <SsoBarrier orgName={activeOrg?.displayName ?? 'This organization'} />
+    <SsoBarrier orgName={activeOrg?.displayName ?? 'This organization'} ssoEmailDomain={activeOrg?.ssoEmailDomain} />
   {:else}
     <QuotaBanner usage={data.usage} />
     {@render children()}

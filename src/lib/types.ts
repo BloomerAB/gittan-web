@@ -6,6 +6,7 @@ export type TOrg = {
   plan: 'starter' | 'team'
   oidcIssuer?: string
   mandatorySso?: boolean
+  ssoEmailDomain?: string
 }
 
 export type TTeam = {

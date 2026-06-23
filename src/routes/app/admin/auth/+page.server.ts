@@ -1,5 +1,7 @@
-import { fail } from '@sveltejs/kit'
+import { fail, redirect } from '@sveltejs/kit'
 import { apiGet, apiPut } from '$lib/server/api'
+import { getProviderIdForIssuer, startIdentityLink } from '$lib/server/auth-identity'
+import { config } from '$lib/server/config'
 import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
 
@@ -9,6 +11,7 @@ type TOrgAuth = TOrg & {
   oidcIssuer?: string
   oidcClientId?: string
   oidcClientSecret?: string
+  ssoEmailDomain?: string
   groupsClaim?: string
   mandatorySso?: boolean
 }
@@ -57,6 +60,7 @@ export const actions: Actions = {
     const oidcIssuer = data.get('oidcIssuer') as string
     const oidcClientId = data.get('oidcClientId') as string
     const oidcClientSecret = data.get('oidcClientSecret') as string
+    const ssoEmailDomain = data.get('ssoEmailDomain') as string
     const groupsClaim = data.get('groupsClaim') as string
     const mandatorySso = data.get('mandatorySso') === 'true'
 
@@ -65,12 +69,25 @@ export const actions: Actions = {
         oidcIssuer: oidcIssuer || undefined,
         oidcClientId: oidcClientId || undefined,
         oidcClientSecret: oidcClientSecret || undefined,
+        ssoEmailDomain: ssoEmailDomain || null,
         groupsClaim: groupsClaim || undefined,
         mandatorySso,
       })
-      return { savedOidc: true }
     } catch {
       return fail(500, { error: 'Failed to save OIDC configuration' })
     }
+
+    if (oidcIssuer && oidcClientId && oidcClientSecret) {
+      const providerId = await getProviderIdForIssuer(oidcIssuer)
+      if (providerId) {
+        const redirectUri = `${config.appUrl}/app/admin/auth`
+        const url = await startIdentityLink(locals.session, providerId, redirectUri)
+        if (url) {
+          redirect(303, url)
+        }
+      }
+    }
+
+    return { savedOidc: true }
   },
 }
