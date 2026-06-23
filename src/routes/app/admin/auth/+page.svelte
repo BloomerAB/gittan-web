@@ -10,7 +10,7 @@
 
   let issuerUrl = $state(data.org?.oidcIssuer ?? '')
   let clientId = $state(data.org?.oidcClientId ?? '')
-  let clientSecret = $state(data.org?.oidcClientSecret ?? '')
+  let clientSecret = $state('')
   let ssoEmailDomain = $state(data.org?.ssoEmailDomain ?? '')
   let groupsClaim = $state(data.org?.groupsClaim ?? 'groups')
   let mandatorySso = $state(data.org?.mandatorySso ?? false)
@@ -25,7 +25,7 @@
     emailVerification = data.org?.emailVerification ?? true
     issuerUrl = data.org?.oidcIssuer ?? ''
     clientId = data.org?.oidcClientId ?? ''
-    clientSecret = data.org?.oidcClientSecret ?? ''
+    clientSecret = ''
     ssoEmailDomain = data.org?.ssoEmailDomain ?? ''
     groupsClaim = data.org?.groupsClaim ?? 'groups'
     mandatorySso = data.org?.mandatorySso ?? false
@@ -190,7 +190,7 @@
             name="oidcClientSecret"
             type="password"
             bind:value={clientSecret}
-            placeholder="Enter client secret"
+            placeholder={oidcConfigured ? '••••••••  (saved, leave empty to keep)' : 'Enter client secret'}
             class="w-full bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none font-mono"
           />
           <p class="text-[11px] text-surface-600 mt-1">From your identity provider's app registration. Stored encrypted.</p>
