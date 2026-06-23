@@ -77,7 +77,7 @@ export const actions: Actions = {
       return fail(500, { error: 'Failed to save OIDC configuration' })
     }
 
-    if (oidcIssuer && oidcClientId && oidcClientSecret) {
+    if (oidcIssuer && oidcClientId) {
       const providerId = await getProviderIdForIssuer(oidcIssuer)
       if (providerId) {
         const redirectUri = `${config.appUrl}/app/admin/auth`
