@@ -145,6 +145,10 @@
         savingOidc = true
         return async ({ result, update }) => {
           savingOidc = false
+          if (result.type === 'success' && result.data?.verifyUrl) {
+            window.location.href = result.data.verifyUrl as string
+            return
+          }
           await update()
           if (result.type === 'success') await invalidateAll()
         }

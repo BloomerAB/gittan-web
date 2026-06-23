@@ -16,9 +16,6 @@ vi.mock('@sveltejs/kit', () => ({
     data,
     type: 'failure',
   }),
-  redirect: (status: number, url: string) => {
-    throw { status, location: url }
-  },
 }))
 
 vi.mock('$lib/server/auth-identity', () => ({

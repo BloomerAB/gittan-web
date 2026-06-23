@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit'
+import { fail } from '@sveltejs/kit'
 import { apiGet, apiPut } from '$lib/server/api'
 import { getProviderIdForIssuer, startIdentityLink } from '$lib/server/auth-identity'
 import { config } from '$lib/server/config'
@@ -83,7 +83,7 @@ export const actions: Actions = {
         const redirectUri = `${config.appUrl}/app/admin/auth`
         const url = await startIdentityLink(locals.session, providerId, redirectUri)
         if (url) {
-          redirect(303, url)
+          return { savedOidc: true, verifyUrl: url }
         }
       }
     }
