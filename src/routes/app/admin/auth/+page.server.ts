@@ -78,10 +78,14 @@ export const actions: Actions = {
     }
 
     if (oidcIssuer && oidcClientId) {
+      console.log('[saveOidc] looking up provider for issuer:', oidcIssuer)
       const providerId = await getProviderIdForIssuer(oidcIssuer)
+      console.log('[saveOidc] providerId:', providerId)
       if (providerId) {
         const redirectUri = `${config.appUrl}/app/admin/auth`
+        console.log('[saveOidc] starting identity link, redirectUri:', redirectUri)
         const url = await startIdentityLink(locals.session, providerId, redirectUri)
+        console.log('[saveOidc] identity link url:', url)
         if (url) {
           return { savedOidc: true, verifyUrl: url }
         }
