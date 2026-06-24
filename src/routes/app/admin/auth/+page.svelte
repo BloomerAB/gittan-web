@@ -14,11 +14,6 @@
   let savingOidc = $state(false)
   let verifying = $state(false)
 
-  let selfRegistration = $state(data.org?.selfRegistration ?? false)
-  let emailVerification = $state(data.org?.emailVerification ?? true)
-  let mandatorySso = $state(data.org?.mandatorySso ?? false)
-  let savingPolicy = $state(false)
-
   let oidcConfigured = $derived(!!(data.org?.oidcIssuer && data.org?.oidcClientId))
   let hasLinkedIdentity = $derived(!!(data.linkedIdentities?.length))
 
@@ -28,9 +23,6 @@
     clientSecret = ''
     ssoEmailDomain = data.org?.ssoEmailDomain ?? ''
     groupsClaim = data.org?.groupsClaim ?? 'groups'
-    selfRegistration = data.org?.selfRegistration ?? false
-    emailVerification = data.org?.emailVerification ?? true
-    mandatorySso = data.org?.mandatorySso ?? false
   })
 
   async function testOidc() {
@@ -55,13 +47,11 @@
 
 <div class="p-6">
   <h2 class="text-lg font-semibold text-surface-200 mb-2">Authentication</h2>
-  <p class="text-xs text-surface-600 mb-8">Configure how members sign in and who can join your organization.</p>
+  <p class="text-xs text-surface-600 mb-8">Configure how members sign in to your organization.</p>
 
   {#if !data.org}
     <p class="text-sm text-surface-500">No organization selected.</p>
   {:else}
-
-    <!-- Section 1: Identity Provider -->
     <div class="max-w-xl">
       <div class="flex items-center gap-2 mb-1">
         <h3 class="text-sm font-medium text-surface-300">Identity Provider</h3>
@@ -78,11 +68,14 @@
         {/if}
       </div>
       <p class="text-xs text-surface-600 mb-5">
-        Connect an external identity provider (Entra ID, Okta, Keycloak) for SSO login and automatic team mapping.
+        {#if oidcConfigured}
+          Members with a matching email domain will sign in via your identity provider. Group memberships are mapped to teams automatically.
+        {:else}
+          Connect an external identity provider (Entra ID, Okta, Keycloak) to enable SSO login and automatic team mapping via group claims.
+        {/if}
       </p>
 
       {#if oidcConfigured && hasLinkedIdentity}
-        <!-- Collapsed view when configured + verified -->
         <div class="space-y-3 mb-4">
           {#each data.linkedIdentities as identity}
             <div class="flex items-center justify-between bg-surface-900 border border-surface-800 rounded-md px-4 py-3">
@@ -110,7 +103,6 @@
           </div>
         </details>
       {:else}
-        <!-- Expanded form when not configured or not verified -->
         {@render oidcForm()}
 
         {#if oidcConfigured && !hasLinkedIdentity}
@@ -123,122 +115,14 @@
       {/if}
     </div>
 
-    <div class="border-t border-surface-800 my-8"></div>
-
-    <!-- Section 2: Access Policy -->
-    <form
-      method="POST"
-      action="?/savePolicy"
-      use:enhance={() => {
-        savingPolicy = true
-        return async ({ result, update }) => {
-          savingPolicy = false
-          await update()
-          if (result.type === 'success') await invalidateAll()
-        }
-      }}
-    >
+    {#if !oidcConfigured}
+      <div class="border-t border-surface-800 my-8"></div>
       <div class="max-w-xl">
-        <h3 class="text-sm font-medium text-surface-300 mb-1">Access Policy</h3>
-        <p class="text-xs text-surface-600 mb-5">Control who can join and how members authenticate.</p>
-
-        <div class="space-y-5">
-          <input type="hidden" name="selfRegistration" value={selfRegistration ? 'true' : 'false'} />
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-surface-300">Self-registration</p>
-              <p class="text-xs text-surface-600">
-                {#if oidcConfigured}
-                  Allow anyone with a matching email to join via SSO or email/password without an invitation.
-                {:else}
-                  Allow users to create accounts with email/password without an invitation.
-                {/if}
-              </p>
-            </div>
-            <button
-              type="button"
-              onclick={() => { selfRegistration = !selfRegistration }}
-              class="relative shrink-0 w-11 h-6 rounded-full transition-colors {selfRegistration
-                ? 'bg-accent-600'
-                : 'bg-surface-800'}"
-              aria-label="Toggle self-registration"
-            >
-              <span
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform {selfRegistration
-                  ? 'translate-x-5'
-                  : ''}"
-              ></span>
-            </button>
-          </div>
-
-          <input type="hidden" name="emailVerification" value={emailVerification ? 'true' : 'false'} />
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-surface-300">Email verification</p>
-              <p class="text-xs text-surface-600">Require email verification before account activation.</p>
-            </div>
-            <button
-              type="button"
-              onclick={() => { emailVerification = !emailVerification }}
-              class="relative shrink-0 w-11 h-6 rounded-full transition-colors {emailVerification
-                ? 'bg-accent-600'
-                : 'bg-surface-800'}"
-              aria-label="Toggle email verification"
-            >
-              <span
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform {emailVerification
-                  ? 'translate-x-5'
-                  : ''}"
-              ></span>
-            </button>
-          </div>
-
-          <input type="hidden" name="mandatorySso" value={mandatorySso ? 'true' : 'false'} />
-          <div class="flex items-center justify-between {oidcConfigured ? '' : 'opacity-40'}">
-            <div>
-              <p class="text-sm text-surface-300">Mandatory SSO</p>
-              <p class="text-xs text-surface-600">
-                {#if oidcConfigured}
-                  Require all members to sign in via SSO. Org owners can still use email/password.
-                {:else}
-                  Configure an identity provider first to enable mandatory SSO.
-                {/if}
-              </p>
-            </div>
-            <button
-              type="button"
-              disabled={!oidcConfigured}
-              onclick={() => { mandatorySso = !mandatorySso }}
-              class="relative shrink-0 w-11 h-6 rounded-full transition-colors disabled:cursor-not-allowed {mandatorySso
-                ? 'bg-accent-600'
-                : 'bg-surface-800'}"
-              aria-label="Toggle mandatory SSO"
-            >
-              <span
-                class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform {mandatorySso
-                  ? 'translate-x-5'
-                  : ''}"
-              ></span>
-            </button>
-          </div>
-
-          <div class="pt-4 border-t border-surface-800">
-            <button
-              type="submit"
-              disabled={savingPolicy}
-              class="bg-accent-600 hover:bg-accent-500 text-white text-sm px-4 py-2 rounded-md transition-colors disabled:opacity-50"
-            >
-              {savingPolicy ? 'Saving...' : 'Save'}
-            </button>
-            {#if form?.savedPolicy}
-              <span class="text-xs text-ok-400 ml-3">Saved.</span>
-            {:else if form?.error}
-              <span class="text-xs text-err-400 ml-3">{form.error}</span>
-            {/if}
-          </div>
-        </div>
+        <p class="text-sm text-surface-400">
+          Without an identity provider, members join via invite and sign in with email and password.
+        </p>
       </div>
-    </form>
+    {/if}
   {/if}
 </div>
 

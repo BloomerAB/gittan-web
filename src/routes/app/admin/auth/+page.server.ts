@@ -6,14 +6,11 @@ import type { PageServerLoad, Actions } from './$types'
 import type { TOrg } from '$lib/types'
 
 type TOrgAuth = TOrg & {
-  selfRegistration?: boolean
-  emailVerification?: boolean
   oidcIssuer?: string
   oidcClientId?: string
   oidcClientSecret?: string
   ssoEmailDomain?: string
   groupsClaim?: string
-  mandatorySso?: boolean
 }
 
 export const load: PageServerLoad = async ({ parent, locals }) => {
@@ -83,25 +80,4 @@ export const actions: Actions = {
     }
   },
 
-  savePolicy: async ({ request, locals, cookies }) => {
-    if (!locals.session) return fail(401, { error: 'Unauthorized' })
-    const orgId = cookies.get('gittan-active-org')
-    if (!orgId) return fail(400, { error: 'No active org' })
-
-    const data = await request.formData()
-    const selfRegistration = data.get('selfRegistration') === 'true'
-    const emailVerification = data.get('emailVerification') === 'true'
-    const mandatorySso = data.get('mandatorySso') === 'true'
-
-    try {
-      await apiPut(`/orgs/${orgId}`, locals.session, {
-        selfRegistration,
-        emailVerification,
-        mandatorySso,
-      })
-      return { savedPolicy: true }
-    } catch {
-      return fail(500, { error: 'Failed to save access policy' })
-    }
-  },
 }

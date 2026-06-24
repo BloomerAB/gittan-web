@@ -74,8 +74,6 @@ describe('auth page load', () => {
       id: 'org-1',
       name: 'test-org',
       displayName: 'Test Org',
-      selfRegistration: true,
-      emailVerification: false,
       oidcIssuer: 'https://idp.example.com',
     }
     mockApiGet.mockResolvedValue(orgData)
@@ -110,7 +108,7 @@ describe('auth actions - saveOidc', () => {
     vi.clearAllMocks()
   })
 
-  it('saves OIDC configuration without mandatorySso', async () => {
+  it('saves OIDC configuration', async () => {
     mockApiPut.mockResolvedValue({})
     const cookies = createMockCookies('org-1')
 
@@ -277,73 +275,6 @@ describe('auth actions - verifyOidc', () => {
     expect(result).toEqual({
       status: 400,
       data: { error: 'No OIDC issuer configured' },
-      type: 'failure',
-    })
-  })
-})
-
-describe('auth actions - savePolicy', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('saves access policy settings', async () => {
-    mockApiPut.mockResolvedValue({})
-    const cookies = createMockCookies('org-1')
-
-    const result = await actions.savePolicy({
-      request: {
-        formData: async () => createFormData({
-          selfRegistration: 'true',
-          emailVerification: 'false',
-          mandatorySso: 'true',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(result).toEqual({ savedPolicy: true })
-    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
-      selfRegistration: true,
-      emailVerification: false,
-      mandatorySso: true,
-    })
-  })
-
-  it('returns 401 when not authenticated', async () => {
-    const result = await actions.savePolicy({
-      request: { formData: async () => createFormData({}) },
-      locals: { session: null },
-      cookies: createMockCookies('org-1'),
-    } as any)
-
-    expect(result).toEqual({
-      status: 401,
-      data: { error: 'Unauthorized' },
-      type: 'failure',
-    })
-  })
-
-  it('returns 500 when API call fails', async () => {
-    mockApiPut.mockRejectedValue(new Error('fail'))
-    const cookies = createMockCookies('org-1')
-
-    const result = await actions.savePolicy({
-      request: {
-        formData: async () => createFormData({
-          selfRegistration: 'false',
-          emailVerification: 'true',
-          mandatorySso: 'false',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(result).toEqual({
-      status: 500,
-      data: { error: 'Failed to save access policy' },
       type: 'failure',
     })
   })
