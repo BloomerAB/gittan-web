@@ -67,8 +67,8 @@ describe('members page load', () => {
       cookies: createMockCookies('org-1'),
     } as any)
 
-    expect(result.members).toEqual(members)
-    expect(result.invites).toEqual(invites)
+    expect((result as Record<string, unknown>).members).toEqual(members)
+    expect((result as Record<string, unknown>).invites).toEqual(invites)
   })
 
   it('returns empty arrays when no session', async () => {
@@ -78,8 +78,8 @@ describe('members page load', () => {
       cookies: createMockCookies(),
     } as any)
 
-    expect(result.members).toEqual([])
-    expect(result.invites).toEqual([])
+    expect((result as Record<string, unknown>).members).toEqual([])
+    expect((result as Record<string, unknown>).invites).toEqual([])
   })
 })
 
