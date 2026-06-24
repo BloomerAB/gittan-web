@@ -1,0 +1,24 @@
+name: "Usage"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "usage-001"
+    name: "Usage page loads with pipeline statistics"
+    steps:
+      - action: "Navigate to the Usage page in the admin sidebar"
+        expect: "Usage page is visible with pipeline run counts or usage metrics displayed"
+
+  - id: "usage-002"
+    name: "Usage page shows time period or breakdown"
+    steps:
+      - action: "Navigate to the Usage page and verify the data has some structure"
+        expect: "Usage data is displayed with timestamps, counts, or a chart/table showing usage over time"

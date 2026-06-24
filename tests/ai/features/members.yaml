@@ -1,0 +1,54 @@
+name: "Members"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "members-001"
+    name: "Members page loads and shows current user"
+    steps:
+      - action: "Navigate to the Members page in the admin sidebar"
+        expect: "Members page is visible with heading 'Members' and subheading about managing access"
+      - action: "Verify the Active members section shows at least one member"
+        expect: "Active members section shows count (1) and at least one row with an email address and Owner badge"
+
+  - id: "members-002"
+    name: "Invite form is visible with email input and role selector"
+    steps:
+      - action: "Navigate to the Members page"
+        expect: "Invite form section titled 'Invite a new member' is visible"
+      - action: "Verify the invite form has email input, role dropdown with Member and Owner options, and Send invite button"
+        expect: "Email input (placeholder 'colleague@company.com'), role select with Member and Owner options, and Send invite button are all visible"
+
+  - id: "members-003"
+    name: "Send invite and verify it appears in pending list"
+    steps:
+      - action: "Navigate to the Members page"
+        expect: "Members page is visible"
+      - action: "Fill in email 'ai-test-invite@example.com', select role 'Member', click Send invite"
+        expect: "Success message 'Invite sent' appears and Pending invites section shows the invited email"
+      - action: "Verify the pending invite row shows the email, role badge, and a Revoke button"
+        expect: "Row with 'ai-test-invite@example.com' is visible with Member badge and Revoke button"
+
+  - id: "members-004"
+    name: "Revoke a pending invite"
+    steps:
+      - action: "Navigate to the Members page. If no pending invites exist, first send an invite to 'ai-test-revoke@example.com'"
+        expect: "At least one pending invite is visible"
+      - action: "Click the Revoke button on the pending invite"
+        expect: "The invite is removed from the pending invites list"
+
+  - id: "members-005"
+    name: "Owner cannot be removed from members list"
+    steps:
+      - action: "Navigate to the Members page and find the member with Owner badge"
+        expect: "Owner member is visible in the active members list"
+      - action: "Verify there is no Remove button next to the Owner"
+        expect: "Owner row has no Remove button, while non-owner rows (if any) do have a Remove button"

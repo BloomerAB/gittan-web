@@ -1,0 +1,24 @@
+name: "Subscription"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "subscription-001"
+    name: "Subscription page loads and shows current plan"
+    steps:
+      - action: "Navigate to the Subscription page in the admin sidebar"
+        expect: "Subscription page is visible showing the current plan name and any plan details"
+
+  - id: "subscription-002"
+    name: "Usage information is displayed"
+    steps:
+      - action: "Navigate to the Subscription page and look for usage metrics"
+        expect: "Usage information is visible (e.g. repos, teams, members count or limits)"

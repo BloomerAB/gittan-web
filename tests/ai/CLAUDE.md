@@ -60,7 +60,7 @@ If you detect a login/session screen when you shouldn't be on one:
 
 ## Writing new tests
 
-- One feature file per domain (teams, settings, auth, steps, policies, audit)
+- One feature file per domain (teams, members, settings, auth, steps, policies, audit, integrations, subscription, usage, dashboard)
 - Keep steps as natural language — the AI figures out selectors
 - Use `data-testid` attributes in expect only when precision matters
 - Each case should be independent — don't rely on state from previous cases
@@ -139,13 +139,17 @@ tests/ai/
   CLAUDE.md             — You are here
   knowledge.yaml        — App screens, auth flow, quirks, seed data
   features/
+    dashboard.yaml      — App dashboard and sidebar
     teams.yaml          — Team CRUD
+    members.yaml        — Members and invites
     settings.yaml       — Org settings
     auth.yaml           — Auth configuration (OIDC)
     steps.yaml          — Step registry (pipeline steps)
     policies.yaml       — Pipeline policies
+    integrations.yaml   — Slack and other integrations
+    subscription.yaml   — Plan and billing
+    usage.yaml          — Pipeline usage stats
     audit.yaml          — Audit log
-  runner.sh             — Sequential headless runner (claude -p)
   run-all.sh            — Parallel runner with HTML report
   report.mjs            — HTML report generator
   .results/             — Saved results (gitignored)
