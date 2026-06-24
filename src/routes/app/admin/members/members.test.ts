@@ -53,7 +53,7 @@ describe('members page load', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('loads members and invites', async () => {
-    const members = [{ userId: 'u1', email: 'a@b.c', name: 'A', role: 'owner', joinedAt: '2026-01-01' }]
+    const members = [{ userId: 'u1', email: 'a@b.c', role: 'owner', joinedAt: '2026-01-01' }]
     const invites = [{ id: 'i1', email: 'x@y.z', role: 'member', createdAt: '2026-01-01', expiresAt: '2026-01-08' }]
     mockApiGet.mockImplementation((path: string) => {
       if (path.includes('/members')) return Promise.resolve(members)
