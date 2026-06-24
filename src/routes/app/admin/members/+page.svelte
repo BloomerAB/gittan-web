@@ -140,10 +140,7 @@
           {#each data.members as member}
             <div class="flex items-center justify-between px-4 py-3">
               <div class="min-w-0">
-                <p class="text-sm text-surface-200 truncate">{member.name || member.email}</p>
-                {#if member.name}
-                  <p class="text-xs text-surface-500 truncate font-mono">{member.email}</p>
-                {/if}
+                <p class="text-sm text-surface-200 truncate font-mono">{member.email}</p>
               </div>
               <div class="flex items-center gap-3 shrink-0 ml-3">
                 <span class="text-xs text-surface-600">{timeAgo(member.joinedAt)}</span>

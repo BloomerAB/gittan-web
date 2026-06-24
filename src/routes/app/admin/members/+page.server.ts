@@ -5,7 +5,6 @@ import type { PageServerLoad, Actions } from './$types'
 type TMember = {
   readonly userId: string
   readonly email: string
-  readonly name: string
   readonly role: string
   readonly joinedAt: string
 }
