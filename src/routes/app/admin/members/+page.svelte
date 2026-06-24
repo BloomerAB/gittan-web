@@ -12,13 +12,11 @@
 
   const roleLabel = (role: string) => {
     if (role === 'owner') return 'Owner'
-    if (role === 'admin') return 'Org Admin'
     return 'Member'
   }
 
   const roleBadgeClass = (role: string) => {
     if (role === 'owner') return 'text-accent-400 bg-accent-400/10'
-    if (role === 'admin') return 'text-warn-400 bg-warn-400/10'
     return 'text-surface-400 bg-surface-800'
   }
 
@@ -69,7 +67,7 @@
             class="bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
           >
             <option value="member">Member</option>
-            <option value="admin">Org Admin</option>
+            <option value="owner">Owner</option>
           </select>
           <button
             type="submit"
