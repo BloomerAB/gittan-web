@@ -14,6 +14,7 @@
     {
       heading: 'Administration',
       links: [
+        { path: '/app/admin/members', label: 'Members' },
         { path: '/app/admin/teams', label: 'Teams' },
         { path: '/app/admin/settings', label: 'Settings' },
         { path: '/app/admin/subscription', label: 'Subscription' },
