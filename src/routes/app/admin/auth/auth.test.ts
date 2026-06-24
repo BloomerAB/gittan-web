@@ -19,6 +19,7 @@ vi.mock('@sveltejs/kit', () => ({
 }))
 
 vi.mock('$lib/server/auth-identity', () => ({
+  getLinkedIdentities: vi.fn().mockResolvedValue([]),
   getProviderIdForIssuer: vi.fn().mockResolvedValue(null),
   startIdentityLink: vi.fn().mockResolvedValue(null),
 }))
