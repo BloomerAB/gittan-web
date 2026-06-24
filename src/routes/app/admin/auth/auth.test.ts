@@ -18,10 +18,15 @@ vi.mock('@sveltejs/kit', () => ({
   }),
 }))
 
+const { mockGetProviderIdForIssuer, mockStartIdentityLink } = vi.hoisted(() => ({
+  mockGetProviderIdForIssuer: vi.fn().mockResolvedValue(null),
+  mockStartIdentityLink: vi.fn().mockResolvedValue(null),
+}))
+
 vi.mock('$lib/server/auth-identity', () => ({
   getLinkedIdentities: vi.fn().mockResolvedValue([]),
-  getProviderIdForIssuer: vi.fn().mockResolvedValue(null),
-  startIdentityLink: vi.fn().mockResolvedValue(null),
+  getProviderIdForIssuer: mockGetProviderIdForIssuer,
+  startIdentityLink: mockStartIdentityLink,
 }))
 
 vi.mock('$lib/server/config', () => ({
@@ -32,7 +37,7 @@ vi.mock('./$types', () => ({}))
 
 import { actions, load } from './+page.server.js'
 
-type TLoadResult = { org: Record<string, unknown> | null }
+type TLoadResult = { org: Record<string, unknown> | null; linkedIdentities: unknown[] }
 
 const TEST_SESSION = {
   accessToken: 'test-access-token',
@@ -64,7 +69,7 @@ describe('auth page load', () => {
     vi.clearAllMocks()
   })
 
-  it('returns org data from API', async () => {
+  it('returns org data and linked identities from API', async () => {
     const orgData = {
       id: 'org-1',
       name: 'test-org',
@@ -84,6 +89,7 @@ describe('auth page load', () => {
     } as any) as TLoadResult
 
     expect(result.org).toEqual(orgData)
+    expect(result.linkedIdentities).toEqual([])
   })
 
   it('returns null org when no session', async () => {
@@ -99,54 +105,12 @@ describe('auth page load', () => {
   })
 })
 
-describe('auth actions - saveAuth', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('saves auth settings', async () => {
-    mockApiPut.mockResolvedValue({})
-    const cookies = createMockCookies('org-1')
-
-    const result = await actions.saveAuth({
-      request: {
-        formData: async () => createFormData({
-          selfRegistration: 'true',
-          emailVerification: 'false',
-        }),
-      },
-      locals: { session: TEST_SESSION },
-      cookies,
-    } as any)
-
-    expect(result).toEqual({ saved: true })
-    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
-      selfRegistration: true,
-      emailVerification: false,
-    })
-  })
-
-  it('returns 401 when not authenticated', async () => {
-    const result = await actions.saveAuth({
-      request: { formData: async () => createFormData({}) },
-      locals: { session: null },
-      cookies: createMockCookies('org-1'),
-    } as any)
-
-    expect(result).toEqual({
-      status: 401,
-      data: { error: 'Unauthorized' },
-      type: 'failure',
-    })
-  })
-})
-
 describe('auth actions - saveOidc', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('saves OIDC configuration successfully', async () => {
+  it('saves OIDC configuration without mandatorySso', async () => {
     mockApiPut.mockResolvedValue({})
     const cookies = createMockCookies('org-1')
 
@@ -158,7 +122,6 @@ describe('auth actions - saveOidc', () => {
           oidcClientSecret: '',
           ssoEmailDomain: 'example.com',
           groupsClaim: 'groups',
-          mandatorySso: 'true',
         }),
       },
       locals: { session: TEST_SESSION },
@@ -172,7 +135,6 @@ describe('auth actions - saveOidc', () => {
       oidcClientSecret: undefined,
       ssoEmailDomain: 'example.com',
       groupsClaim: 'groups',
-      mandatorySso: true,
     })
   })
 
@@ -188,7 +150,6 @@ describe('auth actions - saveOidc', () => {
           oidcClientSecret: '',
           ssoEmailDomain: '',
           groupsClaim: '',
-          mandatorySso: 'false',
         }),
       },
       locals: { session: TEST_SESSION },
@@ -201,7 +162,6 @@ describe('auth actions - saveOidc', () => {
       oidcClientSecret: undefined,
       ssoEmailDomain: null,
       groupsClaim: undefined,
-      mandatorySso: false,
     })
   })
 
@@ -245,7 +205,6 @@ describe('auth actions - saveOidc', () => {
           oidcClientSecret: '',
           ssoEmailDomain: '',
           groupsClaim: '',
-          mandatorySso: 'false',
         }),
       },
       locals: { session: TEST_SESSION },
@@ -258,19 +217,123 @@ describe('auth actions - saveOidc', () => {
       type: 'failure',
     })
   })
+})
 
-  it('treats mandatorySso as false when value is not "true"', async () => {
+describe('auth actions - verifyOidc', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns verify URL when provider exists', async () => {
+    mockApiGet.mockResolvedValue({ oidcIssuer: 'https://idp.example.com' })
+    mockGetProviderIdForIssuer.mockResolvedValue('provider-1')
+    mockStartIdentityLink.mockResolvedValue('https://idp.example.com/auth?state=xyz')
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.verifyOidc({
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)
+
+    expect(result).toEqual({ verifyUrl: 'https://idp.example.com/auth?state=xyz' })
+  })
+
+  it('returns alreadyVerified when link returns null', async () => {
+    mockApiGet.mockResolvedValue({ oidcIssuer: 'https://idp.example.com' })
+    mockGetProviderIdForIssuer.mockResolvedValue('provider-1')
+    mockStartIdentityLink.mockResolvedValue(null)
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.verifyOidc({
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)
+
+    expect(result).toEqual({ alreadyVerified: true })
+  })
+
+  it('returns 401 when not authenticated', async () => {
+    const result = await actions.verifyOidc({
+      locals: { session: null },
+      cookies: createMockCookies('org-1'),
+    } as any)
+
+    expect(result).toEqual({
+      status: 401,
+      data: { error: 'Unauthorized' },
+      type: 'failure',
+    })
+  })
+
+  it('returns 400 when no OIDC issuer configured', async () => {
+    mockApiGet.mockResolvedValue({ oidcIssuer: null })
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.verifyOidc({
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)
+
+    expect(result).toEqual({
+      status: 400,
+      data: { error: 'No OIDC issuer configured' },
+      type: 'failure',
+    })
+  })
+})
+
+describe('auth actions - savePolicy', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('saves access policy settings', async () => {
     mockApiPut.mockResolvedValue({})
     const cookies = createMockCookies('org-1')
 
-    await actions.saveOidc({
+    const result = await actions.savePolicy({
       request: {
         formData: async () => createFormData({
-          oidcIssuer: 'https://idp.example.com',
-          oidcClientId: 'client',
-          oidcClientSecret: '',
-          ssoEmailDomain: '',
-          groupsClaim: '',
+          selfRegistration: 'true',
+          emailVerification: 'false',
+          mandatorySso: 'true',
+        }),
+      },
+      locals: { session: TEST_SESSION },
+      cookies,
+    } as any)
+
+    expect(result).toEqual({ savedPolicy: true })
+    expect(mockApiPut).toHaveBeenCalledWith('/orgs/org-1', TEST_SESSION, {
+      selfRegistration: true,
+      emailVerification: false,
+      mandatorySso: true,
+    })
+  })
+
+  it('returns 401 when not authenticated', async () => {
+    const result = await actions.savePolicy({
+      request: { formData: async () => createFormData({}) },
+      locals: { session: null },
+      cookies: createMockCookies('org-1'),
+    } as any)
+
+    expect(result).toEqual({
+      status: 401,
+      data: { error: 'Unauthorized' },
+      type: 'failure',
+    })
+  })
+
+  it('returns 500 when API call fails', async () => {
+    mockApiPut.mockRejectedValue(new Error('fail'))
+    const cookies = createMockCookies('org-1')
+
+    const result = await actions.savePolicy({
+      request: {
+        formData: async () => createFormData({
+          selfRegistration: 'false',
+          emailVerification: 'true',
           mandatorySso: 'false',
         }),
       },
@@ -278,7 +341,10 @@ describe('auth actions - saveOidc', () => {
       cookies,
     } as any)
 
-    const putBody = mockApiPut.mock.calls[0][2]
-    expect(putBody.mandatorySso).toBe(false)
+    expect(result).toEqual({
+      status: 500,
+      data: { error: 'Failed to save access policy' },
+      type: 'failure',
+    })
   })
 })

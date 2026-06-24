@@ -33,26 +33,6 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
 }
 
 export const actions: Actions = {
-  saveAuth: async ({ request, locals, cookies }) => {
-    if (!locals.session) return fail(401, { error: 'Unauthorized' })
-    const orgId = cookies.get('gittan-active-org')
-    if (!orgId) return fail(400, { error: 'No active org' })
-
-    const data = await request.formData()
-    const selfRegistration = data.get('selfRegistration') === 'true'
-    const emailVerification = data.get('emailVerification') === 'true'
-
-    try {
-      await apiPut(`/orgs/${orgId}`, locals.session, {
-        selfRegistration,
-        emailVerification,
-      })
-      return { saved: true }
-    } catch {
-      return fail(500, { error: 'Failed to save auth configuration' })
-    }
-  },
-
   saveOidc: async ({ request, locals, cookies }) => {
     if (!locals.session) return fail(401, { error: 'Unauthorized' })
     const orgId = cookies.get('gittan-active-org')
@@ -64,7 +44,6 @@ export const actions: Actions = {
     const oidcClientSecret = data.get('oidcClientSecret') as string
     const ssoEmailDomain = data.get('ssoEmailDomain') as string
     const groupsClaim = data.get('groupsClaim') as string
-    const mandatorySso = data.get('mandatorySso') === 'true'
 
     try {
       await apiPut(`/orgs/${orgId}`, locals.session, {
@@ -73,23 +52,56 @@ export const actions: Actions = {
         oidcClientSecret: oidcClientSecret || undefined,
         ssoEmailDomain: ssoEmailDomain || null,
         groupsClaim: groupsClaim || undefined,
-        mandatorySso,
       })
     } catch {
       return fail(500, { error: 'Failed to save OIDC configuration' })
     }
 
-    if (oidcIssuer && oidcClientId) {
-      const providerId = await getProviderIdForIssuer(oidcIssuer)
-      if (providerId) {
-        const redirectUri = `${config.appUrl}/app/admin/auth`
-        const url = await startIdentityLink(locals.session, providerId, redirectUri)
-        if (url) {
-          return { savedOidc: true, verifyUrl: url }
-        }
-      }
-    }
-
     return { savedOidc: true }
+  },
+
+  verifyOidc: async ({ locals, cookies }) => {
+    if (!locals.session) return fail(401, { error: 'Unauthorized' })
+    const orgId = cookies.get('gittan-active-org')
+    if (!orgId) return fail(400, { error: 'No active org' })
+
+    try {
+      const org = await apiGet<TOrgAuth>(`/orgs/${orgId}`, locals.session)
+      if (!org.oidcIssuer) return fail(400, { error: 'No OIDC issuer configured' })
+
+      const providerId = await getProviderIdForIssuer(org.oidcIssuer)
+      if (!providerId) return fail(400, { error: 'Provider not found' })
+
+      const redirectUri = `${config.appUrl}/app/admin/auth`
+      const url = await startIdentityLink(locals.session, providerId, redirectUri)
+      if (url) {
+        return { verifyUrl: url }
+      }
+      return { alreadyVerified: true }
+    } catch {
+      return fail(500, { error: 'Failed to start verification' })
+    }
+  },
+
+  savePolicy: async ({ request, locals, cookies }) => {
+    if (!locals.session) return fail(401, { error: 'Unauthorized' })
+    const orgId = cookies.get('gittan-active-org')
+    if (!orgId) return fail(400, { error: 'No active org' })
+
+    const data = await request.formData()
+    const selfRegistration = data.get('selfRegistration') === 'true'
+    const emailVerification = data.get('emailVerification') === 'true'
+    const mandatorySso = data.get('mandatorySso') === 'true'
+
+    try {
+      await apiPut(`/orgs/${orgId}`, locals.session, {
+        selfRegistration,
+        emailVerification,
+        mandatorySso,
+      })
+      return { savedPolicy: true }
+    } catch {
+      return fail(500, { error: 'Failed to save access policy' })
+    }
   },
 }
