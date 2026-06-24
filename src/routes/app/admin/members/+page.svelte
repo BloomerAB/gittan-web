@@ -12,7 +12,7 @@
 
   const roleLabel = (role: string) => {
     if (role === 'owner') return 'Owner'
-    if (role === 'admin') return 'Admin'
+    if (role === 'admin') return 'Org Admin'
     return 'Member'
   }
 
@@ -69,7 +69,7 @@
             class="bg-surface-900 border border-surface-800 rounded-md px-3 py-2 text-sm text-surface-300 focus:border-surface-600 focus:outline-none"
           >
             <option value="member">Member</option>
-            <option value="admin">Admin</option>
+            <option value="admin">Org Admin</option>
           </select>
           <button
             type="submit"
