@@ -1,0 +1,34 @@
+name: "Onboarding"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "onboarding-001"
+    name: "New user always has a personal org"
+    steps:
+      - action: "Navigate to http://localhost:5555/app (logged in)"
+        expect: "Dashboard is shown with org switcher visible in the header — user always has at least one org"
+      - action: "Click the org switcher"
+        expect: "Dropdown shows at least one organization (the personal org) with Join organization section below"
+
+  - id: "onboarding-002"
+    name: "Org switcher has join organization option"
+    steps:
+      - action: "Navigate to http://localhost:5555/app and click the org switcher"
+        expect: "Dropdown opens showing orgs and a 'Join organization' section with input and Join button"
+      - action: "Type a non-existent org name 'does-not-exist-xyz' and click Join"
+        expect: "Error message 'Organization not found' appears"
+
+  - id: "onboarding-003"
+    name: "Dashboard shows teams after selecting org"
+    steps:
+      - action: "Navigate to http://localhost:5555/app with an active org"
+        expect: "Dashboard is shown with sidebar showing teams (if any) and main content area"

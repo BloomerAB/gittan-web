@@ -12,17 +12,53 @@ recovery:
 
 cases:
   - id: "auth-001"
-    name: "Switch to OIDC tab and fill in issuer URL and client ID"
+    name: "OTP login flow completes successfully"
     steps:
-      - action: "Navigate to the Auth page in the admin sidebar"
-        expect: "Auth configuration page is visible. Tabs or sections for different auth methods (OTP, OIDC, etc.) are shown"
-      - action: "Click the OIDC tab or section"
-        expect: "OIDC configuration form is shown with fields for issuer URL, client ID, and possibly client secret"
-      - action: "Fill in issuer URL 'https://accounts.google.com' and client ID 'test-client-id-12345'"
-        expect: "Fields are populated. No validation errors yet (fields accept the input)"
+      - action: "Navigate to http://localhost:5555/app in a fresh session (clear cookies first)"
+        expect: "Redirected to login app at localhost:5176 with email input visible"
+      - action: "Enter email 'mal.nordstrom@gmail.com' and submit"
+        expect: "OTP input field appears, waiting for the code"
+      - action: "Get the OTP code by running: docker exec gittan-scylla cqlsh -e \"SELECT otp FROM gittan_auth.otp_codes WHERE email='mal.nordstrom@gmail.com' LIMIT 1;\""
+        expect: "OTP code is retrieved from the database"
+      - action: "Enter the OTP code and submit"
+        expect: "Redirected back to the Gittan app at localhost:5555/app with the dashboard or onboarding visible"
 
   - id: "auth-002"
-    name: "Test connection validation client-side"
+    name: "Authenticated user sees dashboard with org switcher"
     steps:
-      - action: "Navigate to the Auth page and switch to OIDC tab. Fill in an intentionally invalid issuer URL 'https://invalid.example.invalid' and click Save or Test Connection"
-        expect: "Client-side or server-side validation shows an error — either a validation message on the field or an error toast/banner indicating the issuer URL is unreachable or invalid"
+      - action: "Navigate to http://localhost:5555/app (logged in)"
+        expect: "Dashboard is visible with the header showing gittan logo, org switcher, and navigation links"
+      - action: "Verify the header has org switcher showing current org name"
+        expect: "Org switcher button is visible in the header with the active org's display name"
+
+  - id: "auth-003"
+    name: "Org switcher lists available organizations"
+    steps:
+      - action: "Navigate to http://localhost:5555/app and click the org switcher in the header"
+        expect: "Dropdown opens showing list of organizations with the active one checked"
+      - action: "Verify the dropdown has a 'Join organization' section with an input field"
+        expect: "Join organization section is visible with org name input and Join button"
+
+  - id: "auth-004"
+    name: "OIDC configuration page loads"
+    steps:
+      - action: "Navigate to the Auth page in the admin sidebar"
+        expect: "Auth configuration page is visible with OIDC settings"
+      - action: "Click the OIDC tab or section"
+        expect: "OIDC configuration form is shown with fields for issuer URL, client ID, and client secret"
+      - action: "Fill in issuer URL 'https://accounts.google.com' and client ID 'test-client-id-12345'"
+        expect: "Fields are populated without validation errors"
+
+  - id: "auth-005"
+    name: "Invalid OIDC issuer shows error"
+    steps:
+      - action: "Navigate to the Auth page and switch to OIDC tab. Fill in issuer URL 'https://invalid.example.invalid' and click Save or Test Connection"
+        expect: "Validation shows an error indicating the issuer URL is unreachable or invalid"
+
+  - id: "auth-006"
+    name: "Logout redirects to login"
+    steps:
+      - action: "Navigate to http://localhost:5555/app (logged in) and click 'Log out' in the header"
+        expect: "Redirected to the login page or landing page, no longer authenticated"
+      - action: "Try to navigate to http://localhost:5555/app"
+        expect: "Redirected to login app, confirming the session is cleared"

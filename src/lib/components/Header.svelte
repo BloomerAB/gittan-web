@@ -14,21 +14,17 @@
       <GittanLogo size={22} />
       <span class="text-lg font-semibold tracking-tight">gittan<span style="color: #c4993a">.</span></span>
     </a>
-    {#if orgs.length > 0}
-      <OrgSwitcher {orgs} {activeOrgId} />
-    {/if}
+    <OrgSwitcher {orgs} {activeOrgId} />
   </div>
 
   <div class="flex items-center gap-4">
     <a href="/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
-    {#if orgs.length > 0}
-      <a
-        href={isAdmin ? '/app' : '/app/admin'}
-        class="text-surface-500 hover:text-surface-300 text-sm"
-      >
-        {isAdmin ? 'Dashboard' : 'Admin'}
-      </a>
-    {/if}
+    <a
+      href={isAdmin ? '/app' : '/app/admin'}
+      class="text-surface-500 hover:text-surface-300 text-sm"
+    >
+      {isAdmin ? 'Dashboard' : 'Admin'}
+    </a>
     <a href="/auth/logout" class="text-surface-500 hover:text-surface-300 text-sm">
       Log out
     </a>

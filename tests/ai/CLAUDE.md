@@ -142,8 +142,9 @@ tests/ai/
     dashboard.yaml      — App dashboard and sidebar
     teams.yaml          — Team CRUD
     members.yaml        — Members and invites
+    onboarding.yaml     — Orgless user onboarding flow
     settings.yaml       — Org settings
-    auth.yaml           — Auth configuration (OIDC)
+    auth.yaml           — Auth (login, logout, OIDC config, org switcher)
     steps.yaml          — Step registry (pipeline steps)
     policies.yaml       — Pipeline policies
     integrations.yaml   — Slack and other integrations
