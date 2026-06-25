@@ -4,7 +4,7 @@
   import OrgSwitcher from './OrgSwitcher.svelte'
   import type { TOrg } from '$lib/types'
 
-  let { orgs, activeOrgId }: { orgs: TOrg[]; activeOrgId: string } = $props()
+  let { orgs, activeOrgId, ssoIdentityEmail }: { orgs: TOrg[]; activeOrgId: string; ssoIdentityEmail: string | null } = $props()
   let isAdmin = $derived(page.url.pathname.startsWith('/app/admin'))
 </script>
 
@@ -18,6 +18,9 @@
   </div>
 
   <div class="flex items-center gap-4">
+    {#if ssoIdentityEmail}
+      <span class="text-[11px] text-surface-500 font-mono">{ssoIdentityEmail}</span>
+    {/if}
     <a href="/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
     <a
       href={isAdmin ? '/app' : '/app/admin'}

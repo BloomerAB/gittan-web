@@ -45,12 +45,20 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 
   const activeOrg = orgs.find((o) => o.id === activeOrgId)
   let ssoRequired = false
+  let ssoIdentityEmail: string | null = null
 
-  if (activeOrg?.oidcIssuer && activeOrg.mandatorySso && activeOrg.role !== 'owner') {
+  if (activeOrg?.oidcIssuer) {
     const links = await getLinkedIdentities(session)
-    const hasLink = links.some((l) => l.issuer === activeOrg.oidcIssuer)
-    ssoRequired = !hasLink
+    const match = links.find((l) => l.issuer === activeOrg.oidcIssuer)
+
+    if (activeOrg.mandatorySso && activeOrg.role !== 'owner' && !match) {
+      ssoRequired = true
+    }
+
+    if (match) {
+      ssoIdentityEmail = match.email
+    }
   }
 
-  return { orgs, activeOrgId, teams, reposByTeam, usage, ssoRequired }
+  return { orgs, activeOrgId, teams, reposByTeam, usage, ssoRequired, ssoIdentityEmail }
 }
