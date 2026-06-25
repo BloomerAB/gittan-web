@@ -1,8 +1,11 @@
 FROM node:22-slim AS deps
 WORKDIR /app
+ARG NPM_TOKEN
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
+    pnpm install --frozen-lockfile && \
+    rm -f .npmrc
 
 FROM node:22-slim AS builder
 WORKDIR /app
