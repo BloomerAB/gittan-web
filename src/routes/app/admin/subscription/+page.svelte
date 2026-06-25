@@ -8,9 +8,9 @@
   const usage = $derived(data.usage)
 
   const plans = {
-    personal: { label: 'Personal', price: 'Free', description: '1 user, 1 team, 5 repos, 50 CI min/mo' },
-    starter: { label: 'Starter', price: '€29/mo', description: '5 users, 3 teams, 20 repos, 2,000 CI min/mo' },
-    team: { label: 'Team', price: '€199/mo', description: 'Unlimited users/teams/repos, 10,000 CI min/mo' },
+    personal: { label: 'Personal', price: 'Free', description: '50 CI min/mo, 1 GB storage' },
+    starter: { label: 'Starter', price: '€29/mo', description: '2,000 CI min/mo, 20 GB storage, AI enabled' },
+    team: { label: 'Team', price: '€199/mo', description: '10,000 CI min/mo, 100 GB storage, AI enabled' },
   } as const
 
   const currentPlan = $derived(plans[(plan?.plan ?? 'personal') as keyof typeof plans])
@@ -36,11 +36,8 @@
 
   const ciPercent = $derived(usage && plan ? usagePercent(usage.ciMinutesUsed, plan.ciMinutesLimit) : 0)
   const storagePercent = $derived(usage && plan ? usagePercent(usage.storageBytes, plan.storageLimitGb * 1024 * 1024 * 1024) : 0)
-  const usersPercent = $derived(usage && plan && plan.userLimit > 0 ? usagePercent(usage.userCount, plan.userLimit) : 0)
-  const teamsPercent = $derived(usage && plan && plan.teamLimit > 0 ? usagePercent(usage.teamCount, plan.teamLimit) : 0)
-  const reposPercent = $derived(usage && plan && plan.repoLimit > 0 ? usagePercent(usage.repoCount, plan.repoLimit) : 0)
 
-  const overallStatus = $derived(statusBadge(Math.max(ciPercent, storagePercent, usersPercent, teamsPercent, reposPercent)))
+  const overallStatus = $derived(statusBadge(Math.max(ciPercent, storagePercent)))
 
   let editingReceiptEmail = $state(false)
   let receiptEmailValue = $state(plan?.receiptEmail ?? '')
@@ -74,7 +71,12 @@
     <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
       <div class="flex items-center justify-between mb-1">
         <p class="text-sm text-surface-300">Current Plan</p>
-        <span class="text-xs bg-accent-600/20 text-accent-400 px-2 py-0.5 rounded-full">{currentPlan.label}</span>
+        <div class="flex items-center gap-2">
+          {#if plan?.aiEnabled}
+            <span class="text-[10px] bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded-full">AI</span>
+          {/if}
+          <span class="text-xs bg-accent-600/20 text-accent-400 px-2 py-0.5 rounded-full">{currentPlan.label}</span>
+        </div>
       </div>
       <p class="text-2xl font-semibold text-surface-200">{currentPlan.price}</p>
       <p class="text-xs text-surface-600 mt-1">{currentPlan.description}</p>
@@ -115,20 +117,20 @@
       <p class="text-[10px] text-surface-600 mt-2">Payment integration coming soon. Plan changes take effect immediately.</p>
     </div>
 
-    <!-- CI Blocks -->
+    <!-- Capacity Blocks -->
     <div>
-      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Additional CI Minutes</p>
+      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Capacity Blocks</p>
       <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
         <div class="flex items-center justify-between mb-2">
           <div>
-            <p class="text-sm text-surface-300">CI minute blocks</p>
-            <p class="text-[11px] text-surface-600">Each block adds 10,000 CI minutes/month — €79/block</p>
+            <p class="text-sm text-surface-300">Additional capacity</p>
+            <p class="text-[11px] text-surface-600">Each block adds 10,000 CI minutes + 10 GB storage — €79/block</p>
           </div>
-          <span class="text-lg font-semibold text-surface-200 font-mono">{plan?.ciBlocks ?? 0}</span>
+          <span class="text-lg font-semibold text-surface-200 font-mono">{plan?.blocks ?? 0}</span>
         </div>
         <form
           method="POST"
-          action="?/updateCiBlocks"
+          action="?/updateBlocks"
           class="flex items-center gap-2 mt-2"
           use:enhance={() => {
             return async ({ update }) => {
@@ -139,10 +141,10 @@
           <label class="text-xs text-surface-500">Set blocks:</label>
           <input
             type="number"
-            name="ciBlocks"
+            name="blocks"
             min="0"
             max="50"
-            value={plan?.ciBlocks ?? 0}
+            value={plan?.blocks ?? 0}
             class="w-20 bg-surface-950 border border-surface-700 rounded px-2 py-1 text-xs text-surface-300 font-mono focus:border-surface-500 focus:outline-none"
           />
           <button type="submit" class="text-xs bg-accent-600 hover:bg-accent-500 text-white px-3 py-1 rounded">Update</button>
@@ -167,7 +169,7 @@
           </div>
           {#if ciPercent >= 80}
             <p class="text-[10px] mt-1 {ciPercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or add CI blocks' : `${ciPercent}% used — approaching limit`}
+              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or add capacity blocks' : `${ciPercent}% used — approaching limit`}
             </p>
           {/if}
         </div>
@@ -183,51 +185,22 @@
           <div class="h-2 bg-surface-800 rounded-full overflow-hidden">
             <div class="h-full rounded-full transition-all {barColor(storagePercent)}" style="width: {storagePercent}%"></div>
           </div>
+          {#if storagePercent >= 80}
+            <p class="text-[10px] mt-1 {storagePercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
+              {storagePercent >= 100 ? 'Storage full — upgrade plan or add capacity blocks' : `${storagePercent}% used — approaching limit`}
+            </p>
+          {/if}
         </div>
 
-        <!-- Resource counts -->
-        {#if plan && plan.userLimit > 0}
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-surface-400">Members</span>
-              <span class="text-surface-500">{usage?.userCount ?? 0} / {plan.userLimit}</span>
-            </div>
-            <div class="h-2 bg-surface-800 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all {barColor(usersPercent)}" style="width: {usersPercent}%"></div>
-            </div>
-          </div>
-        {/if}
-
-        {#if plan && plan.teamLimit > 0}
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-surface-400">Teams</span>
-              <span class="text-surface-500">{usage?.teamCount ?? 0} / {plan.teamLimit}</span>
-            </div>
-            <div class="h-2 bg-surface-800 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all {barColor(teamsPercent)}" style="width: {teamsPercent}%"></div>
-            </div>
-          </div>
-        {/if}
-
-        {#if plan && plan.repoLimit > 0}
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="text-surface-400">Repositories</span>
-              <span class="text-surface-500">{usage?.repoCount ?? 0} / {plan.repoLimit}</span>
-            </div>
-            <div class="h-2 bg-surface-800 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all {barColor(reposPercent)}" style="width: {reposPercent}%"></div>
-            </div>
-          </div>
-        {/if}
-
-        {#if plan && plan.userLimit === 0}
-          <div class="flex justify-between text-xs">
-            <span class="text-surface-400">Members / Teams / Repos</span>
-            <span class="text-surface-500">Unlimited</span>
-          </div>
-        {/if}
+        <!-- AI -->
+        <div class="flex justify-between text-xs">
+          <span class="text-surface-400">AI</span>
+          {#if plan?.aiEnabled}
+            <span class="text-violet-400">Enabled</span>
+          {:else}
+            <span class="text-surface-600">Not included — upgrade to Starter or Team</span>
+          {/if}
+        </div>
       </div>
     </div>
 

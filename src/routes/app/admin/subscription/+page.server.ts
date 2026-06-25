@@ -5,12 +5,10 @@ import type { PageServerLoad, Actions } from './$types'
 type TPlan = {
   readonly orgId: string
   readonly plan: string
-  readonly ciBlocks: number
+  readonly blocks: number
   readonly ciMinutesLimit: number
   readonly storageLimitGb: number
-  readonly userLimit: number
-  readonly teamLimit: number
-  readonly repoLimit: number
+  readonly aiEnabled: boolean
   readonly receiptEmail?: string
 }
 
@@ -20,9 +18,6 @@ type TUsage = {
   readonly ciMinutesUsed: number
   readonly ciMinutesLimit: number
   readonly storageBytes: number
-  readonly userCount: number
-  readonly teamCount: number
-  readonly repoCount: number
 }
 
 type TReceipt = {
@@ -92,22 +87,22 @@ export const actions: Actions = {
     }
   },
 
-  updateCiBlocks: async ({ request, locals, cookies }) => {
+  updateBlocks: async ({ request, locals, cookies }) => {
     if (!locals.session) return fail(401, { error: 'Unauthorized' })
     const orgId = cookies.get('gittan-active-org')
     if (!orgId) return fail(400, { error: 'No active org' })
 
     const data = await request.formData()
-    const ciBlocks = parseInt(data.get('ciBlocks') as string, 10)
-    if (isNaN(ciBlocks) || ciBlocks < 0 || ciBlocks > 50) {
-      return fail(400, { error: 'CI blocks must be between 0 and 50' })
+    const blocks = parseInt(data.get('blocks') as string, 10)
+    if (isNaN(blocks) || blocks < 0 || blocks > 50) {
+      return fail(400, { error: 'Blocks must be between 0 and 50' })
     }
 
     try {
-      await apiPut(`/orgs/${orgId}/plan`, locals.session, { ciBlocks })
+      await apiPut(`/orgs/${orgId}/plan`, locals.session, { blocks })
       return { updated: true }
     } catch {
-      return fail(500, { error: 'Failed to update CI blocks' })
+      return fail(500, { error: 'Failed to update capacity blocks' })
     }
   },
 }

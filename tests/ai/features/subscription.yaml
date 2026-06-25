@@ -33,19 +33,19 @@ cases:
     name: "Usage bars show CI minutes and storage"
     steps:
       - action: "Navigate to the Subscription page and examine the Usage section"
-        expect: "Progress bars visible for CI Minutes and Storage, each showing used/limit values"
+        expect: "Progress bars visible for CI Minutes and Storage, each showing used/limit values. No bars for members, teams, or repos — those are unlimited."
 
   - id: "subscription-005"
-    name: "Resource limits shown for limited plans"
+    name: "AI status shown in usage section"
     steps:
-      - action: "Navigate to Subscription page. If on Personal or Starter plan, check for resource limit bars"
-        expect: "Members, Teams, and/or Repositories progress bars shown with current/limit counts. Or if on Team plan, shows Unlimited"
+      - action: "Navigate to Subscription page and check the Usage section for AI status"
+        expect: "An AI row is visible showing either 'Enabled' (violet text) or 'Not included — upgrade to Starter or Team'"
 
   - id: "subscription-006"
-    name: "CI blocks section with adjustment"
+    name: "Capacity blocks section with adjustment"
     steps:
-      - action: "Navigate to Subscription page and look for the Additional CI Minutes section"
-        expect: "CI blocks section visible showing current block count, price per block (€79), a numeric input field, and an Update button"
+      - action: "Navigate to Subscription page and look for the Capacity Blocks section"
+        expect: "Capacity blocks section visible showing current block count, description mentioning both CI minutes and storage per block (€79), a numeric input field, and an Update button"
 
   - id: "subscription-007"
     name: "Receipt email section with edit"
