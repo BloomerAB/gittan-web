@@ -12,13 +12,45 @@ recovery:
 
 cases:
   - id: "subscription-001"
-    name: "Subscription page loads and shows current plan"
+    name: "Subscription page loads with current plan"
     steps:
       - action: "Navigate to the Subscription page in the admin sidebar"
-        expect: "Subscription page is visible showing the current plan name and any plan details"
+        expect: "Subscription page shows current plan card with plan name, price, and description"
 
   - id: "subscription-002"
-    name: "Usage information is displayed"
+    name: "Three plan options are displayed"
     steps:
-      - action: "Navigate to the Subscription page and look for usage metrics"
-        expect: "Usage information is visible (e.g. repos, teams, members count or limits)"
+      - action: "Navigate to the Subscription page and look at the Change Plan section"
+        expect: "Three plan cards visible: Personal (Free), Starter (€29/mo), Team (€199/mo). The current plan card has a highlighted border"
+
+  - id: "subscription-003"
+    name: "Usage bars show CI minutes and storage"
+    steps:
+      - action: "Navigate to the Subscription page and examine the Usage section"
+        expect: "Progress bars visible for CI Minutes and Storage, each showing used/limit values"
+
+  - id: "subscription-004"
+    name: "Resource limits shown for limited plans"
+    steps:
+      - action: "Navigate to Subscription page. If on Personal or Starter plan, check for resource limit bars"
+        expect: "Members, Teams, and/or Repositories progress bars shown with current/limit counts. Or if on Team plan, shows Unlimited"
+
+  - id: "subscription-005"
+    name: "Billing email section"
+    steps:
+      - action: "Navigate to Subscription page and look at the Billing section"
+        expect: "Billing section visible with billing email field showing current email or Not set, with an Edit button"
+
+  - id: "subscription-006"
+    name: "Edit billing email"
+    steps:
+      - action: "Navigate to Subscription page, click the Edit button next to billing email"
+        expect: "Email input field appears with Save and Cancel buttons"
+      - action: "Click Cancel"
+        expect: "Input field disappears, returns to display mode"
+
+  - id: "subscription-007"
+    name: "Overall status badge"
+    steps:
+      - action: "Navigate to Subscription page and check the top-right area next to the Subscription heading"
+        expect: "A status badge is visible (OK, Warning, Critical, or Blocked) indicating overall quota status"
