@@ -277,6 +277,7 @@
               <thead>
                 <tr class="text-surface-500 text-left">
                   <th class="pb-2 font-normal">Date</th>
+                  <th class="pb-2 font-normal">Period</th>
                   <th class="pb-2 font-normal">Amount</th>
                   <th class="pb-2 font-normal text-right">Download</th>
                 </tr>
@@ -284,10 +285,11 @@
               <tbody>
                 {#each data.receipts as receipt}
                   <tr class="border-t border-surface-800/50">
-                    <td class="py-2 text-surface-300">{receipt.date}</td>
-                    <td class="py-2 text-surface-300">{receipt.amount}</td>
+                    <td class="py-2 text-surface-300">{new Date(receipt.createdAt).toLocaleDateString('en-SE')}</td>
+                    <td class="py-2 text-surface-300">{receipt.month}</td>
+                    <td class="py-2 text-surface-300">€{receipt.amountEur}</td>
                     <td class="py-2 text-right">
-                      <a href={receipt.pdfUrl} class="text-accent-400 hover:text-accent-300">PDF</a>
+                      <a href="/api/orgs/{data.plan?.orgId}/receipts/{receipt.id}/pdf" target="_blank" class="text-accent-400 hover:text-accent-300">PDF</a>
                     </td>
                   </tr>
                 {/each}

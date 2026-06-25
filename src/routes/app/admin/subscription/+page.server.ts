@@ -21,9 +21,11 @@ type TUsage = {
 }
 
 type TReceipt = {
-  readonly date: string
-  readonly amount: string
-  readonly pdfUrl: string
+  readonly id: string
+  readonly month: string
+  readonly amountEur: number
+  readonly plan: string
+  readonly createdAt: string
 }
 
 export const load: PageServerLoad = async ({ parent, locals }) => {
@@ -31,11 +33,12 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
   if (!activeOrgId || !locals.session) return { plan: null, usage: null, receipts: [] as TReceipt[] }
 
   try {
-    const [plan, usage] = await Promise.all([
+    const [plan, usage, receipts] = await Promise.all([
       apiGet<TPlan>(`/orgs/${activeOrgId}/plan`, locals.session),
       apiGet<TUsage>(`/orgs/${activeOrgId}/usage`, locals.session),
+      apiGet<TReceipt[]>(`/orgs/${activeOrgId}/receipts`, locals.session).catch(() => [] as TReceipt[]),
     ])
-    return { plan, usage, receipts: [] as TReceipt[] }
+    return { plan, usage, receipts }
   } catch {
     return { plan: null, usage: null, receipts: [] as TReceipt[] }
   }
