@@ -8,7 +8,7 @@
   const usage = $derived(data.usage)
 
   const plans = {
-    personal: { label: 'Personal', price: 'Free', description: '1 user, 1 team, 5 repos, 500 CI min/mo' },
+    personal: { label: 'Personal', price: 'Free', description: '1 user, 1 team, 5 repos, 50 CI min/mo' },
     starter: { label: 'Starter', price: '€29/mo', description: '5 users, 3 teams, 20 repos, 2,000 CI min/mo' },
     team: { label: 'Team', price: '€199/mo', description: 'Unlimited users/teams/repos, 10,000 CI min/mo' },
   } as const
