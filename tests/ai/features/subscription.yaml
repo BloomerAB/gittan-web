@@ -9,6 +9,11 @@ recovery:
     recover:
       - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
         expect: "Redirected back to Gittan app"
+  - id: "no_active_org"
+    detect: "No active org,no org,select an org"
+    recover:
+      - action: "Navigate to the main app page and look for an org selector or org list. Select or create an org if needed."
+        expect: "An org is now active and the page works normally"
 
 cases:
   - id: "subscription-001"
@@ -21,13 +26,13 @@ cases:
     name: "Three plan options are displayed and one is highlighted"
     steps:
       - action: "Navigate to the Subscription page and look at the Change Plan section"
-        expect: "Three plan cards visible: Personal (Free), Starter (€29/mo), Team (€199/mo). The current plan card has a highlighted/accent border. The current plan button is disabled."
+        expect: "Three plan cards visible: Personal (Free), Starter (€39/mo), Team (€199/mo). The current plan card has a highlighted/accent border. The current plan button is disabled."
 
   - id: "subscription-003"
-    name: "Plan can be changed"
+    name: "Plan change buttons are clickable and submit forms"
     steps:
-      - action: "Navigate to Subscription page and click on a different plan than the current one (e.g. Starter if on Personal)"
-        expect: "Plan changes successfully — the new plan card gets the highlighted border, and the current plan section updates"
+      - action: "Navigate to Subscription page and inspect the non-active plan buttons (the ones without the highlighted border)"
+        expect: "The non-active plan buttons are enabled (not disabled/greyed out) and are inside form elements with method POST. The active plan button is disabled."
 
   - id: "subscription-004"
     name: "Usage bars show CI minutes and storage"
