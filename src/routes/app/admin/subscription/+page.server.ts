@@ -5,7 +5,7 @@ import type { PageServerLoad, Actions } from './$types'
 type TPlan = {
   readonly orgId: string
   readonly plan: string
-  readonly blocks: number
+  readonly spendingCapEur: number
   readonly ciMinutesLimit: number
   readonly storageLimitGb: number
   readonly aiEnabled: boolean
@@ -87,22 +87,22 @@ export const actions: Actions = {
     }
   },
 
-  updateBlocks: async ({ request, locals, cookies }) => {
+  updateSpendingCap: async ({ request, locals, cookies }) => {
     if (!locals.session) return fail(401, { error: 'Unauthorized' })
     const orgId = cookies.get('gittan-active-org')
     if (!orgId) return fail(400, { error: 'No active org' })
 
     const data = await request.formData()
-    const blocks = parseInt(data.get('blocks') as string, 10)
-    if (isNaN(blocks) || blocks < 0 || blocks > 50) {
-      return fail(400, { error: 'Blocks must be between 0 and 50' })
+    const spendingCapEur = parseInt(data.get('spendingCapEur') as string, 10)
+    if (isNaN(spendingCapEur) || spendingCapEur < 0 || spendingCapEur > 10_000) {
+      return fail(400, { error: 'Spending cap must be between €0 and €10,000' })
     }
 
     try {
-      await apiPut(`/orgs/${orgId}/plan`, locals.session, { blocks })
+      await apiPut(`/orgs/${orgId}/plan`, locals.session, { spendingCapEur })
       return { updated: true }
     } catch {
-      return fail(500, { error: 'Failed to update capacity blocks' })
+      return fail(500, { error: 'Failed to update spending cap' })
     }
   },
 }

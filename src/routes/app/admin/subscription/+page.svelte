@@ -7,9 +7,11 @@
   const plan = $derived(data.plan)
   const usage = $derived(data.usage)
 
+  const BLOCK_PRICE = 129
+
   const plans = {
     personal: { label: 'Personal', price: 'Free', description: '50 CI min/mo, 1 GB storage' },
-    starter: { label: 'Starter', price: '€29/mo', description: '2,000 CI min/mo, 20 GB storage, AI enabled' },
+    starter: { label: 'Starter', price: '€39/mo', description: '2,000 CI min/mo, 20 GB storage, AI enabled' },
     team: { label: 'Team', price: '€199/mo', description: '10,000 CI min/mo, 100 GB storage, AI enabled' },
   } as const
 
@@ -39,9 +41,16 @@
 
   const overallStatus = $derived(statusBadge(Math.max(ciPercent, storagePercent)))
 
+  const spendingCap = $derived(plan?.spendingCapEur ?? 0)
+  const blocks = $derived(Math.floor(spendingCap / BLOCK_PRICE))
+  const extraCiMinutes = $derived(blocks * 10_000)
+  const extraStorageGb = $derived(blocks * 10)
+
   let editingReceiptEmail = $state(false)
   let receiptEmailValue = $state(plan?.receiptEmail ?? '')
   let changingPlan = $state(false)
+  let spendingCapInput = $state(plan?.spendingCapEur ?? 0)
+  let receiptEmailSaved = $state(false)
 </script>
 
 <div class="p-6">
@@ -64,6 +73,9 @@
   {/if}
   {#if form?.planChanged}
     <div class="mb-4 px-3 py-2 rounded-md bg-green-400/10 text-green-400 text-sm">Plan updated</div>
+  {/if}
+  {#if form?.updated}
+    <div class="mb-4 px-3 py-2 rounded-md bg-green-400/10 text-green-400 text-sm">Settings saved</div>
   {/if}
 
   <div class="max-w-2xl space-y-6">
@@ -117,37 +129,49 @@
       <p class="text-[10px] text-surface-600 mt-2">Payment integration coming soon. Plan changes take effect immediately.</p>
     </div>
 
-    <!-- Capacity Blocks -->
+    <!-- Spending Cap -->
     <div>
-      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Capacity Blocks</p>
+      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Spending Cap</p>
       <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
         <div class="flex items-center justify-between mb-2">
           <div>
-            <p class="text-sm text-surface-300">Additional capacity</p>
-            <p class="text-[11px] text-surface-600">Each block adds 10,000 CI minutes + 10 GB storage — €79/block</p>
+            <p class="text-sm text-surface-300">Maximum additional spend per month</p>
+            <p class="text-[11px] text-surface-600">Every €{BLOCK_PRICE} adds 10,000 CI minutes + 10 GB storage</p>
           </div>
-          <span class="text-lg font-semibold text-surface-200 font-mono">{plan?.blocks ?? 0}</span>
+          <span class="text-lg font-semibold text-surface-200 font-mono">€{spendingCap}</span>
         </div>
+
+        {#if blocks > 0}
+          <div class="text-[11px] text-surface-500 mb-3 bg-surface-950 rounded px-2 py-1.5">
+            €{spendingCap} = {blocks} {blocks === 1 ? 'block' : 'blocks'} → +{extraCiMinutes.toLocaleString()} CI min, +{extraStorageGb} GB storage
+          </div>
+        {/if}
+
         <form
           method="POST"
-          action="?/updateBlocks"
-          class="flex items-center gap-2 mt-2"
+          action="?/updateSpendingCap"
+          class="flex items-center gap-2"
           use:enhance={() => {
             return async ({ update }) => {
               await update({ invalidateAll: true })
             }
           }}
         >
-          <label class="text-xs text-surface-500">Set blocks:</label>
+          <label class="text-xs text-surface-500">Cap (EUR):</label>
           <input
             type="number"
-            name="blocks"
+            name="spendingCapEur"
             min="0"
-            max="50"
-            value={plan?.blocks ?? 0}
-            class="w-20 bg-surface-950 border border-surface-700 rounded px-2 py-1 text-xs text-surface-300 font-mono focus:border-surface-500 focus:outline-none"
+            step="1"
+            bind:value={spendingCapInput}
+            class="w-24 bg-surface-950 border border-surface-700 rounded px-2 py-1 text-xs text-surface-300 font-mono focus:border-surface-500 focus:outline-none"
           />
           <button type="submit" class="text-xs bg-accent-600 hover:bg-accent-500 text-white px-3 py-1 rounded">Update</button>
+          {#if spendingCapInput > 0}
+            <span class="text-[10px] text-surface-600">
+              = {Math.floor(spendingCapInput / BLOCK_PRICE)} {Math.floor(spendingCapInput / BLOCK_PRICE) === 1 ? 'block' : 'blocks'}
+            </span>
+          {/if}
         </form>
       </div>
     </div>
@@ -169,7 +193,7 @@
           </div>
           {#if ciPercent >= 80}
             <p class="text-[10px] mt-1 {ciPercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or add capacity blocks' : `${ciPercent}% used — approaching limit`}
+              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or increase spending cap' : `${ciPercent}% used — approaching limit`}
             </p>
           {/if}
         </div>
@@ -187,7 +211,7 @@
           </div>
           {#if storagePercent >= 80}
             <p class="text-[10px] mt-1 {storagePercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {storagePercent >= 100 ? 'Storage full — upgrade plan or add capacity blocks' : `${storagePercent}% used — approaching limit`}
+              {storagePercent >= 100 ? 'Storage full — upgrade plan or increase spending cap' : `${storagePercent}% used — approaching limit`}
             </p>
           {/if}
         </div>
@@ -220,6 +244,8 @@
                   await update({ invalidateAll: true })
                   if (result.type === 'success') {
                     editingReceiptEmail = false
+                    receiptEmailSaved = true
+                    setTimeout(() => { receiptEmailSaved = false }, 3000)
                   }
                 }
               }}
@@ -236,6 +262,9 @@
           {:else}
             <div class="flex items-center gap-2">
               <span class="text-surface-300 font-mono text-xs">{plan?.receiptEmail ?? 'Not set'}</span>
+              {#if receiptEmailSaved}
+                <span class="text-[10px] text-green-400">Saved</span>
+              {/if}
               <button onclick={() => { editingReceiptEmail = true; receiptEmailValue = plan?.receiptEmail ?? '' }} class="text-xs text-surface-500 hover:text-surface-300">Edit</button>
             </div>
           {/if}

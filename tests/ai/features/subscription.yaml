@@ -42,10 +42,10 @@ cases:
         expect: "An AI row is visible showing either 'Enabled' (violet text) or 'Not included — upgrade to Starter or Team'"
 
   - id: "subscription-006"
-    name: "Capacity blocks section with adjustment"
+    name: "Spending cap section with adjustment"
     steps:
-      - action: "Navigate to Subscription page and look for the Capacity Blocks section"
-        expect: "Capacity blocks section visible showing current block count, description mentioning both CI minutes and storage per block (€79), a numeric input field, and an Update button"
+      - action: "Navigate to Subscription page and look for the Spending Cap section"
+        expect: "Spending cap section visible showing current cap in EUR, description explaining that every €129 adds CI minutes and storage. A numeric input field for the cap amount and an Update button. If cap > 0, a breakdown showing how many blocks it equals and what extra capacity it provides."
 
   - id: "subscription-007"
     name: "Receipt email section with edit"
