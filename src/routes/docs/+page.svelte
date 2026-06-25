@@ -46,6 +46,11 @@
       subtitle: 'Automatic pipelines for small teams. Platform guardrails for large ones. Reports over gates.',
     },
     {
+      slug: 'security-by-default',
+      title: 'Security is a pipeline step, not a product tier',
+      subtitle: 'Every push is scanned. Every team gets a report. No add-on required.',
+    },
+    {
       slug: 'org-changelog',
       title: 'An org changelog that humans can read',
       subtitle: 'What did the team ship this week? Not commits. Not tickets. Features.',

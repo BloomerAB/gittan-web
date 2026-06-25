@@ -1,6 +1,5 @@
 <script lang="ts">
   import { enhance } from '$app/forms'
-  import { invalidateAll } from '$app/navigation'
   import { formatSize } from '$lib/types'
 
   let { data, form } = $props()
@@ -43,8 +42,9 @@
 
   const overallStatus = $derived(statusBadge(Math.max(ciPercent, storagePercent, usersPercent, teamsPercent, reposPercent)))
 
-  let editingBillingEmail = $state(false)
-  let billingEmailValue = $state(plan?.billingEmail ?? '')
+  let editingReceiptEmail = $state(false)
+  let receiptEmailValue = $state(plan?.receiptEmail ?? '')
+  let changingPlan = $state(false)
 </script>
 
 <div class="p-6">
@@ -54,7 +54,19 @@
   </div>
 
   {#if form?.error}
-    <div class="mb-4 px-3 py-2 rounded-md bg-err-400/10 text-err-400 text-sm">{form.error}</div>
+    <div class="mb-4 px-3 py-2 rounded-md bg-err-400/10 text-err-400 text-sm">
+      <p>{form.error}</p>
+      {#if 'violations' in form && Array.isArray(form.violations)}
+        <ul class="list-disc list-inside text-xs space-y-0.5 mt-1">
+          {#each form.violations as v}
+            <li>{v}</li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+  {/if}
+  {#if form?.planChanged}
+    <div class="mb-4 px-3 py-2 rounded-md bg-green-400/10 text-green-400 text-sm">Plan updated</div>
   {/if}
 
   <div class="max-w-2xl space-y-6">
@@ -73,12 +85,14 @@
       <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Change Plan</p>
       <div class="grid grid-cols-3 gap-3">
         {#each Object.entries(plans) as [key, p]}
-          {@const isActive = plan?.plan === key}
+          {@const isActive = (plan?.plan ?? 'personal') === key}
           <form
             method="POST"
             action="?/changePlan"
             use:enhance={() => {
+              changingPlan = true
               return async ({ update }) => {
+                changingPlan = false
                 await update({ invalidateAll: true })
               }
             }}
@@ -86,10 +100,10 @@
             <input type="hidden" name="plan" value={key} />
             <button
               type="submit"
-              disabled={isActive}
+              disabled={isActive || changingPlan}
               class="w-full text-left bg-surface-900 border rounded-lg p-3 transition-colors
                 {isActive ? 'border-accent-500 ring-1 ring-accent-500/30' : 'border-surface-800 hover:border-surface-600'}
-                disabled:cursor-default"
+                disabled:cursor-default disabled:opacity-60"
             >
               <p class="text-sm font-medium {isActive ? 'text-accent-400' : 'text-surface-300'}">{p.label}</p>
               <p class="text-lg font-semibold text-surface-200 mt-1">{p.price}</p>
@@ -97,6 +111,42 @@
             </button>
           </form>
         {/each}
+      </div>
+      <p class="text-[10px] text-surface-600 mt-2">Payment integration coming soon. Plan changes take effect immediately.</p>
+    </div>
+
+    <!-- CI Blocks -->
+    <div>
+      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Additional CI Minutes</p>
+      <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <p class="text-sm text-surface-300">CI minute blocks</p>
+            <p class="text-[11px] text-surface-600">Each block adds 10,000 CI minutes/month — €79/block</p>
+          </div>
+          <span class="text-lg font-semibold text-surface-200 font-mono">{plan?.ciBlocks ?? 0}</span>
+        </div>
+        <form
+          method="POST"
+          action="?/updateCiBlocks"
+          class="flex items-center gap-2 mt-2"
+          use:enhance={() => {
+            return async ({ update }) => {
+              await update({ invalidateAll: true })
+            }
+          }}
+        >
+          <label class="text-xs text-surface-500">Set blocks:</label>
+          <input
+            type="number"
+            name="ciBlocks"
+            min="0"
+            max="50"
+            value={plan?.ciBlocks ?? 0}
+            class="w-20 bg-surface-950 border border-surface-700 rounded px-2 py-1 text-xs text-surface-300 font-mono focus:border-surface-500 focus:outline-none"
+          />
+          <button type="submit" class="text-xs bg-accent-600 hover:bg-accent-500 text-white px-3 py-1 rounded">Update</button>
+        </form>
       </div>
     </div>
 
@@ -117,7 +167,7 @@
           </div>
           {#if ciPercent >= 80}
             <p class="text-[10px] mt-1 {ciPercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {ciPercent >= 100 ? 'Pipelines blocked — upgrade to continue' : `${ciPercent}% used — approaching limit`}
+              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or add CI blocks' : `${ciPercent}% used — approaching limit`}
             </p>
           {/if}
         </div>
@@ -181,46 +231,70 @@
       </div>
     </div>
 
-    <!-- Billing -->
+    <!-- Receipts -->
     <div>
-      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Billing</p>
+      <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Receipts</p>
       <div class="bg-surface-900 border border-surface-800 rounded-lg p-4 space-y-3">
         <div class="flex justify-between items-center text-sm">
-          <span class="text-surface-500">Billing email</span>
-          {#if editingBillingEmail}
+          <span class="text-surface-500">Receipt email</span>
+          {#if editingReceiptEmail}
             <form
               method="POST"
-              action="?/updateBillingEmail"
+              action="?/updateReceiptEmail"
               class="flex items-center gap-2"
               use:enhance={() => {
                 return async ({ result, update }) => {
                   await update({ invalidateAll: true })
                   if (result.type === 'success') {
-                    editingBillingEmail = false
+                    editingReceiptEmail = false
                   }
                 }
               }}
             >
               <input
                 type="email"
-                name="billingEmail"
-                bind:value={billingEmailValue}
+                name="receiptEmail"
+                bind:value={receiptEmailValue}
                 class="bg-surface-950 border border-surface-700 rounded px-2 py-1 text-xs text-surface-300 font-mono focus:border-surface-500 focus:outline-none w-56"
               />
               <button type="submit" class="text-xs text-accent-400 hover:text-accent-300">Save</button>
-              <button type="button" onclick={() => { editingBillingEmail = false }} class="text-xs text-surface-500 hover:text-surface-400">Cancel</button>
+              <button type="button" onclick={() => { editingReceiptEmail = false }} class="text-xs text-surface-500 hover:text-surface-400">Cancel</button>
             </form>
           {:else}
             <div class="flex items-center gap-2">
-              <span class="text-surface-300 font-mono text-xs">{plan?.billingEmail ?? 'Not set'}</span>
-              <button onclick={() => { editingBillingEmail = true; billingEmailValue = plan?.billingEmail ?? '' }} class="text-xs text-surface-500 hover:text-surface-300">Edit</button>
+              <span class="text-surface-300 font-mono text-xs">{plan?.receiptEmail ?? 'Not set'}</span>
+              <button onclick={() => { editingReceiptEmail = true; receiptEmailValue = plan?.receiptEmail ?? '' }} class="text-xs text-surface-500 hover:text-surface-300">Edit</button>
             </div>
           {/if}
         </div>
-        <div class="flex justify-between text-sm">
-          <span class="text-surface-500">Payment</span>
-          <span class="text-surface-500 text-xs italic">Payment integration coming soon</span>
-        </div>
+        <p class="text-[10px] text-surface-600">Receipts are sent to this email after each payment. This is not an invoice.</p>
+
+        {#if data.receipts && data.receipts.length > 0}
+          <div class="border-t border-surface-800 pt-3 mt-3">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="text-surface-500 text-left">
+                  <th class="pb-2 font-normal">Date</th>
+                  <th class="pb-2 font-normal">Amount</th>
+                  <th class="pb-2 font-normal text-right">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each data.receipts as receipt}
+                  <tr class="border-t border-surface-800/50">
+                    <td class="py-2 text-surface-300">{receipt.date}</td>
+                    <td class="py-2 text-surface-300">{receipt.amount}</td>
+                    <td class="py-2 text-right">
+                      <a href={receipt.pdfUrl} class="text-accent-400 hover:text-accent-300">PDF</a>
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        {:else}
+          <p class="text-[11px] text-surface-600 border-t border-surface-800 pt-3">No receipts yet</p>
+        {/if}
       </div>
     </div>
   </div>

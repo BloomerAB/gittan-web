@@ -18,38 +18,52 @@ cases:
         expect: "Subscription page shows current plan card with plan name, price, and description"
 
   - id: "subscription-002"
-    name: "Three plan options are displayed"
+    name: "Three plan options are displayed and one is highlighted"
     steps:
       - action: "Navigate to the Subscription page and look at the Change Plan section"
-        expect: "Three plan cards visible: Personal (Free), Starter (€29/mo), Team (€199/mo). The current plan card has a highlighted border"
+        expect: "Three plan cards visible: Personal (Free), Starter (€29/mo), Team (€199/mo). The current plan card has a highlighted/accent border. The current plan button is disabled."
 
   - id: "subscription-003"
+    name: "Plan can be changed"
+    steps:
+      - action: "Navigate to Subscription page and click on a different plan than the current one (e.g. Starter if on Personal)"
+        expect: "Plan changes successfully — the new plan card gets the highlighted border, and the current plan section updates"
+
+  - id: "subscription-004"
     name: "Usage bars show CI minutes and storage"
     steps:
       - action: "Navigate to the Subscription page and examine the Usage section"
         expect: "Progress bars visible for CI Minutes and Storage, each showing used/limit values"
 
-  - id: "subscription-004"
+  - id: "subscription-005"
     name: "Resource limits shown for limited plans"
     steps:
       - action: "Navigate to Subscription page. If on Personal or Starter plan, check for resource limit bars"
         expect: "Members, Teams, and/or Repositories progress bars shown with current/limit counts. Or if on Team plan, shows Unlimited"
 
-  - id: "subscription-005"
-    name: "Billing email section"
-    steps:
-      - action: "Navigate to Subscription page and look at the Billing section"
-        expect: "Billing section visible with billing email field showing current email or Not set, with an Edit button"
-
   - id: "subscription-006"
-    name: "Edit billing email"
+    name: "CI blocks section with adjustment"
     steps:
-      - action: "Navigate to Subscription page, click the Edit button next to billing email"
+      - action: "Navigate to Subscription page and look for the Additional CI Minutes section"
+        expect: "CI blocks section visible showing current block count, price per block (€79), a numeric input field, and an Update button"
+
+  - id: "subscription-007"
+    name: "Receipt email section with edit"
+    steps:
+      - action: "Navigate to Subscription page and look at the Receipts section"
+        expect: "Receipt email field visible showing current email or 'Not set', with an Edit button. Text below clarifies this is for receipts, not invoices."
+      - action: "Click the Edit button next to receipt email"
         expect: "Email input field appears with Save and Cancel buttons"
       - action: "Click Cancel"
         expect: "Input field disappears, returns to display mode"
 
-  - id: "subscription-007"
+  - id: "subscription-008"
+    name: "Receipts list"
+    steps:
+      - action: "Navigate to Subscription page and look at the Receipts section below the receipt email"
+        expect: "Either a table of past receipts with Date, Amount, and Download (PDF) columns, or text saying 'No receipts yet'"
+
+  - id: "subscription-009"
     name: "Overall status badge"
     steps:
       - action: "Navigate to Subscription page and check the top-right area next to the Subscription heading"

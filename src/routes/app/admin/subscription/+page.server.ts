@@ -11,7 +11,7 @@ type TPlan = {
   readonly userLimit: number
   readonly teamLimit: number
   readonly repoLimit: number
-  readonly billingEmail?: string
+  readonly receiptEmail?: string
 }
 
 type TUsage = {
@@ -25,36 +25,42 @@ type TUsage = {
   readonly repoCount: number
 }
 
+type TReceipt = {
+  readonly date: string
+  readonly amount: string
+  readonly pdfUrl: string
+}
+
 export const load: PageServerLoad = async ({ parent, locals }) => {
   const { activeOrgId } = await parent()
-  if (!activeOrgId || !locals.session) return { plan: null, usage: null }
+  if (!activeOrgId || !locals.session) return { plan: null, usage: null, receipts: [] as TReceipt[] }
 
   try {
     const [plan, usage] = await Promise.all([
       apiGet<TPlan>(`/orgs/${activeOrgId}/plan`, locals.session),
       apiGet<TUsage>(`/orgs/${activeOrgId}/usage`, locals.session),
     ])
-    return { plan, usage }
+    return { plan, usage, receipts: [] as TReceipt[] }
   } catch {
-    return { plan: null, usage: null }
+    return { plan: null, usage: null, receipts: [] as TReceipt[] }
   }
 }
 
 export const actions: Actions = {
-  updateBillingEmail: async ({ request, locals, cookies }) => {
+  updateReceiptEmail: async ({ request, locals, cookies }) => {
     if (!locals.session) return fail(401, { error: 'Unauthorized' })
     const orgId = cookies.get('gittan-active-org')
     if (!orgId) return fail(400, { error: 'No active org' })
 
     const data = await request.formData()
-    const billingEmail = (data.get('billingEmail') as string)?.trim()
-    if (!billingEmail) return fail(400, { error: 'Billing email is required' })
+    const receiptEmail = (data.get('receiptEmail') as string)?.trim()
+    if (!receiptEmail) return fail(400, { error: 'Receipt email is required' })
 
     try {
-      await apiPut(`/orgs/${orgId}/plan`, locals.session, { billingEmail })
+      await apiPut(`/orgs/${orgId}/plan`, locals.session, { receiptEmail })
       return { updated: true }
     } catch {
-      return fail(500, { error: 'Failed to update billing email' })
+      return fail(500, { error: 'Failed to update receipt email' })
     }
   },
 
@@ -72,8 +78,36 @@ export const actions: Actions = {
     try {
       await apiPut(`/orgs/${orgId}/plan`, locals.session, { plan })
       return { planChanged: true }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to change plan'
+      if (message.includes('Cannot downgrade')) {
+        try {
+          const parsed = JSON.parse(message.split(': ').slice(1).join(': '))
+          return fail(409, { error: 'Cannot downgrade plan', violations: parsed.violations })
+        } catch {
+          return fail(409, { error: message })
+        }
+      }
+      return fail(500, { error: message })
+    }
+  },
+
+  updateCiBlocks: async ({ request, locals, cookies }) => {
+    if (!locals.session) return fail(401, { error: 'Unauthorized' })
+    const orgId = cookies.get('gittan-active-org')
+    if (!orgId) return fail(400, { error: 'No active org' })
+
+    const data = await request.formData()
+    const ciBlocks = parseInt(data.get('ciBlocks') as string, 10)
+    if (isNaN(ciBlocks) || ciBlocks < 0 || ciBlocks > 50) {
+      return fail(400, { error: 'CI blocks must be between 0 and 50' })
+    }
+
+    try {
+      await apiPut(`/orgs/${orgId}/plan`, locals.session, { ciBlocks })
+      return { updated: true }
     } catch {
-      return fail(500, { error: 'Failed to change plan' })
+      return fail(500, { error: 'Failed to update CI blocks' })
     }
   },
 }
