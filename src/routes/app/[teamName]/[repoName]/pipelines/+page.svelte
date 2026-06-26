@@ -26,6 +26,8 @@
 
   const { data } = $props()
   const runs = $derived((data.runs ?? []) as PipelineRun[])
+  const pipelineConfig = $derived(data.pipelineConfig as string | null)
+  let showConfig = $state(false)
 
   const statusIcons: Record<StepStatus, string> = {
     passed: '✓',
@@ -75,6 +77,26 @@
 </script>
 
 <div>
+  {#if pipelineConfig}
+    <div class="mb-6">
+      <button
+        onclick={() => showConfig = !showConfig}
+        class="flex items-center gap-2 text-sm text-surface-400 hover:text-surface-200 transition-colors"
+      >
+        <svg
+          class="w-4 h-4 transition-transform {showConfig ? 'rotate-90' : ''}"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        <span class="font-mono">.gittan.yaml</span>
+      </button>
+      {#if showConfig}
+        <pre class="mt-2 px-4 py-3 text-xs font-mono bg-surface-900 border border-surface-800 rounded-lg text-surface-300 overflow-x-auto">{pipelineConfig}</pre>
+      {/if}
+    </div>
+  {/if}
+
   {#if runs.length === 0}
     <EmptyState
       title="No pipeline runs"
