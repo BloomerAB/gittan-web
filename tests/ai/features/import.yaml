@@ -21,19 +21,19 @@ cases:
     name: "Import form has all required fields"
     steps:
       - action: "Navigate to the Import from GitHub page and examine the form"
-        expect: "Form contains: GitHub Repository URL input (type url), GitHub Personal Access Token input (type password), Team dropdown selector, and an Import Repository button. The button should be disabled when fields are empty."
+        expect: "Form contains: a textarea for GitHub Repository URLs, GitHub Personal Access Token input (type password), Team dropdown selector, a checkbox for 'Update if repo already exists', and an Import Repository button"
 
   - id: "import-003"
-    name: "URL field shows repo name preview"
+    name: "URL textarea shows repo name previews"
     steps:
-      - action: "Navigate to Import page and type 'https://github.com/BloomerAB/gittan-types' in the GitHub URL field"
-        expect: "Below the URL field, a preview text appears showing 'Will create: gittan-types'"
+      - action: "Navigate to Import page and type two URLs in the textarea, one per line: 'https://github.com/BloomerAB/gittan-types' on the first line and 'https://github.com/BloomerAB/gittan-api' on the second line"
+        expect: "Below the textarea, preview text appears showing both repo names: 'gittan-types' and 'gittan-api'. The button text changes to 'Import 2 Repositories'"
 
   - id: "import-004"
-    name: "Token field has password masking and helper text"
+    name: "Token field has password masking and 1Password suppression"
     steps:
-      - action: "Navigate to Import page and look at the GitHub token field"
-        expect: "Token input is of type password (masked). Helper text below says something about 'repo' scope and token not being stored."
+      - action: "Navigate to Import page and inspect the GitHub token field"
+        expect: "Token input is of type password (masked) with autocomplete=off. Helper text below mentions 'repo' scope and token not being stored."
 
   - id: "import-005"
     name: "Team selector lists available teams"
