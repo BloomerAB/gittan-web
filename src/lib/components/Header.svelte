@@ -16,6 +16,20 @@
   let activeOrg = $derived(orgs.find((o) => o.id === activeOrgId))
   let isOwner = $derived(activeOrg?.role === 'owner')
   let userMenuOpen = $state(false)
+
+  let dashboardHref = $derived.by(() => {
+    if (isAdmin) {
+      const match = document.cookie.match(/(?:^|;\s*)gittan-last-path=([^;]+)/)
+      return match ? decodeURIComponent(match[1]) : '/app'
+    }
+    return '/app/admin'
+  })
+
+  $effect(() => {
+    if (!isAdmin && !isSettings) {
+      document.cookie = `gittan-last-path=${encodeURIComponent(page.url.pathname)};path=/;max-age=31536000;SameSite=Lax`
+    }
+  })
 </script>
 
 <svelte:window onclick={() => userMenuOpen = false} />
@@ -36,7 +50,7 @@
     <a href="/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
     {#if isOwner}
       <a
-        href={isAdmin ? '/app' : '/app/admin'}
+        href={dashboardHref}
         class="text-sm {isAdmin ? 'text-accent-400' : 'text-surface-500 hover:text-surface-300'}"
       >
         {isAdmin ? 'Dashboard' : 'Org Admin'}
