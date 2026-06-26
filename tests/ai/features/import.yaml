@@ -1,0 +1,42 @@
+name: "Import from GitHub"
+type: smoke
+app:
+  url: "http://localhost:5555"
+
+recovery:
+  - id: "session_expired"
+    detect: "login,session,expired,sign in"
+    recover:
+      - action: "Complete OTP login for mal.nordstrom@gmail.com at http://localhost:5176"
+        expect: "Redirected back to Gittan app"
+
+cases:
+  - id: "import-001"
+    name: "Import page loads from admin sidebar"
+    steps:
+      - action: "Navigate to the admin sidebar and click 'Import from GitHub'"
+        expect: "Import page loads with heading 'Import from GitHub', a description about migrating repos, and a form"
+
+  - id: "import-002"
+    name: "Import form has all required fields"
+    steps:
+      - action: "Navigate to the Import from GitHub page and examine the form"
+        expect: "Form contains: GitHub Repository URL input (type url), GitHub Personal Access Token input (type password), Team dropdown selector, and an Import Repository button. The button should be disabled when fields are empty."
+
+  - id: "import-003"
+    name: "URL field shows repo name preview"
+    steps:
+      - action: "Navigate to Import page and type 'https://github.com/BloomerAB/gittan-types' in the GitHub URL field"
+        expect: "Below the URL field, a preview text appears showing 'Will create: gittan-types'"
+
+  - id: "import-004"
+    name: "Token field has password masking and helper text"
+    steps:
+      - action: "Navigate to Import page and look at the GitHub token field"
+        expect: "Token input is of type password (masked). Helper text below says something about 'repo' scope and token not being stored."
+
+  - id: "import-005"
+    name: "Team selector lists available teams"
+    steps:
+      - action: "Navigate to Import page and click on the Team dropdown"
+        expect: "Dropdown shows available teams. If no teams exist, the dropdown is empty with only the 'Select a team' placeholder."

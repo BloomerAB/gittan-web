@@ -33,6 +33,7 @@
       links: [
         { path: '/app/admin/integrations', label: 'Integrations' },
         { path: '/app/admin/auth', label: 'Authentication' },
+        { path: '/app/admin/import', label: 'Import from GitHub' },
       ],
     },
   ]
