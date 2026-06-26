@@ -128,7 +128,8 @@
   <section class="space-y-2">
     <h1 class="text-3xl font-bold text-surface-200 tracking-tight">How we think</h1>
     <p class="text-surface-500 text-sm">
-      gittan is an opinionated product. These posts explain why.
+      gittan is built for polyrepo with small repos and simple pipelines, optimised for trunk-based development and flow.
+      These posts explain every deliberate choice, with the reason and the trade-off.
     </p>
   </section>
 

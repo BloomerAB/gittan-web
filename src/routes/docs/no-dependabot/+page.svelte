@@ -15,9 +15,17 @@
   </p>
 
   <p>
-    gittan does not include automated dependency updates. You can run Renovate or
-    Dependabot against your gittan repos if you want — nothing prevents it. But we will
-    not build it into the product, and we recommend against it.
+    gittan does not include automated dependency updates. There is no built-in Dependabot,
+    no Renovate integration, no bot that opens PRs for you. Teams can set up their own
+    dependency update tooling in their pipelines — nothing prevents it, and it is not
+    gittan's responsibility. We chose not to pave that road, and we recommend against it.
+  </p>
+
+  <p>
+    This is distinct from the
+    <a href="/docs/security-by-default" class="text-accent-400 hover:text-accent-300 underline">security scanning</a>
+    that blocks critical CVEs — that is a hard gate. Automated version bumping is a
+    different thing entirely.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">The automation trap</h2>

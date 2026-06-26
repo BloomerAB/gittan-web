@@ -7,6 +7,28 @@
   subtitle="Slow pipelines and PR queues are not friction. They are the reason your DORA metrics are red."
 >
   <p>
+    Flow is the organizing principle behind every choice gittan makes. Every removal — no
+    PR queue, no waiting on human review, no slow pipeline, no marketplace detours — is
+    in service of one thing: removing everything that sits between "the code is ready" and
+    "the code is shipped."
+  </p>
+
+  <p>
+    A PR queue is latency waiting on a human. A slow pipeline is latency waiting on a
+    machine. Both kill flow. Both are waiting between ready and shipped. They are the same
+    problem seen from two angles, and gittan removes both.
+  </p>
+
+  <p>
+    This is the one place where DORA cuts unambiguously in our favour. Deployment frequency
+    and lead time for changes — two of the four DORA metrics — are literal measurements
+    of flow. The things that choke those metrics are exactly what gittan removes: waiting
+    on people and waiting on infrastructure. No hedging needed. The data is clear.
+  </p>
+
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">Why flow is fragile</h2>
+
+  <p>
     Flow is the state where a developer holds the full context of a problem in their
     head, writes code, ships it, and moves on to the next thing. It is where good
     software comes from. It is also extraordinarily fragile. A 12-minute pipeline, a

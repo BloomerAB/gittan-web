@@ -106,6 +106,38 @@
     health so they can improve on their own terms.
   </p>
 
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">Paved roads, not walls</h2>
+
+  <p>
+    gittan is opinionated. But opinionated does not mean forbidding. The metaphor is
+    <strong class="text-surface-300">paved roads</strong>: we pave the roads the research
+    supports — trunk-based development, polyrepo, small repos, simple pipelines, flow —
+    and leave the rest as unpaved ground. We do not block anyone from driving off-road.
+    We simply have not laid asphalt there.
+  </p>
+
+  <p>
+    A few things are genuinely hard constraints — security gates, immutable tags, team
+    ownership. These are walls, and they exist because the thing they prevent is wrong,
+    not just suboptimal. We are absolutist about these because it is true, and because
+    incumbents structurally cannot copy them without breaking their own user base.
+  </p>
+
+  <p>
+    Everything else is a strong default. You can use a monorepo — it is just not what the
+    tool is paved for. You can run third-party modules — but first-party is the default,
+    and you are explicitly taking responsibility. The data points one way, so the default
+    goes that way. We are honest about what it costs you to go the other way, rather than
+    pretending you cannot.
+  </p>
+
+  <p>
+    This distinction matters. If every claim on the site reads as "we forbid X" and half
+    turn out to be "well, actually you can," the soft claims erode the credibility of the
+    hard ones. For a data-driven audience, a discovered overclaim is fatal. So we keep the
+    two voices separate: absolutist where it is true, honest where it is bias.
+  </p>
+
   <h2 class="text-lg font-semibold text-surface-300 pt-2">How we evaluate feature requests</h2>
 
   <p>

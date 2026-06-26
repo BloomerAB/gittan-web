@@ -90,6 +90,14 @@
   </p>
 
   <p>
+    This principle extends beyond images. In a gittan pipeline,
+    <a href="/docs/no-marketplace" class="text-accent-400 hover:text-accent-300 underline">everything has a pin</a>
+    — modules are content-addressed by digest, not floating tag. The same rule, applied
+    consistently: if it can change under you without your knowledge, it is not pinned,
+    and it does not belong in your pipeline.
+  </p>
+
+  <p>
     Combined with org policies that enforce image registry sources and image signing,
     the tag format creates a verifiable chain from source commit to running container.
     Every step in the pipeline used a known image, built from a known commit, signed by
