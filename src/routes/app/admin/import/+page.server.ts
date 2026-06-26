@@ -2,6 +2,18 @@ import { fail } from '@sveltejs/kit'
 import { apiPost } from '$lib/server/api'
 import type { PageServerLoad, Actions } from './$types'
 
+const extractErrorMessage = (raw: string): string => {
+  try {
+    const parsed = JSON.parse(raw.replace(/^[^{]*/, ''))
+    if (parsed.message) return parsed.message
+    if (parsed.error) return parsed.error
+  } catch { /* not JSON */ }
+
+  if (raw.includes('403')) return 'GitHub denied access. Check your token permissions and lifetime.'
+  if (raw.includes('404')) return 'Repository not found on GitHub. Check the URL and token scope.'
+  return raw
+}
+
 export const load: PageServerLoad = async ({ parent }) => {
   const { teams } = await parent()
   return { teams }
@@ -32,11 +44,12 @@ const doMigrate = async (orgId: string, session: any, formData: FormData, update
 
     return { success: true, repoName: result.name, teamName, updated: update }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Migration failed'
-    if (message.includes('already exists')) {
+    const raw = err instanceof Error ? err.message : 'Migration failed'
+    if (raw.includes('already exists')) {
       return fail(409, { error: 'Repository already exists in gittan', canUpdate: true })
     }
-    return fail(500, { error: message })
+    const cleaned = extractErrorMessage(raw)
+    return fail(500, { error: cleaned })
   }
 }
 

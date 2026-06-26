@@ -35,9 +35,10 @@
         action="?/update"
         use:enhance={() => {
           migrating = true
-          return async ({ update }) => {
+          return async ({ result, update }) => {
             migrating = false
-            await update()
+            await update({ reset: false })
+            if (result.type === 'success') githubUrl = ''
           }
         }}
       >
@@ -71,9 +72,10 @@
       action="?/migrate"
       use:enhance={() => {
         migrating = true
-        return async ({ update }) => {
+        return async ({ result, update }) => {
           migrating = false
-          await update()
+          await update({ reset: false })
+          if (result.type === 'success') githubUrl = ''
         }
       }}
     >
@@ -102,6 +104,8 @@
             id="githubToken"
             name="githubToken"
             type="password"
+            autocomplete="off"
+            data-1p-ignore
             bind:value={githubToken}
             placeholder="ghp_..."
             required
