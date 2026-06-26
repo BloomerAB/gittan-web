@@ -6,6 +6,11 @@
       subtitle: 'The research is clear. Most of the industry ignores it.',
     },
     {
+      slug: 'flow',
+      title: 'Why your team has no flow',
+      subtitle: 'Slow pipelines and PR queues are not friction. They are the reason your DORA metrics are red.',
+    },
+    {
       slug: 'research-driven',
       title: 'Features built on research, not feature requests',
       subtitle: 'Accelerate and Team Topologies are our product spec. Not customer wishlists.',

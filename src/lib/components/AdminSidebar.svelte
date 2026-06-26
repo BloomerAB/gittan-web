@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state'
 
-  let { orgId }: { orgId?: string } = $props()
+  let { orgId, pipelineScope }: { orgId?: string; pipelineScope?: string } = $props()
 
   const PLATFORM_ORG_ID = 'bloomer'
 
@@ -10,33 +10,43 @@
     readonly links: ReadonlyArray<{ readonly path: string; readonly label: string }>
   }
 
-  const adminSections: ReadonlyArray<TNavSection> = [
-    {
-      heading: 'Administration',
-      links: [
-        { path: '/app/admin/members', label: 'Members' },
-        { path: '/app/admin/teams', label: 'Teams' },
-        { path: '/app/admin/settings', label: 'Settings' },
-        { path: '/app/admin/subscription', label: 'Subscription' },
-        { path: '/app/admin/audit', label: 'Audit Log' },
-      ],
-    },
-    {
-      heading: 'Pipelines',
-      links: [
-        { path: '/app/admin/steps', label: 'Step Registry' },
-        { path: '/app/admin/policies', label: 'Policies' },
-      ],
-    },
-    {
+  let showPipelines = $derived(pipelineScope !== 'team')
+
+  let adminSections = $derived.by(() => {
+    const sections: TNavSection[] = [
+      {
+        heading: 'Organization',
+        links: [
+          { path: '/app/admin/members', label: 'Members' },
+          { path: '/app/admin/teams', label: 'Teams' },
+          { path: '/app/admin/settings', label: 'Settings' },
+          { path: '/app/admin/subscription', label: 'Subscription' },
+          { path: '/app/admin/audit', label: 'Audit Log' },
+        ],
+      },
+    ]
+
+    if (showPipelines) {
+      sections.push({
+        heading: 'Pipelines',
+        links: [
+          { path: '/app/admin/steps', label: 'Step Registry' },
+          { path: '/app/admin/policies', label: 'Policies' },
+          { path: '/app/admin/pipeline-config', label: 'Config Repo' },
+        ],
+      })
+    }
+
+    sections.push({
       heading: 'Integrations',
       links: [
-        { path: '/app/admin/integrations', label: 'Integrations' },
+        { path: '/app/admin/integrations', label: 'Slack' },
         { path: '/app/admin/auth', label: 'Authentication' },
-        { path: '/app/admin/import', label: 'Import from GitHub' },
       ],
-    },
-  ]
+    })
+
+    return sections
+  })
 
   const platformLinks = [
     { path: '/app/admin/usage', label: 'Platform Usage' },
@@ -46,6 +56,7 @@
 </script>
 
 <nav class="w-52 border-r border-surface-800 min-h-[calc(100vh-48px)] p-4">
+  <p class="text-[10px] text-accent-400/70 uppercase tracking-widest mb-4 font-medium">Org Admin</p>
   {#each adminSections as section, i}
     {#if i > 0}
       <div class="border-t border-surface-800 my-3"></div>

@@ -4,9 +4,21 @@
   import OrgSwitcher from './OrgSwitcher.svelte'
   import type { TOrg } from '$lib/types'
 
-  let { orgs, activeOrgId, ssoIdentityEmail }: { orgs: TOrg[]; activeOrgId: string; ssoIdentityEmail: string | null } = $props()
+  let { orgs, activeOrgId, ssoIdentityEmail, userEmail }: {
+    orgs: TOrg[]
+    activeOrgId: string
+    ssoIdentityEmail: string | null
+    userEmail?: string
+  } = $props()
+
   let isAdmin = $derived(page.url.pathname.startsWith('/app/admin'))
+  let isSettings = $derived(page.url.pathname.startsWith('/app/settings'))
+  let activeOrg = $derived(orgs.find((o) => o.id === activeOrgId))
+  let isOwner = $derived(activeOrg?.role === 'owner')
+  let userMenuOpen = $state(false)
 </script>
+
+<svelte:window onclick={() => userMenuOpen = false} />
 
 <header class="border-b border-surface-800 px-6 h-12 flex items-center justify-between">
   <div class="flex items-center gap-3">
@@ -22,14 +34,38 @@
       <span class="text-[11px] text-surface-500 font-mono">{ssoIdentityEmail}</span>
     {/if}
     <a href="/docs" class="text-surface-500 hover:text-surface-300 text-sm">Docs</a>
-    <a
-      href={isAdmin ? '/app' : '/app/admin'}
-      class="text-surface-500 hover:text-surface-300 text-sm"
-    >
-      {isAdmin ? 'Dashboard' : 'Admin'}
-    </a>
-    <a href="/auth/logout" class="text-surface-500 hover:text-surface-300 text-sm">
-      Log out
-    </a>
+    {#if isOwner}
+      <a
+        href={isAdmin ? '/app' : '/app/admin'}
+        class="text-sm {isAdmin ? 'text-accent-400' : 'text-surface-500 hover:text-surface-300'}"
+      >
+        {isAdmin ? 'Dashboard' : 'Org Admin'}
+      </a>
+    {/if}
+    <div class="relative">
+      <button
+        onclick={(e) => { e.stopPropagation(); userMenuOpen = !userMenuOpen }}
+        class="text-sm {isSettings ? 'text-accent-400' : 'text-surface-500 hover:text-surface-300'} transition-colors"
+      >
+        {userEmail ?? 'Account'}
+      </button>
+      {#if userMenuOpen}
+        <div class="absolute right-0 top-8 w-48 bg-surface-900 border border-surface-800 rounded-lg shadow-xl z-50 py-1">
+          <a
+            href="/app/settings"
+            class="block px-4 py-2 text-sm text-surface-400 hover:text-white hover:bg-surface-800 transition-colors"
+          >
+            User Settings
+          </a>
+          <div class="border-t border-surface-800 my-1"></div>
+          <a
+            href="/auth/logout"
+            class="block px-4 py-2 text-sm text-surface-400 hover:text-white hover:bg-surface-800 transition-colors"
+          >
+            Log out
+          </a>
+        </div>
+      {/if}
+    </div>
   </div>
 </header>

@@ -10,7 +10,7 @@
 </script>
 
 <div class="min-h-screen bg-surface-950 text-surface-300">
-  <Header orgs={data.orgs} activeOrgId={data.activeOrgId} ssoIdentityEmail={data.ssoIdentityEmail} />
+  <Header orgs={data.orgs} activeOrgId={data.activeOrgId} ssoIdentityEmail={data.ssoIdentityEmail} userEmail={data.userEmail} />
   {#if data.ssoRequired}
     <SsoBarrier orgName={activeOrg?.displayName ?? 'This organization'} ssoEmailDomain={activeOrg?.ssoEmailDomain} />
   {:else}

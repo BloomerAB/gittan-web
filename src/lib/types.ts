@@ -4,6 +4,7 @@ export type TOrg = {
   displayName: string
   role: 'owner' | 'admin' | 'member'
   plan: 'starter' | 'team'
+  pipelineScope?: 'org' | 'team'
   oidcIssuer?: string
   mandatorySso?: boolean
   ssoEmailDomain?: string

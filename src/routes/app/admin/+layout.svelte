@@ -6,7 +6,7 @@
 </script>
 
 <div class="flex">
-  <AdminSidebar orgId={data.activeOrgId} />
+  <AdminSidebar orgId={data.activeOrgId} pipelineScope={data.activeOrg?.pipelineScope} />
   <main class="flex-1">
     {@render children()}
   </main>

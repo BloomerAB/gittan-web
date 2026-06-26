@@ -60,5 +60,11 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
     }
   }
 
-  return { orgs, activeOrgId, teams, reposByTeam, usage, ssoRequired, ssoIdentityEmail }
+  let userEmail: string | null = null
+  try {
+    const payload = JSON.parse(Buffer.from(session.accessToken.split('.')[1], 'base64url').toString())
+    userEmail = payload.email ?? null
+  } catch { /* opaque token */ }
+
+  return { orgs, activeOrgId, teams, reposByTeam, usage, ssoRequired, ssoIdentityEmail, userEmail }
 }
