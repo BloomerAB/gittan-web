@@ -32,9 +32,10 @@ export const actions: Actions = {
     const displayName = data.get('displayName') as string
     const allowLatest = data.get('allowLatest') === 'true'
     const publicRepos = data.get('publicRepos') === 'true'
+    const pipelineScope = data.get('pipelineScope') as string
 
     try {
-      await apiPut(`/orgs/${orgId}`, locals.session, { displayName, allowLatest, publicRepos })
+      await apiPut(`/orgs/${orgId}`, locals.session, { displayName, allowLatest, publicRepos, pipelineScope })
       return { saved: true }
     } catch {
       return fail(500, { error: 'Failed to save settings' })

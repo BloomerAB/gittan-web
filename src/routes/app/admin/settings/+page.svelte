@@ -6,11 +6,13 @@
 
   let orgName = $state(data.org?.displayName ?? '')
   let allowLatest = $state(data.org?.allowLatest ?? false)
+  let pipelineScope = $state(data.org?.pipelineScope ?? 'org')
   let saving = $state(false)
 
   $effect(() => {
     orgName = data.org?.displayName ?? ''
     allowLatest = data.org?.allowLatest ?? false
+    pipelineScope = data.org?.pipelineScope ?? 'org'
   })
 </script>
 
@@ -76,6 +78,34 @@
                 : ''}"
             ></span>
           </button>
+        </div>
+
+        <div>
+          <p class="text-sm text-surface-300 mb-2">Pipeline scope</p>
+          <p class="text-xs text-surface-600 mb-3">
+            Choose whether pipeline steps and policies are managed at the organization level or per team.
+          </p>
+          <input type="hidden" name="pipelineScope" value={pipelineScope} />
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onclick={() => { pipelineScope = 'org' }}
+              class="px-3 py-1.5 rounded text-sm transition-colors {pipelineScope === 'org'
+                ? 'bg-accent-600 text-white'
+                : 'bg-surface-900 text-surface-500 hover:text-surface-300'}"
+            >
+              Organization
+            </button>
+            <button
+              type="button"
+              onclick={() => { pipelineScope = 'team' }}
+              class="px-3 py-1.5 rounded text-sm transition-colors {pipelineScope === 'team'
+                ? 'bg-accent-600 text-white'
+                : 'bg-surface-900 text-surface-500 hover:text-surface-300'}"
+            >
+              Per team
+            </button>
+          </div>
         </div>
 
         <div class="pt-4 border-t border-surface-800">
