@@ -32,8 +32,13 @@
     },
     {
       slug: 'no-pull-requests',
-      title: 'Why we removed pull requests',
-      subtitle: 'PRs conflate code review with code gating. We separated them.',
+      title: 'It is gated. It is stricter than a PR.',
+      subtitle: 'We did not remove the gate. We removed the human-as-bottleneck from the gate.',
+    },
+    {
+      slug: 'small-batches',
+      title: 'Small batches and the case for advisory review',
+      subtitle: 'When every change is small enough to revert in minutes, pre-approval stops being the only safety net.',
     },
     {
       slug: 'pricing',
