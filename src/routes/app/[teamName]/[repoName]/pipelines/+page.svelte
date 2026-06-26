@@ -7,67 +7,25 @@
   type StepStatus = 'passed' | 'failed' | 'skipped' | 'running'
 
   type Step = {
-    name: string
-    status: StepStatus
-    source: 'policy' | 'template' | 'repo'
-    sourceName?: string
-    durationMs: number
-    error?: string
+    readonly stepName: string
+    readonly status: StepStatus
+    readonly source?: string
+    readonly sourceName?: string
+    readonly durationMs: number
+    readonly error?: string
   }
 
   type PipelineRun = {
-    id: string
-    sha: string
-    message: string
-    author: string
-    branch: string
-    status: 'passed' | 'failed'
-    timestamp: string
-    durationMs: number
-    steps: Step[]
-    policyCount: number
+    readonly id: string
+    readonly branch: string
+    readonly status: 'passed' | 'failed'
+    readonly startedAt: string
+    readonly finishedAt: string
+    readonly steps: readonly Step[]
   }
 
-  const mockRuns: PipelineRun[] = [
-    {
-      id: 'run-1',
-      sha: 'a1b2c3d',
-      message: 'feat: add user preferences endpoint',
-      author: 'erik',
-      branch: 'main',
-      status: 'passed',
-      timestamp: new Date(Date.now() - 25 * 60_000).toISOString(),
-      durationMs: 34_200,
-      policyCount: 3,
-      steps: [
-        { name: 'lint', status: 'passed', source: 'template', sourceName: 'node-default', durationMs: 4_100 },
-        { name: 'typecheck', status: 'passed', source: 'template', sourceName: 'node-default', durationMs: 8_300 },
-        { name: 'unit-tests', status: 'passed', source: 'repo', durationMs: 12_400 },
-        { name: 'no-secrets', status: 'passed', source: 'policy', sourceName: 'security-baseline', durationMs: 1_200 },
-        { name: 'image-tag-format', status: 'passed', source: 'policy', sourceName: 'release-standards', durationMs: 800 },
-        { name: 'build', status: 'passed', source: 'repo', durationMs: 7_400 },
-      ],
-    },
-    {
-      id: 'run-2',
-      sha: 'e4f5g6h',
-      message: 'fix: correct timezone handling in scheduler',
-      author: 'malin',
-      branch: 'main',
-      status: 'failed',
-      timestamp: new Date(Date.now() - 3 * 3600_000).toISOString(),
-      durationMs: 18_700,
-      policyCount: 3,
-      steps: [
-        { name: 'lint', status: 'passed', source: 'template', sourceName: 'node-default', durationMs: 3_900 },
-        { name: 'typecheck', status: 'passed', source: 'template', sourceName: 'node-default', durationMs: 7_800 },
-        { name: 'unit-tests', status: 'failed', source: 'repo', durationMs: 5_200, error: 'FAIL src/scheduler.test.ts\n  SchedulerService > handleTimezone\n    expected "2026-06-17T10:00:00Z" to equal "2026-06-17T08:00:00Z"\n\n    at src/scheduler.test.ts:42:18' },
-        { name: 'no-secrets', status: 'passed', source: 'policy', sourceName: 'security-baseline', durationMs: 1_100 },
-        { name: 'image-tag-format', status: 'skipped', source: 'policy', sourceName: 'release-standards', durationMs: 0 },
-        { name: 'build', status: 'skipped', source: 'repo', durationMs: 0 },
-      ],
-    },
-  ]
+  const { data } = $props()
+  const runs = $derived((data.runs ?? []) as PipelineRun[])
 
   const statusIcons: Record<StepStatus, string> = {
     passed: '✓',
@@ -105,29 +63,38 @@
     }
     expandedErrors = next
   }
+
+  function runDurationMs(run: PipelineRun): number {
+    if (!run.startedAt || !run.finishedAt) return 0
+    return new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()
+  }
+
+  function policyCount(run: PipelineRun): number {
+    return run.steps.filter(s => s.source === 'policy').length
+  }
 </script>
 
 <div>
-  {#if mockRuns.length === 0}
+  {#if runs.length === 0}
     <EmptyState
       title="No pipeline runs"
       description="Push to a gated branch to trigger a pipeline."
     />
   {:else}
     <div class="space-y-3">
-      {#each mockRuns as run}
+      {#each runs as run}
         {@const isExpanded = expandedRuns.has(run.id)}
+        {@const duration = runDurationMs(run)}
         <div class="bg-surface-900 border border-surface-800 rounded-lg overflow-hidden">
           <button
             onclick={() => toggleRun(run.id)}
             class="flex items-center gap-3 w-full text-left px-4 py-3 hover:bg-surface-800/50 transition-colors"
           >
             <StatusDot status={run.status} />
-            <span class="text-xs text-surface-600 font-mono">{run.sha}</span>
-            <span class="text-sm text-surface-300 truncate flex-1">{run.message}</span>
-            <span class="text-xs text-surface-500">{run.author}</span>
-            <span class="text-xs text-surface-600">{formatMs(run.durationMs)}</span>
-            <span class="text-xs text-surface-600">{timeAgo(run.timestamp)}</span>
+            <span class="text-xs text-surface-600 font-mono">{run.id.slice(0, 7)}</span>
+            <span class="text-sm text-surface-300 truncate flex-1">{run.branch}</span>
+            <span class="text-xs text-surface-600">{formatMs(duration)}</span>
+            <span class="text-xs text-surface-600">{timeAgo(run.startedAt)}</span>
             <svg
               class="w-4 h-4 text-surface-600 transition-transform {isExpanded ? 'rotate-180' : ''}"
               fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"
@@ -141,11 +108,11 @@
               <div class="flex items-center gap-4 text-xs text-surface-600 mb-3">
                 <span>branch: <span class="text-surface-400 font-mono">{run.branch}</span></span>
                 <span>{run.steps.length} steps</span>
-                <span>{run.policyCount} policies</span>
+                <span>{policyCount(run)} policies</span>
               </div>
               <div class="space-y-1">
                 {#each run.steps as step}
-                  {@const errorKey = `${run.id}-${step.name}`}
+                  {@const errorKey = `${run.id}-${step.stepName}`}
                   {@const hasError = step.status === 'failed' && !!step.error}
                   <div>
                     <button
@@ -153,9 +120,11 @@
                       onclick={() => hasError && toggleError(errorKey)}
                       disabled={!hasError}
                     >
-                      <span class="w-4 text-center {statusColors[step.status]}">{statusIcons[step.status]}</span>
-                      <SourceBadge source={step.source} name={step.sourceName} />
-                      <span class="text-sm text-surface-300 flex-1">{step.name}</span>
+                      <span class="w-4 text-center {statusColors[step.status as StepStatus]}">{statusIcons[step.status as StepStatus]}</span>
+                      {#if step.source}
+                        <SourceBadge source={step.source as 'policy' | 'template' | 'repo'} name={step.sourceName} />
+                      {/if}
+                      <span class="text-sm text-surface-300 flex-1">{step.stepName}</span>
                       {#if step.durationMs > 0}
                         <span class="text-xs text-surface-600">{formatMs(step.durationMs)}</span>
                       {/if}
