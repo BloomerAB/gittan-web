@@ -4,7 +4,7 @@
 
 <Article
   title="Security is a pipeline step, not a product tier"
-  subtitle="Every push is scanned. Every team gets a report. No add-on required."
+  subtitle="Scanning and reporting on every push, for every team. Blocking on critical. Deeper analysis available for teams that want it."
 >
   <p>
     On most git hosting platforms, security scanning is a premium feature. GitHub's
@@ -19,105 +19,107 @@
     just as vulnerable to a dependency with a known CVE as a bank with 4,000.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">Built into the pipeline</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">Three tiers, clearly separated</h2>
 
   <p>
-    In gittan, security scanning runs as part of the pipeline. Not as an optional step
-    the team has to configure. Not as a marketplace action they have to find, evaluate,
-    and maintain. It runs because the organization's policies say it runs. On every push,
-    for every repo, for every team.
+    gittan's security model has three distinct levels. We are explicit about what each
+    one does, because blurring them creates false confidence.
+  </p>
+
+  <ul class="list-none space-y-3">
+    <li class="flex gap-2">
+      <span class="text-accent-400 shrink-0">&#8227;</span>
+      <span><strong class="text-surface-300">Scanning and reporting — every push, every
+      team.</strong> Dependency scanning, license compliance, container image analysis,
+      secret detection. Runs on every push because the org's policies say it runs.
+      Findings go into the team's report, tracked across pushes, visible in the
+      dashboard. This is the baseline. It is included on every plan.</span>
+    </li>
+    <li class="flex gap-2">
+      <span class="text-accent-400 shrink-0">&#8227;</span>
+      <span><strong class="text-surface-300">Blocking — critical CVEs only.</strong>
+      A critical vulnerability in a production dependency, or a CVE listed in the CISA
+      Known Exploited Vulnerabilities catalog, blocks the push. The pipeline fails. The
+      code does not land on main. High and below go to the report, not the gate — because
+      blocking on high creates constant friction on CVEs that are usually not exploitable,
+      which drives routine overrides. The rubber-stamp problem, on security.</span>
+    </li>
+    <li class="flex gap-2">
+      <span class="text-accent-400 shrink-0">&#8227;</span>
+      <span><strong class="text-surface-300">Reachability analysis — available for teams
+      that want it.</strong> Is the CVE actually reachable in your code? Full reachability
+      analysis is computationally heavy. It is available as a deeper analysis option,
+      not included in the base tier. Baseline security — scanning, reporting, blocking
+      on critical — is never behind a paywall. Deeper analysis is for teams that need
+      it.</span>
+    </li>
+  </ul>
+
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">Why critical-only blocking</h2>
+
+  <p>
+    The instinct is to block on everything. Every CVE is a risk, so block them all. In
+    practice, this creates a wall of red that developers learn to override. A high-severity
+    CVE in a transitive dev dependency that is not reachable in production is not worth
+    blocking a hotfix for. But if the gate blocks it, someone will find a way around the
+    gate — and once the bypass habit forms, the gate stops being trusted.
   </p>
 
   <p>
-    This is a org-level policy, not a repo-level config. The platform team defines what
-    security steps apply — dependency scanning, license compliance, container image
-    analysis, secret detection — and those steps are injected into every pipeline
-    automatically. Individual teams cannot opt out, because security is not optional.
+    We block on two criteria: CVSS critical, or listed in the CISA Known Exploited
+    Vulnerabilities catalog. CVSS severity alone is a blunt proxy. The KEV catalog lists
+    what is actually exploited in the wild. Gating on "critical or known-exploited"
+    captures most of the value of reachability analysis at near-zero build cost.
+    Everything else goes to the report — scanned, tracked, visible, but not blocking.
+  </p>
+
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">The one safe exception</h2>
+
+  <p>
+    A no-exception block sounds principled until a critical CVE drops with no upstream
+    patch. Now every push in the org is blocked — including the unrelated hotfix your
+    team needs to ship. Unlike a <code class="text-accent-400 bg-surface-900 px-1.5 py-0.5 rounded text-xs">:latest</code>
+    tag, which is always within your control to fix, an unpatched CVE is not.
   </p>
 
   <p>
-    Teams can add their own security steps on top. A team handling payment data might
-    add stricter checks. But the baseline is set by the organization and enforced by
-    the platform.
+    So the CVE gate has one exception mechanism: a time-boxed, logged risk acceptance
+    by the owning team. The team records that they accept the risk, with an expiry. When
+    the expiry lapses, the gate re-fires. This is not a bypass — it is an owned,
+    auditable, time-limited decision. It ties to the vouch-vs-measure distinction from
+    our <a href="/docs/no-pull-requests" class="text-accent-400 hover:text-accent-300 underline">gated push model</a>:
+    the team owns the decision and is on record for it, rather than silently skipping a
+    check.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Reports that accumulate</h2>
 
   <p>
-    A single scan tells you what is wrong right now. That is useful but insufficient.
-    What you actually need is a picture that builds over time: is this team's security
-    posture improving or degrading? Are the same issues recurring? Are findings being
-    addressed or ignored?
+    A single scan tells you what is wrong right now. What you need is a picture that
+    builds over time: is this team's security posture improving or degrading? Are the
+    same issues recurring? Are findings being addressed or ignored?
   </p>
 
   <p>
     gittan maintains security reports per team and per organization. Every pipeline run
-    contributes to the report. Findings are tracked across pushes — a vulnerability that
-    appeared three weeks ago and is still present is visibly different from one that was
-    introduced and fixed in the same day. The report is not a snapshot. It is a timeline.
-  </p>
-
-  <p>
-    This gives platform teams and security teams something they rarely have: a
-    continuous view of security across every team, without asking anyone to fill out a
-    spreadsheet or run a manual audit. The data comes from the pipeline. It is always
-    current.
-  </p>
-
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">Recommendations, not blockers</h2>
-
-  <p>
-    Not every finding is critical. A medium-severity CVE in a dev dependency does not
-    need to block a push. A license compliance warning on an internal tool does not need
-    to stop deployment.
-  </p>
-
-  <p>
-    gittan's security policies distinguish between findings that block and findings that
-    report. A critical vulnerability in a production dependency blocks the push — the
-    pipeline fails, the code does not land on main. A medium-severity finding is recorded
-    in the team's report, visible in the dashboard, tracked over time — but the push
-    proceeds.
-  </p>
-
-  <p>
-    The goal is not to create a wall of red that developers learn to ignore. It is to
-    surface risks proportionally: block the things that must be blocked, track the things
-    that should be tracked, and give the team a clear picture of where they stand without
-    turning every push into a compliance exercise.
-  </p>
-
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">Architecture and structure reviews</h2>
-
-  <p>
-    Security scanning is the first step. The pipeline can also assess structural concerns:
-    is the team following established architecture patterns? Are there inconsistencies
-    that suggest technical debt accumulating? Is a service growing in ways that suggest
-    it should be split?
-  </p>
-
-  <p>
-    These are not pass/fail checks. They are observations that feed into the team's
-    report. Over time, patterns emerge. A team that consistently introduces new
-    dependencies without removing old ones has a different risk profile than a team with
-    a stable dependency tree. The platform surfaces this — not as a judgment, but as
-    information the team and the organization can act on.
+    contributes. A vulnerability that appeared three weeks ago and is still present looks
+    different from one that was introduced and fixed the same day. The report is a
+    timeline, not a snapshot.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">Security is a team concern</h2>
 
   <p>
     In many organizations, security is someone else's problem. The security team runs
-    audits quarterly, produces a report, hands it to the development team, and waits.
-    The development team triages the findings against their backlog, deprioritizes most
-    of them, and the cycle repeats.
+    quarterly audits, produces a report, hands it to development, and waits. Development
+    triages against their backlog, deprioritizes most findings, and the cycle repeats.
   </p>
 
   <p>
     This does not work. Security findings that are not surfaced to the team that owns
     the code, continuously, in the tool they already use, will be ignored. Not because
     the team does not care, but because the feedback loop is too slow and too removed
-    from their daily work.
+    from daily work.
   </p>
 
   <p>
@@ -125,19 +127,5 @@
     sees their security posture the same way they see their DORA metrics — as a
     continuous signal, not a quarterly surprise. When security is part of the daily
     workflow instead of a separate process, it actually gets addressed.
-  </p>
-
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">No separate product to buy</h2>
-
-  <p>
-    Security scanning is included on every gittan plan. There is no Advanced Security
-    tier. There is no per-committer surcharge. There is no marketplace action to
-    configure and hope it keeps working after the next major version bump.
-  </p>
-
-  <p>
-    Security is part of the pipeline because the pipeline is where code quality is
-    enforced. Separating security into its own product, with its own pricing, creates
-    an incentive to skip it. We removed that incentive.
   </p>
 </Article>

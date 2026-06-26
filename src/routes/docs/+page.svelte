@@ -58,7 +58,7 @@
     {
       slug: 'security-by-default',
       title: 'Security is a pipeline step, not a product tier',
-      subtitle: 'Every push is scanned. Every team gets a report. No add-on required.',
+      subtitle: 'Scanning and reporting on every push, for every team. Blocking on critical. Deeper analysis available for teams that want it.',
     },
     {
       slug: 'org-changelog',
@@ -87,8 +87,8 @@
     },
     {
       slug: 'no-marketplace',
-      title: 'Your CI should not run third-party code',
-      subtitle: 'Marketplace actions are a supply chain risk you do not need.',
+      title: 'In a gittan pipeline, everything has a pin',
+      subtitle: 'No marketplace. Modules pinned by digest. A curated set is paved. Everything else is your explicit responsibility.',
     },
     {
       slug: 'no-latest-tags',
@@ -102,8 +102,8 @@
     },
     {
       slug: 'reliability',
-      title: 'Your git host should not have incident pages',
-      subtitle: 'GitHub has had more outages in the last two years than we have had deployments that failed.',
+      title: 'We build so we do not need a status page',
+      subtitle: 'A git host should be invisible. You push, it works. That is the ambition.',
     },
     {
       slug: 'eu-sovereignty',
@@ -113,7 +113,7 @@
     {
       slug: 'saas-only',
       title: 'Why gittan is SaaS only',
-      subtitle: 'The product is the infrastructure. You cannot separate them.',
+      subtitle: 'Shared infrastructure, many moving parts, and a deliberate choice.',
     },
     {
       slug: 'terminal-feedback',

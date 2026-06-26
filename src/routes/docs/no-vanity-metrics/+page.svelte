@@ -34,19 +34,20 @@
     delivery performance because that is the thing that matters.
   </p>
 
-  <h2 class="text-lg font-semibold text-surface-300 pt-2">No forks</h2>
+  <h2 class="text-lg font-semibold text-surface-300 pt-2">No forks, no stars</h2>
 
   <p>
-    Forking is a feature for open source collaboration. You fork a repo, make changes,
-    and submit a pull request back to the original. It is a workflow designed for
-    contributors who do not have write access.
+    gittan is private by design. There is no public repo, no explore page, no social
+    graph. Stars, forks, and followers are features of a social network for open source.
+    In a private-only platform, there is nothing to star, nothing to fork, and no
+    audience to follow.
   </p>
 
   <p>
-    gittan is for teams that work together on private code. Everyone on the team has
-    write access. There is no need to fork — you push to the repo directly. If you need
-    to experiment, use a feature flag, not a fork. Forks create divergence. Trunk-based
-    development eliminates it.
+    This is a consequence of the design, not a philosophical stance. Everyone on the
+    team has write access — you push to the repo directly. If you need to experiment,
+    use a feature flag, not a fork. Forks create divergence. Trunk-based development
+    eliminates it.
   </p>
 
   <h2 class="text-lg font-semibold text-surface-300 pt-2">No activity graphs</h2>
