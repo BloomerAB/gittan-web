@@ -23,13 +23,44 @@
   <h2 class="text-lg font-semibold text-surface-200 mb-1">Import from GitHub</h2>
   <p class="text-sm text-surface-500 mb-6">Migrate a repository with full git history, branches, and tags.</p>
 
-  {#if form?.error}
+  {#if form?.error && !('canUpdate' in form)}
     <div class="mb-4 px-3 py-2 rounded-md bg-err-400/10 text-err-400 text-sm">{form.error}</div>
+  {/if}
+
+  {#if form && 'canUpdate' in form && form.canUpdate}
+    <div class="mb-4 px-3 py-2 rounded-md bg-yellow-400/10 text-yellow-400 text-sm flex items-center justify-between">
+      <span>Repository already exists. Update it with latest from GitHub?</span>
+      <form
+        method="POST"
+        action="?/update"
+        use:enhance={() => {
+          migrating = true
+          return async ({ update }) => {
+            migrating = false
+            await update()
+          }
+        }}
+      >
+        <input type="hidden" name="githubUrl" value={githubUrl} />
+        <input type="hidden" name="githubToken" value={githubToken} />
+        <input type="hidden" name="teamId" value={selectedTeamId} />
+        {#if selectedTeam}
+          <input type="hidden" name="teamName" value={selectedTeam.name} />
+        {/if}
+        <button
+          type="submit"
+          disabled={migrating}
+          class="text-xs bg-yellow-500 hover:bg-yellow-400 text-black font-medium px-3 py-1 rounded ml-3"
+        >
+          {migrating ? 'Updating...' : 'Update'}
+        </button>
+      </form>
+    </div>
   {/if}
 
   {#if form?.success}
     <div class="mb-4 px-3 py-2 rounded-md bg-green-400/10 text-green-400 text-sm">
-      Repository <strong>{form.repoName}</strong> imported successfully.
+      Repository <strong>{form.repoName}</strong> {form.updated ? 'updated' : 'imported'} successfully.
       <a href="/app/{form.teamName}/{form.repoName}" class="underline hover:text-green-300 ml-1">View repo</a>
     </div>
   {/if}
