@@ -129,7 +129,8 @@
       <p class="text-[10px] text-surface-600 mt-2">Payment integration coming soon. Plan changes take effect immediately.</p>
     </div>
 
-    <!-- Spending Cap -->
+    <!-- Spending Cap (Team plan only) -->
+    {#if plan?.plan === 'team'}
     <div>
       <p class="text-[11px] uppercase text-surface-500 tracking-wider mb-3">Spending Cap</p>
       <div class="bg-surface-900 border border-surface-800 rounded-lg p-4">
@@ -175,6 +176,7 @@
         </form>
       </div>
     </div>
+    {/if}
 
     <!-- Usage -->
     <div>
@@ -193,7 +195,7 @@
           </div>
           {#if ciPercent >= 80}
             <p class="text-[10px] mt-1 {ciPercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {ciPercent >= 100 ? 'Pipelines blocked — upgrade plan or increase spending cap' : `${ciPercent}% used — approaching limit`}
+              {ciPercent >= 100 ? (plan?.plan === 'team' ? 'Pipelines blocked — increase spending cap' : 'Pipelines blocked — upgrade to Team') : `${ciPercent}% used — approaching limit`}
             </p>
           {/if}
         </div>
@@ -211,7 +213,7 @@
           </div>
           {#if storagePercent >= 80}
             <p class="text-[10px] mt-1 {storagePercent >= 100 ? 'text-err-400' : 'text-yellow-400'}">
-              {storagePercent >= 100 ? 'Storage full — upgrade plan or increase spending cap' : `${storagePercent}% used — approaching limit`}
+              {storagePercent >= 100 ? (plan?.plan === 'team' ? 'Storage full — increase spending cap' : 'Storage full — upgrade to Team') : `${storagePercent}% used — approaching limit`}
             </p>
           {/if}
         </div>

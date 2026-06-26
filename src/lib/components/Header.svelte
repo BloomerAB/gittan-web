@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { browser } from '$app/environment'
   import { page } from '$app/state'
   import GittanLogo from './GittanLogo.svelte'
   import OrgSwitcher from './OrgSwitcher.svelte'
@@ -19,6 +20,7 @@
 
   let dashboardHref = $derived.by(() => {
     if (isAdmin) {
+      if (!browser) return '/app'
       const match = document.cookie.match(/(?:^|;\s*)gittan-last-path=([^;]+)/)
       return match ? decodeURIComponent(match[1]) : '/app'
     }
