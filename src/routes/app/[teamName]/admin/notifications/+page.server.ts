@@ -31,7 +31,7 @@ export const actions: Actions = {
     if (!team) return fail(400, { error: 'Team not found' })
 
     try {
-      await apiPut(`/teams/${team.id}`, locals.session, { slackChannel: slackChannel || null })
+      await apiPut(`/orgs/${orgId}/teams/${team.id}`, locals.session, { slackChannel: slackChannel || null })
       return { saved: true }
     } catch {
       return fail(500, { error: 'Failed to save notification settings' })

@@ -12,12 +12,8 @@
   let links = $derived([
     { label: 'Import', href: `${basePath}/import` },
     { label: 'Notifications', href: `${basePath}/notifications` },
-    ...(activeOrg?.pipelineScope === 'team'
-      ? [
-          { label: 'Steps', href: `${basePath}/steps` },
-          { label: 'Policies', href: `${basePath}/policies` },
-        ]
-      : []),
+    { label: 'Steps', href: `${basePath}/steps` },
+    { label: 'Policies', href: `${basePath}/policies` },
   ])
 </script>
 
