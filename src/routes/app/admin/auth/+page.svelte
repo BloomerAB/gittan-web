@@ -45,7 +45,7 @@
   }
 </script>
 
-<div class="p-6">
+<div>
   <h2 class="text-lg font-semibold text-surface-200 mb-2">Authentication</h2>
   <p class="text-xs text-surface-600 mb-8">Configure how members sign in to your organization.</p>
 

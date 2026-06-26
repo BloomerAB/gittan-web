@@ -14,7 +14,7 @@
   })
 </script>
 
-<div class="p-6">
+<div>
   <h2 class="text-lg font-semibold text-surface-200 mb-6">Organization Settings</h2>
 
   {#if !data.org}

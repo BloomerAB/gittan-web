@@ -69,16 +69,13 @@
 {#if !team}
   <EmptyState title="Team not found" />
 {:else}
-  <div class="p-6">
-    <div class="mb-6">
-      <h1 class="text-lg font-semibold text-white">{team.displayName}</h1>
-      <div class="flex items-center gap-3 mt-1 text-sm text-surface-500">
-        {#if team.slackChannel}
-          <span>#{team.slackChannel}</span>
-          <span class="text-surface-700">|</span>
-        {/if}
-        <span>{repos.length} {repos.length === 1 ? 'repo' : 'repos'}</span>
-      </div>
+  <div>
+    <div class="flex items-center gap-3 mb-4 text-sm text-surface-500">
+      {#if team.slackChannel}
+        <span>#{team.slackChannel}</span>
+        <span class="text-surface-700">|</span>
+      {/if}
+      <span>{repos.length} {repos.length === 1 ? 'repo' : 'repos'}</span>
     </div>
 
     {#if !metrics}

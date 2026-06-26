@@ -35,7 +35,7 @@
   }
 </script>
 
-<div class="p-6">
+<div>
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-lg font-semibold text-surface-200">Step Registry</h2>
     <button

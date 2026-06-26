@@ -32,7 +32,7 @@
   }
 </script>
 
-<div class="p-6">
+<div>
   <h2 class="text-lg font-semibold text-surface-200 mb-6">Audit Log</h2>
 
   {#if auditEvents.length === 0}

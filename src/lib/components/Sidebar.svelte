@@ -20,13 +20,4 @@
       <span class="text-[11px] text-surface-600">{repoCounts[team.id] ?? 0} repos</span>
     </a>
   {/each}
-  {#if teamName}
-    <div class="border-t border-surface-800 my-3"></div>
-    <a
-      href="/app/{teamName}/admin"
-      class="block px-3 py-2 rounded-md text-sm text-surface-500 hover:text-surface-200 hover:bg-surface-900 transition-colors {page.url.pathname.includes(`/${teamName}/admin`) ? 'bg-surface-900 text-white border-l-2 border-accent-400 pl-2.5' : ''}"
-    >
-      Team Admin
-    </a>
-  {/if}
 </nav>

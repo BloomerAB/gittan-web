@@ -117,7 +117,7 @@
   }
 </script>
 
-<div class="p-6">
+<div>
   {#if selectedTeam}
     <div>
       <button

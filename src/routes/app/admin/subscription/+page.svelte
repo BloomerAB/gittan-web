@@ -53,7 +53,7 @@
   let receiptEmailSaved = $state(false)
 </script>
 
-<div class="p-6">
+<div>
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-lg font-semibold text-surface-200">Subscription</h2>
     <span class="text-xs px-2 py-0.5 rounded-full {overallStatus.class}">{overallStatus.label}</span>

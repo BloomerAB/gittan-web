@@ -29,7 +29,7 @@
   }
 </script>
 
-<div class="p-6">
+<div>
   <h2 class="text-lg font-semibold text-surface-200 mb-2">Members</h2>
   <p class="text-xs text-surface-600 mb-8">Manage who has access to your organization.</p>
 

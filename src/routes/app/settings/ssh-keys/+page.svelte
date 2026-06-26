@@ -19,7 +19,7 @@
   let keys = $derived(data.keys as TSSHKey[])
 </script>
 
-<div class="p-6">
+<div>
   <h2 class="text-lg font-semibold text-surface-200 mb-1">SSH Keys</h2>
   <p class="text-sm text-surface-500 mb-6">
     Manage SSH keys used for <code class="font-mono bg-surface-900 px-1 py-0.5 rounded text-surface-400">git push</code> over SSH to gittan.
