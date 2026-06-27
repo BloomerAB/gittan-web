@@ -6,6 +6,8 @@ type TPipelineStep = {
   readonly status: string
   readonly durationMs: number
   readonly source?: string
+  readonly exitCode?: number
+  readonly output?: string
   readonly error?: string
 }
 
