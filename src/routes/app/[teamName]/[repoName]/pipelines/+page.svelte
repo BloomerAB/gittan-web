@@ -74,6 +74,11 @@
     return !!(step.error || step.output)
   }
 
+  function commitSha(run: PipelineRun): string {
+    const match = run.id.match(/push-([a-f0-9]+)-/)
+    return match?.[1]?.slice(0, 7) ?? run.id.slice(0, 7)
+  }
+
   function runDurationMs(run: PipelineRun): number {
     if (!run.startedAt || !run.finishedAt) return 0
     return new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()
@@ -121,7 +126,7 @@
             class="flex items-center gap-3 w-full text-left px-4 py-3 hover:bg-surface-800/50 transition-colors"
           >
             <StatusDot status={run.status} />
-            <span class="text-xs text-surface-600 font-mono">{run.id.slice(0, 7)}</span>
+            <span class="text-xs text-surface-600 font-mono">{commitSha(run)}</span>
             <span class="text-sm text-surface-300 truncate flex-1">{run.branch}</span>
             <span class="text-xs text-surface-600">{formatMs(duration)}</span>
             <span class="text-xs text-surface-600">{timeAgo(run.startedAt)}</span>
