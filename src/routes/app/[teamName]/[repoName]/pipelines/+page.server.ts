@@ -3,6 +3,7 @@ import type { PageServerLoad } from './$types'
 
 type TPipelineStep = {
   readonly stepName: string
+  readonly description?: string
   readonly status: string
   readonly durationMs: number
   readonly source?: string
@@ -18,6 +19,9 @@ type TPipelineRun = {
   readonly orgId: string
   readonly teamId: string
   readonly branch: string
+  readonly commitSha?: string
+  readonly commitMessage?: string
+  readonly pusher?: string
   readonly status: string
   readonly steps: readonly TPipelineStep[]
   readonly startedAt: string

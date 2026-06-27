@@ -8,6 +8,7 @@
 
   type Step = {
     readonly stepName: string
+    readonly description?: string
     readonly status: StepStatus
     readonly source?: string
     readonly sourceName?: string
@@ -20,6 +21,9 @@
   type PipelineRun = {
     readonly id: string
     readonly branch: string
+    readonly commitSha?: string
+    readonly commitMessage?: string
+    readonly pusher?: string
     readonly status: 'passed' | 'failed'
     readonly startedAt: string
     readonly finishedAt: string
@@ -127,7 +131,13 @@
           >
             <StatusDot status={run.status} />
             <span class="text-xs text-surface-600 font-mono">{commitSha(run)}</span>
-            <span class="text-sm text-surface-300 truncate flex-1">{run.branch}</span>
+            <span class="text-sm text-surface-300 truncate flex-1">
+              {#if run.commitMessage}
+                {run.commitMessage.split('\n')[0]}
+              {:else}
+                {run.branch}
+              {/if}
+            </span>
             <span class="text-xs text-surface-600">{formatMs(duration)}</span>
             <span class="text-xs text-surface-600">{timeAgo(run.startedAt)}</span>
             <svg
@@ -141,9 +151,14 @@
           {#if isExpanded}
             <div class="border-t border-surface-800 px-4 py-2">
               <div class="flex items-center gap-4 text-xs text-surface-600 mb-3">
-                <span>branch: <span class="text-surface-400 font-mono">{run.branch}</span></span>
+                <span><span class="text-surface-400 font-mono">{run.branch}</span></span>
+                {#if run.pusher}
+                  <span>by <span class="text-surface-400">{run.pusher}</span></span>
+                {/if}
                 <span>{run.steps.length} steps</span>
-                <span>{policyCount(run)} policies</span>
+                {#if policyCount(run) > 0}
+                  <span>{policyCount(run)} policies</span>
+                {/if}
               </div>
               <div class="space-y-1">
                 {#each run.steps as step}
@@ -160,7 +175,12 @@
                       {#if step.source}
                         <SourceBadge source={step.source as 'policy' | 'template' | 'repo'} name={step.sourceName} />
                       {/if}
-                      <span class="text-sm text-surface-300 flex-1">{step.stepName}</span>
+                      <span class="text-sm text-surface-300 flex-1">
+                        {step.stepName}
+                        {#if step.description}
+                          <span class="text-xs text-surface-600 ml-1">— {step.description}</span>
+                        {/if}
+                      </span>
                       {#if step.exitCode !== undefined && step.exitCode !== 0}
                         <span class="text-xs text-err-400 font-mono">exit {step.exitCode}</span>
                       {/if}

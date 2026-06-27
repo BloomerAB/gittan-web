@@ -31,6 +31,6 @@
   },
   "packageManager": "pnpm@10.32.1",
   "dependencies": {
-    "@bloomerab/gittan-types": "0.8.0"
+    "@bloomerab/gittan-types": "0.10.0"
   }
 }

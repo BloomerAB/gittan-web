@@ -1,19 +1,30 @@
 steps:
   - name: install
+    description: Install dependencies from lockfile
     image: gittan/node:22
     run: corepack enable && pnpm install --frozen-lockfile
     cache:
       - node_modules
 
   - name: check
+    description: Svelte type and lint check
     image: gittan/node:22
-    run: corepack enable && pnpm check
+    run: pnpm check
     needs: [install]
 
   - name: build
+    description: Build SvelteKit application
     image: gittan/node:22
-    run: corepack enable && pnpm build
+    run: pnpm build
     needs: [install]
+
+  - name: publish
+    description: Build and push container image
+    publish:
+      image: gittan-web
+      dockerfile: Dockerfile
+    needs: [check, build]
+    only: main
 
 gated:
   - main
