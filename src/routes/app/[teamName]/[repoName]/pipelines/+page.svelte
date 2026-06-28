@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import StatusDot from '$lib/components/StatusDot.svelte'
   import SourceBadge from '$lib/components/SourceBadge.svelte'
   import EmptyState from '$lib/components/EmptyState.svelte'
@@ -24,16 +25,35 @@
     readonly commitSha?: string
     readonly commitMessage?: string
     readonly pusher?: string
-    readonly status: 'passed' | 'failed'
+    readonly status: 'passed' | 'failed' | 'running'
     readonly startedAt: string
     readonly finishedAt: string
     readonly steps: readonly Step[]
   }
 
+  type LiveRun = {
+    readonly pushEventId: string
+    readonly steps: Step[]
+  }
+
   const { data } = $props()
-  const runs = $derived((data.runs ?? []) as PipelineRun[])
+  let completedRuns = $state((data.runs ?? []) as PipelineRun[])
   const pipelineConfig = $derived(data.pipelineConfig as string | null)
   let showConfig = $state(false)
+  let liveRuns = $state<Map<string, LiveRun>>(new Map())
+  let sseConnected = $state(false)
+
+  const allRuns = $derived([
+    ...[...liveRuns.values()].map((live): PipelineRun => ({
+      id: live.pushEventId,
+      branch: '',
+      status: 'running',
+      startedAt: new Date().toISOString(),
+      finishedAt: '',
+      steps: live.steps,
+    })),
+    ...completedRuns,
+  ])
 
   const statusIcons: Record<StepStatus, string> = {
     passed: '✓',
@@ -49,10 +69,75 @@
     running: 'text-yellow-400',
   }
 
-  const failedRunIds = $derived(new Set(runs.filter(r => r.status === 'failed').slice(0, 1).map(r => r.id)))
+  const failedRunIds = $derived(new Set(allRuns.filter(r => r.status === 'failed').slice(0, 1).map(r => r.id)))
+  const liveRunIds = $derived(new Set(allRuns.filter(r => r.status === 'running').map(r => r.id)))
   let expandedRuns = $state<Set<string>>(new Set())
-  const effectiveExpandedRuns = $derived(new Set([...failedRunIds, ...expandedRuns]))
+  const effectiveExpandedRuns = $derived(new Set([...failedRunIds, ...liveRunIds, ...expandedRuns]))
   let expandedSteps = $state<Set<string>>(new Set())
+
+  onMount(() => {
+    const url = `live?orgId=${encodeURIComponent(data.orgId)}&repoId=${encodeURIComponent(data.repoId)}`
+    const es = new EventSource(url)
+
+    es.addEventListener('connected', () => { sseConnected = true })
+
+    es.addEventListener('step', (e) => {
+      const step = JSON.parse(e.data) as Step & { pushEventId: string }
+      const id = step.pushEventId
+
+      liveRuns = new Map(liveRuns)
+      const existing = liveRuns.get(id)
+      const updatedStep: Step = {
+        stepName: step.stepName,
+        description: step.description,
+        status: step.status as StepStatus,
+        durationMs: step.durationMs,
+        exitCode: step.exitCode,
+        output: step.output,
+        error: step.error,
+        source: step.source,
+      }
+
+      if (existing) {
+        const idx = existing.steps.findIndex(s => s.stepName === step.stepName)
+        const newSteps = [...existing.steps]
+        if (idx >= 0) {
+          newSteps[idx] = updatedStep
+        } else {
+          newSteps.push(updatedStep)
+        }
+        liveRuns.set(id, { ...existing, steps: newSteps })
+      } else {
+        liveRuns.set(id, { pushEventId: id, steps: [updatedStep] })
+      }
+    })
+
+    es.addEventListener('complete', (e) => {
+      const result = JSON.parse(e.data) as PipelineRun & { pushEventId: string }
+      const id = result.pushEventId
+
+      liveRuns = new Map(liveRuns)
+      liveRuns.delete(id)
+
+      const completed: PipelineRun = {
+        id,
+        branch: result.branch ?? '',
+        commitSha: result.commitSha,
+        commitMessage: result.commitMessage,
+        pusher: result.pusher,
+        status: result.status as 'passed' | 'failed',
+        startedAt: result.startedAt,
+        finishedAt: result.finishedAt,
+        steps: result.steps,
+      }
+
+      completedRuns = [completed, ...completedRuns.filter(r => r.id !== id)]
+    })
+
+    es.onerror = () => { sseConnected = false }
+
+    return () => es.close()
+  })
 
   function toggleRun(id: string): void {
     const next = new Set(expandedRuns)
@@ -94,6 +179,13 @@
 </script>
 
 <div>
+  {#if sseConnected}
+    <div class="mb-4 flex items-center gap-2 text-xs text-surface-500">
+      <span class="w-2 h-2 rounded-full bg-ok-400 animate-pulse"></span>
+      Live
+    </div>
+  {/if}
+
   {#if pipelineConfig}
     <div class="mb-6">
       <button
@@ -114,14 +206,14 @@
     </div>
   {/if}
 
-  {#if runs.length === 0}
+  {#if allRuns.length === 0}
     <EmptyState
       title="No pipeline runs"
       description="Push to a gated branch to trigger a pipeline."
     />
   {:else}
     <div class="space-y-3">
-      {#each runs as run}
+      {#each allRuns as run}
         {@const isExpanded = effectiveExpandedRuns.has(run.id)}
         {@const duration = runDurationMs(run)}
         <div class="bg-surface-900 border border-surface-800 rounded-lg overflow-hidden">
@@ -138,8 +230,12 @@
                 {run.branch}
               {/if}
             </span>
-            <span class="text-xs text-surface-600">{formatMs(duration)}</span>
-            <span class="text-xs text-surface-600">{timeAgo(run.startedAt)}</span>
+            {#if run.status === 'running'}
+              <span class="text-xs text-yellow-400 animate-pulse">running</span>
+            {:else}
+              <span class="text-xs text-surface-600">{formatMs(duration)}</span>
+              <span class="text-xs text-surface-600">{timeAgo(run.startedAt)}</span>
+            {/if}
             <svg
               class="w-4 h-4 text-surface-600 transition-transform {isExpanded ? 'rotate-180' : ''}"
               fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"

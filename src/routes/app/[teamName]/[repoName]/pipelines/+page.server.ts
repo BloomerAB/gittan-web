@@ -35,10 +35,10 @@ type TForgejoContent = {
 
 export const load: PageServerLoad = async ({ parent, locals }) => {
   const { repo } = await parent()
-  if (!locals.session) return { runs: [], pipelineConfig: null }
-
   const orgId = repo.orgId
   const repoId = repo.id
+
+  if (!locals.session) return { runs: [], pipelineConfig: null, orgId, repoId }
   const [owner, repoName] = repo.forgejoFullName.split('/')
 
   const [runs, configResult] = await Promise.all([
@@ -51,5 +51,5 @@ export const load: PageServerLoad = async ({ parent, locals }) => {
     pipelineConfig = Buffer.from(configResult.content, 'base64').toString('utf-8')
   }
 
-  return { runs, pipelineConfig }
+  return { runs, pipelineConfig, orgId, repoId }
 }
