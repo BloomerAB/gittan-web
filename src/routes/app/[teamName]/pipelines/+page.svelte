@@ -30,7 +30,7 @@
   }
 
   function getTeamName(): string {
-    return page.params.teamName
+    return page.params.teamName ?? ''
   }
 
   function statusToDot(status: string): 'passed' | 'failed' | 'running' {
