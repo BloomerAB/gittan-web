@@ -1,11 +1,14 @@
+# syntax=docker/dockerfile:1
 FROM node:22-slim AS deps
 WORKDIR /app
-ARG NPM_TOKEN
 RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml .npmrc ./
-RUN echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc && \
-    pnpm install --frozen-lockfile && \
-    rm -f .npmrc
+# @gittan/types is fetched from npm.gittan.eu; the committed .npmrc resolves the
+# token via ${REGISTRY_TOKEN}. The credential arrives as a BuildKit secret mount
+# (never a build arg/layer) and is exported only for this single install step.
+RUN --mount=type=secret,id=registry-token \
+    REGISTRY_TOKEN="$(cat /run/secrets/registry-token)" \
+    pnpm install --frozen-lockfile
 
 FROM node:22-slim AS builder
 WORKDIR /app
