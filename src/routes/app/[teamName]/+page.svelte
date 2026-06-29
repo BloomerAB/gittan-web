@@ -3,32 +3,52 @@
   import StatusDot from '$lib/components/StatusDot.svelte'
   import EmptyState from '$lib/components/EmptyState.svelte'
   import SkeletonMetrics from '$lib/components/SkeletonMetrics.svelte'
-  import SkeletonRow from '$lib/components/SkeletonRow.svelte'
-  import MetricCard from '$lib/components/MetricCard.svelte'
   import { timeAgo, formatMs } from '$lib/types'
-  import type { TTeam, TRepo, TRepoActivity, TTeamMetrics } from '$lib/types'
+  import type { TRepo, TTeamMetrics } from '$lib/types'
 
-  let { data }: { data: any } = $props()
-
-  let team = $derived(
-    (data.teams as TTeam[]).find((t) => t.name === page.params.teamName),
-  )
-  let repos = $derived(team ? (data.reposByTeam[team.id] ?? []) as TRepo[] : [])
-  let activity = $derived((data.activity ?? {}) as Record<string, TRepoActivity>)
-  let metrics = $derived(data.metrics as TTeamMetrics | null)
-
-  let activeRepos = $derived(
-    repos
-      .filter((r) => activity[r.id]?.lastCommit)
-      .sort((a, b) => {
-        const aTs = activity[a.id]?.lastCommit?.timestamp ?? ''
-        const bTs = activity[b.id]?.lastCommit?.timestamp ?? ''
-        return bTs.localeCompare(aTs)
-      }),
-  )
-  let idleRepos = $derived(repos.filter((r) => !activity[r.id]?.lastCommit))
+  type TPipelineRunSummary = {
+    readonly runId: string
+    readonly repoId: string
+    readonly branch: string
+    readonly status: string
+    readonly startedAt: string
+  }
 
   type HealthLevel = 'ok' | 'warn' | 'err' | 'neutral'
+
+  let { data } = $props()
+
+  let teamNotFound = $derived(data.teamNotFound ?? false)
+  let pipelines = $derived((data.pipelines ?? []) as TPipelineRunSummary[])
+  let repoMap = $derived((data.repoMap ?? {}) as Record<string, TRepo>)
+  let metrics = $derived(data.metrics as TTeamMetrics | null)
+
+  let repos = $derived(Object.values(repoMap))
+  let activeRepos = $derived(
+    repos
+      .filter((r) => data.activity?.[r.id]?.lastCommit)
+      .length || 0
+  )
+
+  let sortedPipelines = $derived(
+    [...pipelines].sort(
+      (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+    )
+  )
+
+  function getRepoName(repoId: string): string {
+    return repoMap[repoId]?.name ?? repoId
+  }
+
+  function getTeamName(): string {
+    return page.params.teamName ?? ''
+  }
+
+  function statusToDot(status: string): 'passed' | 'failed' | 'running' {
+    if (status === 'passed') return 'passed'
+    if (status === 'failed') return 'failed'
+    return 'running'
+  }
 
   function healthBorder(level: HealthLevel): string {
     const borders: Record<HealthLevel, string> = {
@@ -66,18 +86,10 @@
   }
 </script>
 
-{#if !team}
+{#if teamNotFound}
   <EmptyState title="Team not found" />
 {:else}
   <div>
-    <div class="flex items-center gap-3 mb-4 text-sm text-surface-500">
-      {#if team.slackChannel}
-        <span>#{team.slackChannel}</span>
-        <span class="text-surface-700">|</span>
-      {/if}
-      <span>{repos.length} {repos.length === 1 ? 'repo' : 'repos'}</span>
-    </div>
-
     {#if !metrics}
       <SkeletonMetrics />
     {:else}
@@ -85,7 +97,7 @@
         <div class="bg-surface-900 border {healthBorder('neutral')} rounded-lg p-4">
           <p class="text-[11px] uppercase text-surface-500 tracking-wider">Repos</p>
           <p class="text-2xl font-semibold mt-1 text-white">{repos.length}</p>
-          <p class="text-[11px] text-surface-600 mt-1">{activeRepos.length} active</p>
+          <p class="text-[11px] text-surface-600 mt-1">{activeRepos} active</p>
         </div>
         <div class="bg-surface-900 border {healthBorder(pushFreqHealth(metrics.pushFrequency))} rounded-lg p-4">
           <p class="text-[11px] uppercase text-surface-500 tracking-wider">Push Freq</p>
@@ -110,75 +122,37 @@
       </div>
     {/if}
 
-    {#if repos.length === 0}
+    {#if sortedPipelines.length === 0}
       <EmptyState
-        title="No repositories"
-        description="Add a repo to this team to get started."
-        command="gittan repo create --team {team.name} <repo-name>"
+        title="Team Pipelines"
+        description="Aggregated pipeline runs across all repos in this team will appear here."
       />
     {:else}
-      {#if activeRepos.length > 0}
-        <div class="mb-6">
-          <h2 class="text-xs uppercase text-surface-500 tracking-wider mb-3">Active Repos</h2>
-          <div class="space-y-2">
-            {#each activeRepos as repo}
-              {@const act = activity[repo.id]}
-              {@const commit = act?.lastCommit}
-              <a
-                href="/app/{team.name}/{repo.name}"
-                class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-900 border border-surface-800 hover:border-surface-700 transition-colors"
-              >
-                <StatusDot status="passed" />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm text-white font-medium">{repo.name}</span>
-                    {#if repo.gatedBranches.length > 0}
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-accent-900 text-accent-400">gated</span>
-                    {/if}
-                  </div>
-                  {#if commit}
-                    <p class="text-xs text-surface-500 mt-0.5 truncate">
-                      <span class="text-surface-600 font-mono">{commit.sha.slice(0, 7)}</span>
-                      <span class="mx-1 text-surface-700">—</span>
-                      <span>{commit.message}</span>
-                      <span class="mx-1 text-surface-700">by</span>
-                      <span class="text-surface-400">{commit.author}</span>
-                    </p>
-                  {/if}
-                </div>
-                {#if commit}
-                  <span class="text-xs text-surface-600 whitespace-nowrap">{timeAgo(commit.timestamp)}</span>
+      <div class="space-y-2">
+        {#each sortedPipelines as pipeline}
+          {@const repoName = getRepoName(pipeline.repoId)}
+          <a
+            href="/app/{getTeamName()}/{repoName}/pipelines"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-900 border border-surface-800 hover:border-surface-700 transition-colors"
+          >
+            <StatusDot status={statusToDot(pipeline.status)} />
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-white font-medium">{repoName}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-800 text-surface-400">{pipeline.branch}</span>
+              </div>
+              <p class="text-xs text-surface-600 mt-0.5">
+                {#if pipeline.status === 'running'}
+                  <span class="text-yellow-400">running</span>
+                {:else}
+                  {pipeline.status}
                 {/if}
-              </a>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if idleRepos.length > 0}
-        <div>
-          <h2 class="text-xs uppercase text-surface-500 tracking-wider mb-3">Idle Repos</h2>
-          <div class="space-y-2">
-            {#each idleRepos as repo}
-              <a
-                href="/app/{team.name}/{repo.name}"
-                class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-900 border border-surface-800 hover:border-surface-700 transition-colors"
-              >
-                <StatusDot status="idle" />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm text-surface-400">{repo.name}</span>
-                    {#if repo.gatedBranches.length > 0}
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-accent-900 text-accent-400">gated</span>
-                    {/if}
-                  </div>
-                  <p class="text-xs text-surface-600 mt-0.5">No activity</p>
-                </div>
-              </a>
-            {/each}
-          </div>
-        </div>
-      {/if}
+              </p>
+            </div>
+            <span class="text-xs text-surface-600 whitespace-nowrap">{timeAgo(pipeline.startedAt)}</span>
+          </a>
+        {/each}
+      </div>
     {/if}
   </div>
 {/if}
