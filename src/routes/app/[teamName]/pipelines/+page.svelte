@@ -14,12 +14,31 @@
     readonly startedAt: string
   }
 
+  type TSharedPipeline = {
+    readonly name: string
+    readonly mode: 'enforce' | 'default'
+    readonly match: { files?: string[]; name?: string; tags?: string[] } | null
+    readonly stepCount: number
+    readonly steps: { name: string; use?: string; image?: string }[]
+    readonly description: string
+  }
+
   type HealthLevel = 'ok' | 'warn' | 'err' | 'neutral'
 
   let { data } = $props()
 
   let teamNotFound = $derived(data.teamNotFound ?? false)
   let pipelines = $derived((data.pipelines ?? []) as TPipelineRunSummary[])
+  let sharedPipelines = $derived((data.sharedPipelines ?? []) as TSharedPipeline[])
+
+  function matchSummary(m: TSharedPipeline['match']): string {
+    if (!m) return 'all repos'
+    const parts: string[] = []
+    if (m.files?.length) parts.push(`files: ${m.files.join(', ')}`)
+    if (m.name) parts.push(`name: ${m.name}`)
+    if (m.tags?.length) parts.push(`tags: ${m.tags.join(', ')}`)
+    return parts.length ? parts.join(' · ') : 'all repos'
+  }
   let repoMap = $derived((data.repoMap ?? {}) as Record<string, TRepo>)
   let metrics = $derived(data.metrics as TTeamMetrics | null)
 
@@ -122,10 +141,35 @@
       </div>
     {/if}
 
+    {#if sharedPipelines.length > 0}
+      <div class="mb-6">
+        <h2 class="text-[11px] uppercase text-surface-500 tracking-wider mb-2">Shared pipelines</h2>
+        <div class="space-y-2">
+          {#each sharedPipelines as sp}
+            <div class="px-4 py-3 rounded-lg bg-surface-900 border border-surface-800">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-white font-medium">{sp.name}</span>
+                <span
+                  class="text-[10px] px-1.5 py-0.5 rounded {sp.mode === 'enforce' ? 'bg-yellow-400/15 text-yellow-300' : 'bg-surface-800 text-surface-400'}"
+                  title={sp.mode === 'enforce' ? 'Always runs — teams cannot opt out' : 'Default — a repo .gittan.yaml overrides it'}
+                >{sp.mode}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-800 text-surface-500">{sp.stepCount} step{sp.stepCount === 1 ? '' : 's'}</span>
+              </div>
+              <p class="text-xs text-surface-600 mt-0.5">
+                {sp.description || 'applies to'} <span class="text-surface-500">· {matchSummary(sp.match)}</span>
+              </p>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/if}
+
     {#if sortedPipelines.length === 0}
       <EmptyState
-        title="Team Pipelines"
-        description="Aggregated pipeline runs across all repos in this team will appear here."
+        title={sharedPipelines.length > 0 ? 'No runs yet' : 'Team Pipelines'}
+        description={sharedPipelines.length > 0
+          ? 'Push to a repo in this team to trigger the shared pipeline.'
+          : 'Aggregated pipeline runs across all repos in this team will appear here.'}
       />
     {:else}
       <div class="space-y-2">
