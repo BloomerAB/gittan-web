@@ -19,6 +19,7 @@
     { label: 'Import', href: `${basePath}/import` },
     { label: 'Notifications', href: `${basePath}/notifications` },
     { label: 'Pipelines', heading: true },
+    { label: 'Shared pipelines', href: `${basePath}/pipelines` },
     { label: 'Steps', href: `${basePath}/steps` },
     { label: 'Policies', href: `${basePath}/policies` },
   ])
