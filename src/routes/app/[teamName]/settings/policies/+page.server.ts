@@ -14,10 +14,10 @@ type TPolicy = {
 
 export const load: PageServerLoad = async ({ params, parent, locals }) => {
   const { teams, activeOrgId } = await parent()
-  const team = teams.find((t: any) => t.name === params.teamName)
+  const team = teams?.find((t: any) => t.name === params.teamName)
   const orgId = team?.orgId ?? activeOrgId
 
-  if (!team || !orgId || !locals.session) {
+  if (!orgId || !locals.session) {
     return { policies: [], teamName: params.teamName }
   }
 
