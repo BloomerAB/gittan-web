@@ -290,6 +290,23 @@
               </span>
             {/each}
           </div>
+          {#if policy.steps && policy.steps.length > 0}
+            <div class="mt-3 pt-3 border-t border-surface-800">
+              <p class="text-[11px] text-surface-600 mb-1.5">Injected steps</p>
+              <div class="space-y-1">
+                {#each policy.steps as step}
+                  <div class="flex items-center gap-2 text-xs text-surface-400">
+                    <span class="text-policy-400">{step.position}</span>
+                    <span class="font-mono">{step.name}</span>
+                    {#if step.use}
+                      <span class="text-surface-600">use:</span>
+                      <span class="font-mono">{step.use}</span>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
         </div>
       {/each}
     </div>

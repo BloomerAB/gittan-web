@@ -1,33 +1,33 @@
 import type { PageServerLoad } from './$types'
 import { apiGet } from '$lib/server/api'
-import type { TRepo, TTeamMetrics } from '$lib/types'
+import type { TTeamMetrics } from '$lib/types'
 
-type TRunSummary = {
-  readonly runId: string
+// One entry per repo the team owns (LEFT-JOINed with its latest run by the API).
+// `status` is the latest run's status, or "never_run" if the repo has no runs.
+type TRepoStatus = {
   readonly repoId: string
-  readonly branch: string
+  readonly repoName: string
+  readonly branch: string | null
   readonly status: string
-  readonly startedAt: string
+  readonly startedAt: string | null
+  readonly runId: string | null
 }
 
 export const load: PageServerLoad = async ({ params, parent, locals }) => {
-  const { teams, reposByTeam } = await parent()
+  const { teams } = await parent()
   const team = teams?.find((t: any) => t.name === params.teamName)
 
   if (!team) {
-    return { statuses: [], repoMap: {}, teamId: '', teamNotFound: true, metrics: null }
+    return { statuses: [], teamId: '', teamNotFound: true, metrics: null }
   }
   if (!locals.session) {
-    return { statuses: [], repoMap: {}, teamId: team.id, teamNotFound: false, metrics: null }
+    return { statuses: [], teamId: team.id, teamNotFound: false, metrics: null }
   }
 
-  const repos = (reposByTeam[team.id] ?? []) as TRepo[]
-  const repoMap = Object.fromEntries(repos.map((r) => [r.id, r]))
-
   const [statuses, metrics] = await Promise.all([
-    apiGet<TRunSummary[]>(`/teams/${team.id}/pipeline-status`, locals.session).catch(() => []),
+    apiGet<TRepoStatus[]>(`/teams/${team.id}/pipeline-status`, locals.session).catch(() => []),
     apiGet<TTeamMetrics>(`/teams/${team.id}/metrics`, locals.session).catch(() => null),
   ])
 
-  return { statuses, repoMap, teamId: team.id, teamNotFound: false, metrics }
+  return { statuses, teamId: team.id, teamNotFound: false, metrics }
 }

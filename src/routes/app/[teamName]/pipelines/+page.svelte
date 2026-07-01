@@ -4,38 +4,54 @@
   import StatusDot from '$lib/components/StatusDot.svelte'
   import EmptyState from '$lib/components/EmptyState.svelte'
   import { timeAgo } from '$lib/types'
-  import type { TRepo } from '$lib/types'
 
-  type TRunSummary = {
-    runId: string
+  // One entry per repo the team owns, served by the API (latest run LEFT-JOINed,
+  // or "never_run" for repos that have never run a pipeline).
+  type TRepoStatus = {
     repoId: string
-    branch: string
+    repoName: string
+    branch: string | null
     status: string
-    startedAt: string
+    startedAt: string | null
+    runId: string | null
+  }
+
+  // Live override delivered over SSE (keyed by repoId).
+  type TLive = {
+    status: string
+    branch: string | null
+    startedAt: string | null
   }
 
   let { data } = $props()
 
   let teamNotFound = $derived(data.teamNotFound ?? false)
-  let repoMap = $derived((data.repoMap ?? {}) as Record<string, TRepo>)
   let teamId = $derived(data.teamId as string)
+  let teamName = $derived(page.params.teamName ?? '')
 
-  // Latest status per repo, seeded from SSR then updated live via SSE.
-  let statusByRepo = $state<Record<string, TRunSummary>>({})
+  // Authoritative per-repo list from the API, sorted by repo name.
+  let repos = $derived(
+    [...((data.statuses ?? []) as TRepoStatus[])].sort((a, b) =>
+      a.repoName.localeCompare(b.repoName),
+    ),
+  )
+
+  // Live status overrides, seeded from the SSR board then updated via SSE.
+  let liveByRepo = $state<Record<string, TLive>>({})
   $effect(() => {
-    const seed: Record<string, TRunSummary> = {}
-    for (const s of (data.statuses ?? []) as TRunSummary[]) seed[s.repoId] = s
-    statusByRepo = seed
+    const seed: Record<string, TLive> = {}
+    for (const s of (data.statuses ?? []) as TRepoStatus[]) {
+      seed[s.repoId] = { status: s.status, branch: s.branch, startedAt: s.startedAt }
+    }
+    liveByRepo = seed
   })
 
-  const teamName = $derived(page.params.teamName ?? '')
-
-  const repos = $derived(Object.values(repoMap).sort((a, b) => a.name.localeCompare(b.name)))
-
-  function dot(status: string | undefined): 'passed' | 'failed' | 'running' {
+  function dot(status: string): 'passed' | 'failed' | 'running' | 'pending' {
     if (status === 'passed') return 'passed'
     if (status === 'failed') return 'failed'
-    return 'running'
+    if (status === 'running') return 'running'
+    // never_run / unknown → muted, not-yet-run state
+    return 'pending'
   }
 
   onMount(() => {
@@ -45,13 +61,11 @@
       try {
         const r = JSON.parse((e as MessageEvent).data) as { repoId: string; branch?: string }
         if (!r.repoId) return
-        statusByRepo = {
-          ...statusByRepo,
+        liveByRepo = {
+          ...liveByRepo,
           [r.repoId]: {
-            runId: '',
-            repoId: r.repoId,
-            branch: r.branch ?? statusByRepo[r.repoId]?.branch ?? 'main',
             status: 'running',
+            branch: r.branch ?? liveByRepo[r.repoId]?.branch ?? 'main',
             startedAt: new Date().toISOString(),
           },
         }
@@ -62,13 +76,12 @@
         const r = JSON.parse((e as MessageEvent).data) as {
           repoId: string; status: string; branch?: string; finishedAt?: string; startedAt?: string
         }
-        statusByRepo = {
-          ...statusByRepo,
+        if (!r.repoId) return
+        liveByRepo = {
+          ...liveByRepo,
           [r.repoId]: {
-            runId: '',
-            repoId: r.repoId,
-            branch: r.branch ?? statusByRepo[r.repoId]?.branch ?? 'main',
             status: r.status,
+            branch: r.branch ?? liveByRepo[r.repoId]?.branch ?? 'main',
             startedAt: r.finishedAt ?? r.startedAt ?? new Date().toISOString(),
           },
         }
@@ -84,36 +97,38 @@
   <EmptyState title="No repos" description="This team has no repos yet." />
 {:else}
   <div class="space-y-2">
-    {#each repos as repo}
-      {@const s = statusByRepo[repo.id]}
+    {#each repos as repo (repo.repoId)}
+      {@const live = liveByRepo[repo.repoId]}
+      {@const status = live?.status ?? repo.status}
+      {@const branch = live?.branch ?? repo.branch}
+      {@const startedAt = live?.startedAt ?? repo.startedAt}
+      {@const neverRun = status === 'never_run'}
       <a
-        href="/app/{teamName}/{repo.name}/pipelines"
-        class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-900 border border-surface-800 hover:border-surface-700 transition-colors"
+        href="/app/{teamName}/{repo.repoName}/pipelines"
+        class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-900 border border-surface-800 hover:border-surface-700 transition-colors {neverRun
+          ? 'opacity-60'
+          : ''}"
       >
-        {#if s}
-          <StatusDot status={dot(s.status)} />
-        {:else}
-          <span class="w-2 h-2 rounded-full bg-surface-700"></span>
-        {/if}
+        <StatusDot status={dot(status)} />
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
-            <span class="text-sm text-white font-medium">{repo.name}</span>
-            {#if s}
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-800 text-surface-400">{s.branch}</span>
+            <span class="text-sm text-white font-medium">{repo.repoName}</span>
+            {#if !neverRun && branch}
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-800 text-surface-400">{branch}</span>
             {/if}
           </div>
           <p class="text-xs text-surface-600 mt-0.5">
-            {#if !s}
-              no builds yet
-            {:else if s.status === 'running'}
+            {#if neverRun}
+              no runs yet
+            {:else if status === 'running'}
               <span class="text-yellow-400">running</span>
             {:else}
-              {s.status}
+              {status}
             {/if}
           </p>
         </div>
-        {#if s}
-          <span class="text-xs text-surface-600 whitespace-nowrap">{timeAgo(s.startedAt)}</span>
+        {#if !neverRun && startedAt}
+          <span class="text-xs text-surface-600 whitespace-nowrap">{timeAgo(startedAt)}</span>
         {/if}
       </a>
     {/each}

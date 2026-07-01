@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { page } from '$app/state'
   import TabNav from '$lib/components/TabNav.svelte'
 
   let { data, children }: { data: any; children: Snippet } = $props()
@@ -7,6 +8,19 @@
   let showPipelines = $derived(data.activeOrg?.pipelineScope !== 'team')
 
   let basePath = '/app/admin'
+
+  let currentPath = $derived(page.url.pathname)
+
+  // The "Pipelines" area groups Steps + Policies; surface a sub-nav so both are
+  // reachable (the top-level tab only points at Steps).
+  let pipelineSubTabs = $derived([
+    { label: 'Steps', href: `${basePath}/steps` },
+    { label: 'Policies', href: `${basePath}/policies` },
+  ])
+
+  let inPipelines = $derived(
+    pipelineSubTabs.some((t) => currentPath.startsWith(t.href)),
+  )
 
   let tabs = $derived([
     {
@@ -49,5 +63,20 @@
     <h1 class="text-lg font-semibold text-white">Organization</h1>
   </div>
   <TabNav {tabs} {basePath} />
+  {#if showPipelines && inPipelines}
+    <div class="flex gap-1 -mt-2 mb-6">
+      {#each pipelineSubTabs as sub}
+        {@const active = currentPath.startsWith(sub.href)}
+        <a
+          href={sub.href}
+          class="px-3 py-1.5 text-sm rounded-md transition-colors {active
+            ? 'bg-surface-800 text-white'
+            : 'text-surface-500 hover:text-surface-300 hover:bg-surface-900'}"
+        >
+          {sub.label}
+        </a>
+      {/each}
+    </div>
+  {/if}
   {@render children()}
 </div>
