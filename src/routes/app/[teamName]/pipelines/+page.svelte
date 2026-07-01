@@ -41,6 +41,22 @@
   onMount(() => {
     if (!teamId) return
     const es = new EventSource(`live?teamId=${encodeURIComponent(teamId)}`)
+    es.addEventListener('running', (e) => {
+      try {
+        const r = JSON.parse((e as MessageEvent).data) as { repoId: string; branch?: string }
+        if (!r.repoId) return
+        statusByRepo = {
+          ...statusByRepo,
+          [r.repoId]: {
+            runId: '',
+            repoId: r.repoId,
+            branch: r.branch ?? statusByRepo[r.repoId]?.branch ?? 'main',
+            status: 'running',
+            startedAt: new Date().toISOString(),
+          },
+        }
+      } catch { /* ignore */ }
+    })
     es.addEventListener('complete', (e) => {
       try {
         const r = JSON.parse((e as MessageEvent).data) as {
